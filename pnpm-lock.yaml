@@ -42,6 +42,9 @@ importers:
         specifier: ^5.0.4
         version: 5.0.6(@vue/compiler-sfc@3.5.33)(vue@3.5.33(typescript@6.0.3))
     devDependencies:
+      '@iconify-json/lucide':
+        specifier: ^1.2.103
+        version: 1.2.103
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
@@ -696,6 +699,9 @@ packages:
 
   '@floating-ui/vue@1.1.11':
     resolution: {integrity: sha512-HzHKCNVxnGS35r9fCHBc3+uCnjw9IWIlCPL683cGgM9Kgj2BiAl8x1mS7vtvP6F9S/e/q4O6MApwSHj8hNLGfw==}
+
+  '@iconify-json/lucide@1.2.103':
+    resolution: {integrity: sha512-A5WdDll62RPxYs1yeYa9b2mV1Vs+lK/wX0wYKR+xVnhwsfPGLBwo6qfyoAQLo7AaP7oHlkw3gnHdOCERegbwTA==}
 
   '@iconify/collections@1.0.676':
     resolution: {integrity: sha512-dtV8s0QtP0fjsIZoCA4gURBp2DWGs7vJDz+Kh5+vpeNinBbtbNz+MABDz61ikcFGE27mdvNFmA3ygprBXHZJ4A==}
@@ -5208,6 +5214,10 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  '@iconify-json/lucide@1.2.103':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify/collections@1.0.676':
     dependencies:
