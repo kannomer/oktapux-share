@@ -4,14 +4,25 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  css: ["~/assets/css/tailwind.css"],
 
+  app: {
+    head: {
+      title: "Storq",
+      htmlAttrs: {
+        lang: "en",
+      },
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico"},
+      ],
+    },
+  },
+
+  css: ["~/assets/css/tailwind.css"],
   vite: {
     plugins: [
       tailwindcss(),
     ]
   },
-
   modules: ["shadcn-nuxt"],
   shadcn: {
     /**
