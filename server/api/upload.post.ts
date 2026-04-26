@@ -32,12 +32,27 @@ export default defineEventHandler(async (event) => {
 
   // Insert a new row into shares table
   const token = nanoid();
-  // TODO: Implement expires_at and max_downloads logic
+  const expiryType = uploadFields.expiry_type?.[0]
+  const expiresAt = uploadFields.expires_at?.[0]
+  const maxDownloads = uploadFields.max_downloads?.[0]
+
+  let parsedExpiry: Date | null = null
+  let parsedDownloads: number | null = null
+  if (expiryType === "date" && expiresAt) {
+    parsedExpiry = new Date(expiresAt)
+  }
+  if (expiryType === "downloads" && maxDownloads) {
+    parsedDownloads = Number(maxDownloads)
+  }
+  if (parsedExpiry && isNaN(parsedExpiry.getTime())) {
+  throw createError({ statusCode: 400, message: "Invalid date" })
+  }
+
   const [share] = await db.insert(shares).values({
     token,
-    expires_at: null,
-    max_downloads: 2,
-  }).returning();
+    expires_at: parsedExpiry,
+    max_downloads: parsedDownloads
+  }).returning()
   if (!share) {
     throw createError({ statusCode: 500, message: "Failed to create share" });
   }
