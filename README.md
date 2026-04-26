@@ -1,14 +1,13 @@
 <p align="center">
 <img src="https://raw.githubusercontent.com/kannomer/storq-share/refs/heads/main/public/logo_mini.svg?token=GHSAT0AAAAAAD3PIW2QMKDQU46B3TEUO4UU2POQOGQ" width="100" height="100" border="10"/>
 </p>
-<h1 align="center">
-Storq Share
-</h1>
+<div align="center">
 
-<p align="center">
-Storq Share is a self-hosted file sharing platform inspired by and (maybe) an alternative to Pingvin Share.
-</p>
+# Storq Share
 
+Storq Share is a self-hosted file sharing platform inspired by and (maybe) an alternative to [Pingvin Share](https://github.com/stonith404/pingvin-share "Pingvin Share").
+
+</div>
 <h2>✨Features</h2>
 
 - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
