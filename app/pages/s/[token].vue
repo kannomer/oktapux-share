@@ -3,19 +3,16 @@
         <UCard class="w-full" variant="subtle">
             <template #header>
                 <USkeleton v-if="pending" class="h-5 w-62.5" />
-                <p v-else-if="errorMessage">An error occured</p>
+                <p v-else-if="errorMessage">{{ errorMessage }}</p>
                 <div v-else-if="data">
                     <p class="font-semibold">Share details</p>
                     <p class="text-sm text-muted mt-1">{{ fileData?.length }} file(s) · {{ totalSize }}</p>
                 </div>
             </template>
-            <div v-if="pending" class="space-y-3">
-                <USkeleton class="h-8 w-full" />
-                <USkeleton class="h-8 w-full" />
-                <USkeleton class="h-8 w-full" />
-            </div>
-            <div v-else-if="errorMessage" class="text-center py-6">
-                <p class="text-muted">{{ errorMessage }}</p>
+            <div v-if="pending" class="grid grid-cols-[1fr_120px_120px] gap-2 py-2" v-for="i in 3" :key="i">
+                <USkeleton class="h-5" />
+                <USkeleton class="h-5" />
+                <USkeleton class="h-5" />
             </div>
             <div v-else-if="data">
                 <!-- Table header -->
@@ -28,8 +25,7 @@
                 <div
                     v-for="file in fileData"
                     :key="file.id"
-                    class="grid grid-cols-[1fr_120px_120px] items-center py-2 border-b last:border-0"
-                >
+                    class="grid grid-cols-[1fr_120px_120px] items-center py-2 border-b last:border-0">
                     <span class="text-sm truncate pr-4">{{ file.original_name }}</span>
                     <span class="text-sm text-muted">{{ formatSize(file.size) }}</span>
                     <div class="flex justify-end gap-2">
@@ -52,7 +48,7 @@
                 </div>
             </div>
             <template #footer>
-                <USkeleton v-if="pending" class="h-5 w-62.5" />
+                <USkeleton v-if="pending" class="h-5 w-full" />
                 <p v-else-if="expiresAt" class="text-sm text-muted">Expires on {{ expiresAt }}</p>
                 <p v-else-if="shareData?.max_downloads" class="text-sm text-muted">
                     {{ shareData.download_count }} of {{ shareData.max_downloads }} downloads used
@@ -66,7 +62,7 @@
 <script setup lang="ts">
     const token = useRoute().params.token
 
-    const { data, error, pending, execute } = await useFetch(`/api/shares/${token}`)
+    const { data, error, pending } = await useFetch(`/api/shares/${token}`)
     const errorMessage = computed(() => {
         if(!error.value) return null
         if(error.value.statusCode == 404) return "Share not found"
@@ -75,12 +71,7 @@
     })
     const shareData = computed(() => data.value?.share)
     const fileData = computed(() => data.value?.files)
-    const fileUrl = computed(() => {
-        if(import.meta.client){
-            return `${window.location.origin}/s/${token}`
-        }
-        return ""
-    })
+    // const shareUrl = ... // TODO: implement for download as zip
 
     const expiresAt = computed(() => 
         shareData.value?.expires_at 
