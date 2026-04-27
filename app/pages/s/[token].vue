@@ -9,15 +9,27 @@
                         <p class="font-semibold">Share details</p>
                         <p class="text-sm text-muted mt-1">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
                     </div>
-                    <UTooltip text="Copy share link">
-                        <UButton
-                            icon="i-lucide-link"
-                            variant="ghost"
-                            color="neutral"
-                            size="sm"
-                            @click="copyToClipboard(sharePageUrl)"
-                        />
-                    </UTooltip>
+                    <div class="flex items-center gap-1">
+                        <UTooltip text="Copy share link">
+                            <UButton
+                                icon="i-lucide-link"
+                                variant="ghost"
+                                color="neutral"
+                                size="sm"
+                                @click="copyToClipboard(sharePageUrl)"
+                            />
+                        </UTooltip>
+                        <UTooltip text="Download share as zip">
+                            <UButton
+                                icon="i-lucide-folder-down"
+                                variant="ghost"
+                                color="neutral"
+                                size="sm"
+                                :href="shareDownloadUrl"
+                                target="_blank"
+                            />
+                        </UTooltip>
+                    </div>
                 </div>
             </template>
             <template v-if="pending">
@@ -88,7 +100,6 @@
     })
     const shareData = computed(() => data.value?.share)
     const fileData = computed(() => data.value?.files)
-    // const shareUrl = ... // TODO: implement for download as zip
 
     const expiresAt = computed(() => {
         if (!shareData.value?.expires_at) return null
@@ -108,6 +119,10 @@
     })
 
     const fileDownloadUrl = useCreateFileDownloadUrl()
+    const shareDownloadUrl = computed(() => {
+        if(import.meta.client) return `${window.location.origin}/api/shares/${token}/download`
+        return ""
+    })
 
     const { copyToClipboard } = useCopyToClipboard()
 

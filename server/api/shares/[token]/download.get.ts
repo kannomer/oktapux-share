@@ -1,0 +1,35 @@
+import { db } from '../../../db/index'
+import { shares, files } from '../../../db/schema'
+import { eq } from 'drizzle-orm'
+import archiver from 'archiver'
+import { createReadStream } from 'node:fs'
+import { join } from 'node:path'
+
+export default defineEventHandler(async (event) => {
+    const token = getRouterParam(event, "token");
+    if(!token) throw createError({ statusCode: 400, message: "Token missing"});
+
+    const [share] = await db.select().from(shares).where(eq(shares.token, token));
+    if(!share) throw createError({ statusCode: 404, message: "Share not found"});
+    if(share.expires_at && new Date() > share.expires_at) throw createError({ statusCode: 410, message: "Share has expired" });
+    if(share.max_downloads && share.download_count >= share.max_downloads)throw createError({ statusCode: 410, message: "Share has expired" });
+
+    const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id));
+    if(!shareFiles || shareFiles.length === 0) throw createError({ statusCode: 404, message: "Files not found" });
+
+    await db.update(shares).set({ download_count: share.download_count+1}).where(eq(shares.id, share.id));
+
+    setResponseHeader(event, "Content-Disposition", `attachment; filename="share-${token}.zip"`);
+    setResponseHeader(event, "Content-Type", "application/zip");
+
+    const archive = archiver("zip", { zlib: { level: 6 } })
+    archive.pipe(event.node.res)
+    for(const shareFile of shareFiles){
+        archive.append(createReadStream(join(process.cwd(), "uploads", shareFile.stored_name)), { name: shareFile.original_name })
+    }
+    await new Promise<void>((resolve, reject) => {
+        archive.on('finish', resolve)
+        archive.on('error', reject)
+        archive.finalize()
+    })
+})
