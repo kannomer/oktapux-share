@@ -167,7 +167,7 @@ const handleSubmit = async () => {
       body: formData
     })
 
-    shareUrl.value = window.location.href + response.token
+    shareUrl.value = window.location.href + "s/" + response.token
     console.log("TESTING TESTING TESTING " + shareUrl.value)
     isModalOpen.value = false
     isShareModalOpen.value = true
