@@ -88,7 +88,7 @@
         <!-- Display share link -->
         <UModal v-model:open="isShareModalOpen" title="File upload successful">
           <template #body class="block justify-center">
-            <p>Here's your share link:</p><br>
+            <p>Here's your share link:</p>
             <UInput :model-value="shareUrl ?? ''" readonly class="w-100"/>
             <p v-if="submittedExpiryType === 'downloads'" class="text-xs text-muted mt-1">
               Expires after {{ submittedMaxDownloads }} downloads
@@ -105,7 +105,7 @@
             <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
           </template>
         </UModal>
-      <!-- TODO: keep QR Code in mind -->
+        <!-- TODO: keep QR Code in mind -->
        </UContainer>
     </div>
   </UContainer>
