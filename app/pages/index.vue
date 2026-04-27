@@ -90,11 +90,14 @@
           <template #body class="block justify-center">
             <p>Here's your share link:</p><br>
             <p>{{ shareUrl }}</p>
-            <p v-if="expiryType === 'downloads'" class="text-xs text-muted mt-1">
-              Expires after {{ maxDownloads.toString() }} downloads
+            <p v-if="submittedExpiryType === 'downloads'" class="text-xs text-muted mt-1">
+              Expires after {{ submittedMaxDownloads }} downloads
             </p>
-            <p v-if="expiryType === 'date'" class="text-xs text-muted mt-1">
-              Expires after {{ computedExpiryDate }}
+            <p v-if="submittedExpiryType === 'date'" class="text-xs text-muted mt-1">
+              Expires on {{ new Date(submittedExpiryDate!).toLocaleString() }}
+            </p>
+            <p v-if="submittedExpiryType === 'permanent'" class="text-xs text-muted mt-1">
+              This share never expires
             </p><br><br>
             <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
           </template>
@@ -143,6 +146,9 @@ const openExpirationModal = () => {
 const isLoading = ref(false)
 const shareUrl = ref<string | null>(null)
 const uploadError = ref<string | null>(null)
+const submittedExpiryType = ref<string | null>(null)
+const submittedMaxDownloads = ref<number | null>(null)
+const submittedExpiryDate = ref<string | null>(null)
 const handleSubmit = async () => {
   try{
     isLoading.value = true
@@ -168,9 +174,12 @@ const handleSubmit = async () => {
     })
 
     shareUrl.value = window.location.href + "s/" + response.token
-    console.log("TESTING TESTING TESTING " + shareUrl.value)
+    submittedExpiryType.value = expiryType.value
+    submittedMaxDownloads.value = maxDownloads.value
+    submittedExpiryDate.value = computedExpiryDate.value
     isModalOpen.value = false
     isShareModalOpen.value = true
+    resetForm()
   } catch (error: any) {
     uploadError.value = error?.data?.message || "Upload failed"
     console.error(error)
@@ -189,5 +198,13 @@ const copyToClipboard = async (text?: string | null) => {
     toast.add({ title: 'Copy failed', color: 'neutral' })
   }
 }
-// TODO: Add reset form function
+const resetForm = () => {
+  fileUploadValue.value = []
+  expiryType.value = 'date'
+  isPermanent.value = false
+  expiryAmount.value = 1
+  expiryUnit.value = 'day'
+  maxDownloads.value = 1
+  uploadError.value = null
+}
 </script>
