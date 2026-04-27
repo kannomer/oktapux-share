@@ -63,7 +63,7 @@
               />
             </div>
             <p v-if="expiryType === 'date'" class="text-xs text-muted mt-1">
-              Expires on {{ computedExpiryDate }}
+              Expires on {{ computedExpiryDisplay }}
             </p>
 
             <!-- Conditional: download count input -->
@@ -71,7 +71,7 @@
               v-if="expiryType === 'downloads'"
               :disabled="isPermanent"
               v-model="maxDownloads"
-              
+              :min="1"
               placeholder="Max downloads"
               class="mt-4"
             />
@@ -80,8 +80,8 @@
 
 
           <template #footer>
-            <UButton label="Cancel" color="neutral" variant="outline" @click="isModalOpen = false" />
-            <UButton label="Upload" icon="i-lucide-upload" @click="handleSubmit" loading-auto loading-icon="i-lucide-loader" />
+            <UButton label="Cancel" size="xl" color="neutral" variant="outline" @click="isModalOpen = false" />
+            <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="handleSubmit" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" />
           </template>
         </UModal>
 
@@ -89,7 +89,7 @@
         <UModal v-model:open="isShareModalOpen" title="File upload successful">
           <template #body class="block justify-center">
             <p>Here's your share link:</p><br>
-            <p>{{ shareUrl }}</p>
+            <UInput :model-value="shareUrl ?? ''" readonly class="w-100"/>
             <p v-if="submittedExpiryType === 'downloads'" class="text-xs text-muted mt-1">
               Expires after {{ submittedMaxDownloads }} downloads
             </p>
@@ -98,8 +98,11 @@
             </p>
             <p v-if="submittedExpiryType === 'permanent'" class="text-xs text-muted mt-1">
               This share never expires
-            </p><br><br>
-            <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
+            </p>
+          </template>
+          <template #footer>
+            <UButton label="Close" color="neutral" size="xl" variant="outline" @click="isShareModalOpen = false" />
+            <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
           </template>
         </UModal>
       <!-- TODO: keep QR Code in mind -->
@@ -132,12 +135,13 @@ const computedExpiryDate = computed(() => {
   }
   return now.toISOString()
 })
+const computedExpiryDisplay = computed(() => new Date(computedExpiryDate.value).toLocaleString())
 const maxDownloads = ref<number>(1)
 
 // check if files are selected
 const openExpirationModal = () => {
   if (!fileUploadValue.value?.length) {
-    console.log('No files selected')
+    toast.add({ title: "No files selected", description: "Please select files to upload", color: "warning"})
     return;
   }
   isModalOpen.value = true
@@ -145,14 +149,12 @@ const openExpirationModal = () => {
 
 const isLoading = ref(false)
 const shareUrl = ref<string | null>(null)
-const uploadError = ref<string | null>(null)
 const submittedExpiryType = ref<string | null>(null)
 const submittedMaxDownloads = ref<number | null>(null)
 const submittedExpiryDate = ref<string | null>(null)
 const handleSubmit = async () => {
   try{
     isLoading.value = true
-    uploadError.value = null
     shareUrl.value = null
     
     if(isPermanent.value){ expiryType.value = "permanent" }
@@ -181,7 +183,7 @@ const handleSubmit = async () => {
     isShareModalOpen.value = true
     resetForm()
   } catch (error: any) {
-    uploadError.value = error?.data?.message || "Upload failed"
+    toast.add({ title: "Upload failed.", description: "Please try again at a later time.", color: "error"})
     console.error(error)
   } finally{
     isLoading.value = false
@@ -192,10 +194,9 @@ const copyToClipboard = async (text?: string | null) => {
   if (!text) return
   try {
     await navigator.clipboard.writeText(text)
-    toast.add({ title: 'Copied to clipboard', icon: "i-lucide-clipboard-check" })
-    console.log(toast)
+    toast.add({ title: 'Copied to clipboard', icon: "i-lucide-clipboard-check", color: "success" })
   } catch {
-    toast.add({ title: 'Copy failed', color: 'neutral' })
+    toast.add({ title: 'Copy failed', color: 'error' })
   }
 }
 const resetForm = () => {
@@ -205,6 +206,5 @@ const resetForm = () => {
   expiryAmount.value = 1
   expiryUnit.value = 'day'
   maxDownloads.value = 1
-  uploadError.value = null
 }
 </script>
