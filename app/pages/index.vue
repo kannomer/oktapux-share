@@ -1,10 +1,6 @@
 <template>
-  <UContainer class="flex justify-center">
+  <UContainer class="flex justify-center pt-8">
     <div class="w-full max-w-2xl">
-      <div class="mb-8">
-        <h1>Oktapux</h1>
-        <p>Share files with expiring links</p>
-      </div>
       <UContainer>
         <UFileUpload
           multiple
