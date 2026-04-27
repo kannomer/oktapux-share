@@ -2,7 +2,7 @@
   <UContainer class="flex justify-center">
     <div class="w-full max-w-2xl">
       <div class="mb-8">
-        <h1>Storq</h1>
+        <h1>Oktapux</h1>
         <p>Share files with expiring links</p>
       </div>
       <UContainer>

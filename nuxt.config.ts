@@ -13,7 +13,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Storq",
+      title: "Oktapux",
       htmlAttrs: {
         lang: "en",
       },

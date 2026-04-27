@@ -1,12 +1,12 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/kannomer/storq-share/refs/heads/main/public/logo_mini.svg" width="100" height="100" border="10"/>
+<img src="https://raw.githubusercontent.com/kannomer/oktapux-share/refs/heads/main/public/logo_mini.svg" width="100" height="100" border="10"/>
 </p>
 
 <div align="center">
 
-# Storq Share
+# Oktapux Share
 
-**Storq Share** is a lightweight, self-hosted file sharing platform inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).  
+**Oktapux Share** is a lightweight, self-hosted file sharing platform inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).  
 Upload files, generate shareable links, and control exactly how long they last.
 
 ![Nuxt](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt.js&logoColor=white)
@@ -53,8 +53,8 @@ Upload files, generate shareable links, and control exactly how long they last.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/kannomer/storq-share.git
-cd storq-share
+git clone https://github.com/kannomer/oktapux-share.git
+cd oktapux-share
 
 # 2. Install dependencies
 pnpm install
