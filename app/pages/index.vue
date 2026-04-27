@@ -7,7 +7,7 @@
           <UFileUpload
             multiple
             icon="i-lucide-cloud-upload"
-            label="Drop or select your files here" 
+            label="Select or drop your files here" 
             description="(Max. 500MB)"
             layout="list"
             :interactive="true"
@@ -56,13 +56,12 @@
             </p>
 
             <!-- Conditional: download count input -->
+            <p v-if="expiryType === 'downloads'" class="text-sm text-muted mt-4 mb-1">Max downloads</p>
             <UInputNumber
               v-if="expiryType === 'downloads'"
               :disabled="isPermanent"
               v-model="maxDownloads"
               :min="1"
-              placeholder="Max downloads"
-              class="mt-4"
             />
             <USeparator type="dashed" class="mt-5"/>
             <USwitch v-model="isPermanent" label="Permanent share" class="mt-4" />
