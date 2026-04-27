@@ -7,25 +7,14 @@
           <UFileUpload
             multiple
             icon="i-lucide-cloud-upload"
-            label="Drop your files here" 
+            label="Drop or select your files here" 
             description="(Max. 500MB)"
             layout="list"
-            :interactive="false"
+            :interactive="true"
             v-model="fileUploadValue" 
             class="w-full min-h-48"
             color="neutral"
-          >
-
-            <template #actions="{ open }">
-              <UButton
-                label="Select files"
-                icon="i-lucide-upload"
-                color="neutral"
-                variant="outline"
-                @click="open()"
-              />
-            </template>
-          </UFileUpload>
+          />
           
           <div class="flex justify-center mt-6">
             <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral" size="xl"/>
