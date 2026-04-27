@@ -4,22 +4,33 @@
             <template #header>
                 <USkeleton v-if="pending" class="h-5 w-62.5" />
                 <p v-else-if="errorMessage">{{ errorMessage }}</p>
-                <div v-else-if="data">
-                    <p class="font-semibold">Share details</p>
-                    <p class="text-sm text-muted mt-1">{{ fileData?.length }} file(s) · {{ totalSize }}</p>
+                <div v-else-if="data" class="flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold">Share details</p>
+                        <p class="text-sm text-muted mt-1">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
+                    </div>
+                    <UButton
+                        icon="i-lucide-link"
+                        variant="ghost"
+                        color="neutral"
+                        size="sm"
+                        @click="copyToClipboard(sharePageUrl)"
+                    />
                 </div>
             </template>
-            <div v-if="pending" class="grid grid-cols-[1fr_120px_120px] gap-2 py-2" v-for="i in 3" :key="i">
-                <USkeleton class="h-5" />
-                <USkeleton class="h-5" />
-                <USkeleton class="h-5" />
+            <div v-if="pending">
+                <div class="grid grid-cols-[1fr_120px_120px] gap-2 py-2" v-for="i in 3" :key="i">
+                    <USkeleton class="h-5" />
+                    <USkeleton class="h-5" />
+                    <USkeleton class="h-5" />
+                </div>
             </div>
             <div v-else-if="data">
                 <!-- Table header -->
                 <div class="grid grid-cols-[1fr_120px_120px] border-b pb-2 mb-1">
-                    <span class="text-sm font-semibold">Name</span>
+                    <span class="text-sm font-semibold ml-2">Name</span>
                     <span class="text-sm font-semibold">Size</span>
-                    <span class="text-sm font-semibold text-right">Actions</span>
+                    <span class="text-sm font-semibold text-right mr-2">Actions</span>
                 </div>
                 <!-- File rows -->
                 <div
@@ -41,7 +52,7 @@
                             variant="ghost"
                             color="neutral"
                             size="sm"
-                            :to="`/api/files/${file.id}`"
+                            :href="`/api/files/${file.id}`"
                             target="_blank"
                         />
                     </div>
@@ -49,7 +60,7 @@
             </div>
             <template #footer>
                 <USkeleton v-if="pending" class="h-5 w-full" />
-                <p v-else-if="expiresAt" class="text-sm text-muted">Expires on {{ expiresAt }}</p>
+                <p v-else-if="expiresAt" class="text-sm text-muted">{{ expiresAt }}</p>
                 <p v-else-if="shareData?.max_downloads" class="text-sm text-muted">
                     {{ shareData.download_count }} of {{ shareData.max_downloads }} downloads used
                 </p>
@@ -73,11 +84,22 @@
     const fileData = computed(() => data.value?.files)
     // const shareUrl = ... // TODO: implement for download as zip
 
-    const expiresAt = computed(() => 
-        shareData.value?.expires_at 
-        ? new Date(shareData.value.expires_at).toLocaleString()
-        : null
-    )
+    const expiresAt = computed(() => {
+        if (!shareData.value?.expires_at) return null
+        const diff = new Date(shareData.value.expires_at).getTime() - Date.now()
+        if (diff <= 0) return 'Expired'
+        const minutes = Math.floor(diff / 1000 / 60)
+        const hours = Math.floor(minutes / 60)
+        const days = Math.floor(hours / 24)
+        if (days > 0) return `Expires in ${days} day${days === 1 ? '' : 's'}`
+        if (hours > 0) return `Expires in ${hours} hour${hours === 1 ? '' : 's'}`
+        return `Expires in ${minutes} minute${minutes === 1 ? '' : 's'}`
+    })
+
+    const sharePageUrl = computed(() => {
+        if (import.meta.client) return window.location.href
+        return ''
+    })
 
     const fileDownloadUrl = (fileId: number) => {
         if (import.meta.client) return `${window.location.origin}/api/files/${fileId}`
