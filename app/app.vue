@@ -4,10 +4,12 @@
 
     <UHeader :ui="{ container: 'px-4 max-w-none' }">
       <template #left>
-        <div class="flex items-center gap-2">
-          <img src="/logo_circle.svg" class="w-8 h-8" />
-          <span class="font-bold text-lg">Oktapux</span>
-        </div>
+        <a href="/">
+          <div class="flex items-center gap-2">
+              <img src="/logo_circle.svg" class="w-8 h-8" />
+              <span class="font-bold text-lg">Oktapux</span>
+          </div>
+        </a>
       </template>
     </UHeader>
 
