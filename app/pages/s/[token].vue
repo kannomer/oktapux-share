@@ -9,22 +9,24 @@
                         <p class="font-semibold">Share details</p>
                         <p class="text-sm text-muted mt-1">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
                     </div>
-                    <UButton
-                        icon="i-lucide-link"
-                        variant="ghost"
-                        color="neutral"
-                        size="sm"
-                        @click="copyToClipboard(sharePageUrl)"
-                    />
+                    <UTooltip text="Copy share link">
+                        <UButton
+                            icon="i-lucide-link"
+                            variant="ghost"
+                            color="neutral"
+                            size="sm"
+                            @click="copyToClipboard(sharePageUrl)"
+                        />
+                    </UTooltip>
                 </div>
             </template>
-            <div v-if="pending">
+            <template v-if="pending">
                 <div class="grid grid-cols-[1fr_120px_120px] gap-2 py-2" v-for="i in 3" :key="i">
                     <USkeleton class="h-5" />
                     <USkeleton class="h-5" />
                     <USkeleton class="h-5" />
                 </div>
-            </div>
+            </template>
             <div v-else-if="data">
                 <!-- Table header -->
                 <div class="grid grid-cols-[1fr_120px_120px] border-b pb-2 mb-1">
@@ -40,21 +42,25 @@
                     <span class="text-sm truncate pr-4">{{ file.original_name }}</span>
                     <span class="text-sm text-muted">{{ formatSize(file.size) }}</span>
                     <div class="flex justify-end gap-2">
-                        <UButton
-                            icon="i-lucide-link"
-                            variant="ghost"
-                            color="neutral"
-                            size="sm"
-                            @click="copyToClipboard(fileDownloadUrl(file.id))"
-                        />
-                        <UButton
-                            icon="i-lucide-download"
-                            variant="ghost"
-                            color="neutral"
-                            size="sm"
-                            :href="`/api/files/${file.id}`"
-                            target="_blank"
-                        />
+                        <UTooltip text="Copy file link">
+                            <UButton
+                                icon="i-lucide-link"
+                                variant="ghost"
+                                color="neutral"
+                                size="sm"
+                                @click="copyToClipboard(fileDownloadUrl(file.id))"
+                            />
+                        </UTooltip>
+                        <UTooltip text="Download file">
+                            <UButton
+                                icon="i-lucide-download"
+                                variant="ghost"
+                                color="neutral"
+                                size="sm"
+                                :href="`/api/files/${file.id}`"
+                                target="_blank"
+                            />
+                        </UTooltip>
                     </div>
                 </div>
             </div>
