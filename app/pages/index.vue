@@ -70,7 +70,7 @@
 
           <template #footer>
             <UButton label="Cancel" size="xl" color="neutral" variant="outline" @click="isModalOpen = false" />
-            <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="handleSubmit" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" />
+            <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="handleSubmit(() => isModalOpen = false)" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" />
           </template>
         </UModal>
 
@@ -79,13 +79,13 @@
           <template #body class="block justify-center">
             <p class="font-semibold">Here's your share link:</p>
             <UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
-            <p v-if="submittedExpiryType === 'downloads'" class="text-xs text-muted mt-2">
-              Expires after {{ submittedMaxDownloads }} downloads
+            <p v-if="submittedInfo?.expiryType === 'downloads'" class="text-xs text-muted mt-2">
+              Expires after {{ submittedInfo?.maxDownloads }} downloads
             </p>
-            <p v-if="submittedExpiryType === 'date'" class="text-xs text-muted mt-2">
-              Expires on {{ new Date(submittedExpiryDate!).toLocaleString() }}
+            <p v-if="submittedInfo?.expiryType === 'date'" class="text-xs text-muted mt-2">
+              Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
             </p>
-            <p v-if="submittedExpiryType === 'permanent'" class="text-xs text-muted mt-2">
+            <p v-if="submittedInfo?.expiryType === 'permanent'" class="text-xs text-muted mt-2">
               This share never expires
             </p>
           </template>
@@ -103,11 +103,10 @@
 <script setup lang="ts">
 const fileUploadValue = ref<File[]>([])
 const isModalOpen = ref(false)
-const isShareModalOpen = ref(false)
-const expiryType = ref<'date' | 'downloads' | "permanent">('date')
+const expiryType = ref<"date" | "downloads">("date")
 const isPermanent = ref(false)
 const expiryAmount = ref(1)
-const expiryUnit = ref('day')
+const expiryUnit = ref("day")
 const toast = useToast()
 
 // Expiration options
@@ -124,64 +123,23 @@ const openExpirationModal = () => {
   isModalOpen.value = true
 }
 
-const isLoading = ref(false)
-const shareUrl = ref<string | null>(null)
-const submittedExpiryType = ref<string | null>(null)
-const submittedMaxDownloads = ref<number | null>(null)
-const submittedExpiryDate = ref<string | null>(null)
-const handleSubmit = async () => {
-  try{
-    isLoading.value = true
-    shareUrl.value = null
-    
-    if(isPermanent.value){ expiryType.value = "permanent" }
-    // submission
-    const formData = new FormData();
-    fileUploadValue.value.forEach(file => formData.append("files", file))
-    if(expiryType.value == "permanent"){
-      formData.append("expiry_type", "permanent")
-    } else if(expiryType.value == "date"){
-      formData.append("expiry_type", "date")
-      formData.append("expires_at", computedExpiryDate.value)
-    } else if (expiryType.value == "downloads"){
-      formData.append("expiry_type", "downloads")
-      formData.append("max_downloads", maxDownloads.value.toString())
-    }
-    const response = await $fetch("/api/upload", {
-      method: "POST",
-      body: formData
-    })
-
-    shareUrl.value = window.location.href + "s/" + response.token
-    submittedExpiryType.value = expiryType.value
-    submittedMaxDownloads.value = maxDownloads.value
-    submittedExpiryDate.value = computedExpiryDate.value
-    isModalOpen.value = false
-    isShareModalOpen.value = true
-    resetForm()
-  } catch (error: any) {
-    toast.add({ title: "Upload failed.", description: "Please try again at a later time.", color: "error"})
-    console.error(error)
-  } finally{
-    isLoading.value = false
-  }
-}
+const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = useHandleSubmit({
+  files: fileUploadValue,
+  isPermanent,
+  expiryType,
+  expiryAmount,
+  expiryUnit,
+  maxDownloads,
+  computedExpiryDate
+})
 
 const copyToClipboard = async (text?: string | null) => {
   if (!text) return
   try {
     await navigator.clipboard.writeText(text)
-    toast.add({ title: 'Copied share link to clipboard', icon: "i-lucide-clipboard-check", color: "success" })
+    toast.add({ title: "Copied share link to clipboard", icon: "i-lucide-clipboard-check", color: "success" })
   } catch {
-    toast.add({ title: 'Copy failed', color: 'error' })
+    toast.add({ title: "Copy failed", color: "error" })
   }
-}
-const resetForm = () => {
-  fileUploadValue.value = []
-  expiryType.value = 'date'
-  isPermanent.value = false
-  expiryAmount.value = 1
-  expiryUnit.value = 'day'
-  maxDownloads.value = 1
 }
 </script>
