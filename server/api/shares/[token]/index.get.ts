@@ -1,5 +1,5 @@
-import { db } from '../../db/index';
-import { shares, files } from '../../db/schema';
+import { db } from '../../../db/index';
+import { shares, files } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
