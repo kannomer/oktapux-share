@@ -7,5 +7,7 @@
     <UMain>
       <NuxtPage />
     </UMain>
+
+    <UToaster />
   </div>
 </template>

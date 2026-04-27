@@ -1,19 +1,21 @@
 <template>
-  <div class="min-h-screen bg-neutral p-4">
-    <div class="max-w-2xl mx-auto">
+  <UContainer class="flex justify-center">
+    <div class="w-full max-w-2xl">
       <div class="mb-8">
         <h1>Storq</h1>
         <p>Share files with expiring links</p>
       </div>
+      <UContainer>
         <UFileUpload
-           multiple
+          multiple
           icon="i-lucide-cloud-upload"
           label="Drop your files here" 
           description="(Max. 500MB)"
           layout="list"
           :interactive="false"
           v-model="fileUploadValue" 
-          class="w-96 min-h-48 mix-blend-color"
+          class="w-full min-h-48"
+          color="neutral"
         >
 
           <template #actions="{ open }">
@@ -25,18 +27,11 @@
               @click="open()"
             />
           </template>
-          <template #files-bottom="{ removeFile, files }">
-            <UButton
-              v-if="files?.length"
-              label="Remove all files"
-              color="neutral"
-              @click="removeFile()"
-            />
-          </template>
         </UFileUpload>
         
-        <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral"/>
-
+        <UContainer class="flex justify-center p-11">
+        <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral" size="xl"/>
+        </UContainer>
         <UModal v-model:open="isModalOpen" title="Set Expiration" description="Choose how this share expires">
           <template #body>
             <!-- Expiration type selector -->
@@ -72,38 +67,53 @@
             </p>
 
             <!-- Conditional: download count input -->
-            <UInput
+            <UInputNumber
               v-if="expiryType === 'downloads'"
               :disabled="isPermanent"
               v-model="maxDownloads"
-              type="number"
-              min="1"
+              
               placeholder="Max downloads"
               class="mt-4"
             />
-
-            <USwitch v-model="isPermanent" v-on:update:model-value="" label="Permanent share" class="mt-4" />
+            <USwitch v-model="isPermanent" label="Permanent share" class="mt-4" />
           </template>
 
 
           <template #footer>
             <UButton label="Cancel" color="neutral" variant="outline" @click="isModalOpen = false" />
-            <UButton label="Upload" icon="i-lucide-upload" @click="handleSubmit" />
+            <UButton label="Upload" icon="i-lucide-upload" @click="handleSubmit" loading-auto loading-icon="i-lucide-loader" />
           </template>
         </UModal>
-      <!-- TODO: display link with copy to clipboard after upload succeeds -->
+
+        <!-- Display share link -->
+        <UModal v-model:open="isShareModalOpen" title="File upload successful">
+          <template #body class="block justify-center">
+            <p>Here's your share link:</p><br>
+            <p>{{ shareUrl }}</p>
+            <p v-if="expiryType === 'downloads'" class="text-xs text-muted mt-1">
+              Expires after {{ maxDownloads.toString() }} downloads
+            </p>
+            <p v-if="expiryType === 'date'" class="text-xs text-muted mt-1">
+              Expires after {{ computedExpiryDate }}
+            </p><br><br>
+            <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
+          </template>
+        </UModal>
       <!-- TODO: keep QR Code in mind -->
+       </UContainer>
     </div>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">
 const fileUploadValue = ref<File[]>([])
 const isModalOpen = ref(false)
+const isShareModalOpen = ref(false)
 const expiryType = ref<'date' | 'downloads' | "permanent">('date')
 const isPermanent = ref(false)
 const expiryAmount = ref(1)
 const expiryUnit = ref('day')
+const toast = useToast()
 
 // Expiration options
 const computedExpiryDate = computed(() => {
@@ -131,13 +141,13 @@ const openExpirationModal = () => {
 }
 
 const isLoading = ref(false)
-const shareToken = ref<string | null>(null)
+const shareUrl = ref<string | null>(null)
 const uploadError = ref<string | null>(null)
 const handleSubmit = async () => {
   try{
     isLoading.value = true
     uploadError.value = null
-    shareToken.value = null
+    shareUrl.value = null
     
     if(isPermanent.value){ expiryType.value = "permanent" }
     // submission
@@ -157,14 +167,26 @@ const handleSubmit = async () => {
       body: formData
     })
 
-    shareToken.value = response.token
-    console.log("TESTING TESTING TESTING " + shareToken.value)
+    shareUrl.value = window.location.href + response.token
+    console.log("TESTING TESTING TESTING " + shareUrl.value)
     isModalOpen.value = false
+    isShareModalOpen.value = true
   } catch (error: any) {
     uploadError.value = error?.data?.message || "Upload failed"
     console.error(error)
   } finally{
     isLoading.value = false
+  }
+}
+
+const copyToClipboard = async (text?: string | null) => {
+  if (!text) return
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.add({ title: 'Copied to clipboard', icon: "i-lucide-clipboard-check" })
+    console.log(toast)
+  } catch {
+    toast.add({ title: 'Copy failed', color: 'neutral' })
   }
 }
 // TODO: Add reset form function
