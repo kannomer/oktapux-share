@@ -1,5 +1,3 @@
-import type { ComputedRef } from 'vue'
-
 interface ShareFormState {
   files: Ref<File[]>
   isPermanent: Ref<boolean>

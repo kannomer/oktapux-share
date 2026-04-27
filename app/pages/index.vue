@@ -107,7 +107,6 @@ const expiryType = ref<"date" | "downloads">("date")
 const isPermanent = ref(false)
 const expiryAmount = ref(1)
 const expiryUnit = ref("day")
-const toast = useToast()
 
 // Expiration options
 const { computedExpiryDate } = useComputeExpiryDate(expiryAmount, expiryUnit)
@@ -117,7 +116,7 @@ const maxDownloads = ref<number>(1)
 // check if files are selected
 const openExpirationModal = () => {
   if (!fileUploadValue.value?.length) {
-    toast.add({ title: "No files selected", description: "Please select files to upload", color: "warning"})
+    useToast().add({ title: "No files selected", description: "Please select files to upload", color: "warning"})
     return;
   }
   isModalOpen.value = true
@@ -133,13 +132,5 @@ const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = u
   computedExpiryDate
 })
 
-const copyToClipboard = async (text?: string | null) => {
-  if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-    toast.add({ title: "Copied share link to clipboard", icon: "i-lucide-clipboard-check", color: "success" })
-  } catch {
-    toast.add({ title: "Copy failed", color: "error" })
-  }
-}
+const { copyToClipboard } = useCopyToClipboard()
 </script>
