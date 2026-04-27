@@ -1,30 +1,99 @@
 <p align="center">
 <img src="https://raw.githubusercontent.com/kannomer/storq-share/refs/heads/main/public/logo_mini.svg" width="100" height="100" border="10"/>
 </p>
+
 <div align="center">
 
 # Storq Share
 
-**Storq Share** is a self-hosted file sharing platform inspired by and (maybe) an alternative to [Pingvin Share](https://github.com/stonith404/pingvin-share "Pingvin Share").
+**Storq Share** is a lightweight, self-hosted file sharing platform inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).  
+Upload files, generate shareable links, and control exactly how long they last.
+
+![Nuxt](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt.js&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Drizzle_ORM-003B57?logo=sqlite&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 </div>
-<h2>✨Features</h2>
 
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Phasellus vel enim eget sapien pharetra placerat a non ipsum.
-- Ut eget ex id nulla posuere luctus ac eu nibh.
-- Nunc imperdiet sem at mi accumsan, eget blandit dui lacinia.
-- Nullam congue ex et tincidunt sollicitudin.
-- Etiam ut est at lorem fermentum facilisis et quis sem.
-- Phasellus ullamcorper nunc et nibh faucibus, at ullamcorper sapien aliquet.
-- Aenean mollis velit ac malesuada posuere.
-- Vivamus a augue non purus accumsan interdum.
-- Etiam feugiat enim dapibus, iaculis felis egestas, ornare nibh.
+---
 
-<h2>⚙️Setup</h2>
+## ✨ Features
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis commodo nunc et sodales eleifend. Nulla lacinia leo enim, ac dignissim tellus rhoncus in. Sed nunc velit, auctor a lectus eu, ullamcorper tincidunt leo. Aliquam placerat purus purus, id pulvinar tellus malesuada pharetra. Donec semper nulla mattis, bibendum tellus ac, mattis nisi. Nulla eu neque sed ligula vehicula feugiat. Nulla vel lacus a metus interdum scelerisque. Aliquam erat volutpat. Suspendisse lobortis, velit eu pretium fringilla, mauris tortor volutpat diam, a pharetra dolor ligula vel nisi. Sed sagittis nunc ut nisl tincidunt vestibulum.
+- 📤 Upload multiple files in a single share
+- 🔗 Auto-generated shareable links per upload
+- ⏳ Expiration by date: set an amount and unit (minutes, hours, days, weeks, months or years)
+- 🔢 Expiration by download count: share expires after N downloads
+- ♾️ Permanent share option
+- 🪶 Lightweight: single SQLite database, zero external services required
+- 🐳 Planned docker support for easy self-hosting
 
-<h2>⚠️Disclaimer</h2>
+---
+
+## 🛠️ Tech Stack
+
+| Layer        | Technology                            |
+| ------------ | ------------------------------------- |
+| Frontend     | Nuxt 4, Nuxt UI                       |
+| Backend      | Node.js via Nuxt H3 server routes     |
+| Database     | SQLite + Drizzle ORM                  |
+| File Storage | Local filesystem                      |
+| Deployment   | Docker + Docker Compose (Coming soon) |
+
+---
+
+## ⚙️ Setup
+
+### Requirements
+
+- Node.js 18+
+- pnpm
+- Docker _(optional, to be implemented)_
+
+### Development
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/kannomer/storq-share.git
+cd storq-share
+
+# 2. Install dependencies
+pnpm install
+
+# 3. Run database migrations
+pnpm drizzle-kit generate
+pnpm drizzle-kit migrate
+
+# 4. Start the dev server
+pnpm run dev
+```
+
+App runs at `http://localhost:3000`.
+
+### Production (Docker)
+
+> 🚧 Docker Compose setup coming soon.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] File upload with shareable links
+- [x] Expiration by date
+- [x] Expiration by download count
+- [x] Permanent share option
+- [ ] Share page UI (download page for recipients)
+- [ ] Copy link & QR code
+- [ ] Docker Compose setup
+- [ ] Cleanup job for expired shares & files
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome. Feel free to open an issue or submit a pull request.
+
+---
+
+## ⚠️ Disclaimer
 
 This is a file-sharing platform. Users are fully responsible for any files they upload, share, or distribute through instances of this software. The maintainers do not monitor, control, or endorse user-generated content and assume no responsibility for any content transmitted via deployments of this software.
