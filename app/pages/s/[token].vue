@@ -107,19 +107,11 @@
         return ''
     })
 
-    const fileDownloadUrl = (fileId: number) => {
-        if (import.meta.client) return `${window.location.origin}/api/files/${fileId}`
-        return ''
-    }
+    const fileDownloadUrl = useCreateFileDownloadUrl()
 
     const { copyToClipboard } = useCopyToClipboard()
 
-    const formatSize = (bytes: number) => {
-        if(bytes < 1024) return `${bytes}B`
-        if(bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
-        if(bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
-        return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)}GB`
-    }
+    const formatSize = useFormatSize()
     const totalSize = computed(() => {
         const total = fileData.value?.reduce((sum, file) => sum + file.size, 0) ?? 0
         return formatSize(total)
