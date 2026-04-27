@@ -25,19 +25,19 @@ Upload files, generate shareable links, and control exactly how long they last.
 - 🔢 Expiration by download count
 - ♾️ Permanent share option
 - 🪶 Lightweight: single SQLite database, zero external services required
-- 🐳 Planned docker support for easy self-hosting
+- 🐳 Docker support for easy self-hosting
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer        | Technology                            |
-| ------------ | ------------------------------------- |
-| Frontend     | Nuxt 4, Nuxt UI                       |
-| Backend      | Node.js via Nuxt H3 server routes     |
-| Database     | SQLite + Drizzle ORM                  |
-| File Storage | Local filesystem                      |
-| Deployment   | Docker + Docker Compose (Coming soon) |
+| Layer        | Technology                        |
+| ------------ | --------------------------------- |
+| Frontend     | Nuxt 4, Nuxt UI                   |
+| Backend      | Node.js via Nuxt H3 server routes |
+| Database     | SQLite + Drizzle ORM              |
+| File Storage | Local filesystem                  |
+| Deployment   | Docker + Docker Compose           |
 
 ---
 
@@ -47,7 +47,7 @@ Upload files, generate shareable links, and control exactly how long they last.
 
 - Node.js 18+
 - pnpm
-- Docker _(optional, to be implemented)_
+- Docker _(optional, for self-hosting)_
 
 ### Development
 
@@ -71,7 +71,51 @@ App runs at `http://localhost:3000`.
 
 ### Production (Docker)
 
-> 🚧 Docker Compose setup coming soon.
+The easiest way to self-host Oktapux Share is with Docker Compose.
+
+**1. Pull and run with Docker Compose**
+
+Create a `docker-compose.yml` file on your server:
+
+```yaml
+services:
+  app:
+    image: ghcr.io/kannomer/oktapux-share:latest
+    container_name: oktapux-share
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./oktapux.db:/app/oktapux.db
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+```
+
+Then run:
+
+```bash
+docker compose up -d
+```
+
+App runs at `http://localhost:3003`. Database migrations run automatically on startup.
+
+**2. Updating to a newer version**
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+**3. Build from source**
+
+If you prefer to build the image yourself:
+
+```bash
+git clone https://github.com/kannomer/oktapux-share.git
+cd oktapux-share
+docker compose up -d --build
+```
 
 ---
 
@@ -84,8 +128,9 @@ App runs at `http://localhost:3000`.
 - [x] Share page UI (download page for recipients)
 - [x] Download entire share as zip
 - [x] Copy link
+- [x] Docker support
+- [x] Auto-publish Docker image via GitHub Actions
 - [ ] QR code
-- [ ] Docker Compose setup
 - [ ] Cleanup job for expired shares & files
 
 ---

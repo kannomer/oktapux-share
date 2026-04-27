@@ -1,0 +1,32 @@
+# Dependencies
+
+node_modules
+
+# Build output
+
+.nuxt
+.output
+
+# Local data — mounted as volumes in production
+
+uploads
+oktapux.db
+
+# Git
+
+.git
+.gitignore
+
+# Env files
+
+.env
+.env.\*
+
+# Logs
+
+\*.log
+
+# OS
+
+.DS_Store
+Thumbs.db

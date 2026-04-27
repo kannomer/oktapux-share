@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    container_name: oktapux-share
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./oktapux.db:/app/oktapux.db
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
