@@ -1,33 +1,37 @@
 <template>
   <UContainer class="flex justify-center pt-8">
     <div class="w-full max-w-2xl">
-      <UContainer>
-        <UFileUpload
-          multiple
-          icon="i-lucide-cloud-upload"
-          label="Drop your files here" 
-          description="(Max. 500MB)"
-          layout="list"
-          :interactive="false"
-          v-model="fileUploadValue" 
-          class="w-full min-h-48"
-          color="neutral"
-        >
+      <div>
+        <!-- File upload card -->
+        <UCard title="Create a share" description="Share your files across the globe" class="w-full" variant="subtle">
+          <UFileUpload
+            multiple
+            icon="i-lucide-cloud-upload"
+            label="Drop your files here" 
+            description="(Max. 500MB)"
+            layout="list"
+            :interactive="false"
+            v-model="fileUploadValue" 
+            class="w-full min-h-48"
+            color="neutral"
+          >
 
-          <template #actions="{ open }">
-            <UButton
-              label="Select files"
-              icon="i-lucide-upload"
-              color="neutral"
-              variant="outline"
-              @click="open()"
-            />
-          </template>
-        </UFileUpload>
+            <template #actions="{ open }">
+              <UButton
+                label="Select files"
+                icon="i-lucide-upload"
+                color="neutral"
+                variant="outline"
+                @click="open()"
+              />
+            </template>
+          </UFileUpload>
+          
+          <div class="flex justify-center mt-6">
+            <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral" size="xl"/>
+          </div>
+        </UCard>
         
-        <UContainer class="flex justify-center p-11">
-        <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral" size="xl"/>
-        </UContainer>
         <UModal v-model:open="isModalOpen" title="Set Expiration" description="Choose how this share expires">
           <template #body>
             <!-- Expiration type selector -->
@@ -71,6 +75,7 @@
               placeholder="Max downloads"
               class="mt-4"
             />
+            <USeparator type="dashed" class="mt-5"/>
             <USwitch v-model="isPermanent" label="Permanent share" class="mt-4" />
           </template>
 
@@ -82,17 +87,17 @@
         </UModal>
 
         <!-- Display share link -->
-        <UModal v-model:open="isShareModalOpen" title="File upload successful">
+        <UModal v-model:open="isShareModalOpen" title="Your share is ready">
           <template #body class="block justify-center">
-            <p>Here's your share link:</p>
-            <UInput :model-value="shareUrl ?? ''" readonly class="w-100"/>
-            <p v-if="submittedExpiryType === 'downloads'" class="text-xs text-muted mt-1">
+            <p class="font-semibold">Here's your share link:</p>
+            <UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
+            <p v-if="submittedExpiryType === 'downloads'" class="text-xs text-muted mt-2">
               Expires after {{ submittedMaxDownloads }} downloads
             </p>
-            <p v-if="submittedExpiryType === 'date'" class="text-xs text-muted mt-1">
+            <p v-if="submittedExpiryType === 'date'" class="text-xs text-muted mt-2">
               Expires on {{ new Date(submittedExpiryDate!).toLocaleString() }}
             </p>
-            <p v-if="submittedExpiryType === 'permanent'" class="text-xs text-muted mt-1">
+            <p v-if="submittedExpiryType === 'permanent'" class="text-xs text-muted mt-2">
               This share never expires
             </p>
           </template>
@@ -102,7 +107,7 @@
           </template>
         </UModal>
         <!-- TODO: keep QR Code in mind -->
-       </UContainer>
+      </div>
     </div>
   </UContainer>
 </template>
@@ -190,7 +195,7 @@ const copyToClipboard = async (text?: string | null) => {
   if (!text) return
   try {
     await navigator.clipboard.writeText(text)
-    toast.add({ title: 'Copied to clipboard', icon: "i-lucide-clipboard-check", color: "success" })
+    toast.add({ title: 'Copied share link to clipboard', icon: "i-lucide-clipboard-check", color: "success" })
   } catch {
     toast.add({ title: 'Copy failed', color: 'error' })
   }
