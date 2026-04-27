@@ -82,7 +82,8 @@ App runs at `http://localhost:3000`.
 - [x] Expiration by download count
 - [x] Permanent share option
 - [ ] Share page UI (download page for recipients)
-- [ ] Copy link & QR code
+- [x] Copy link
+- [ ] QR code
 - [ ] Docker Compose setup
 - [ ] Cleanup job for expired shares & files
 
