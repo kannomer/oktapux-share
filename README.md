@@ -21,8 +21,8 @@ Upload files, generate shareable links, and control exactly how long they last.
 
 - 📤 Upload multiple files in a single share
 - 🔗 Auto-generated shareable links per upload
-- ⏳ Expiration by date: set an amount and unit (minutes, hours, days, weeks, months or years)
-- 🔢 Expiration by download count: share expires after N downloads
+- ⏳ Expiration by date
+- 🔢 Expiration by download count
 - ♾️ Permanent share option
 - 🪶 Lightweight: single SQLite database, zero external services required
 - 🐳 Planned docker support for easy self-hosting
