@@ -28,11 +28,11 @@ COPY --from=builder /app/server/db/schema.ts ./server/db/schema.ts
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Create uploads directory
-RUN mkdir -p /app/uploads
+# Create required directories
+RUN mkdir -p /app/uploads /app/data
 
 # Expose internal port
 EXPOSE 3000
 
 # Run migrations then start the app
-CMD ["sh", "-c", "touch /app/oktapux.db && npx drizzle-kit migrate && node .output/server/index.mjs"]
+CMD ["sh", "-c", "mkdir -p /app/data && touch /app/data/oktapux.db && npx drizzle-kit migrate && node .output/server/index.mjs"]
