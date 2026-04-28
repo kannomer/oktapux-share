@@ -133,7 +133,7 @@ docker compose up -d --build
 - [x] Copy link
 - [x] Docker support
 - [x] Auto-publish Docker image via GitHub Actions
-- [ ] QR code
+- [x] QR code
 - [ ] Cleanup job for expired shares & files
 
 ---

@@ -57,7 +57,6 @@
 
 
       <template #footer>
-        <UButton label="Cancel" size="xl" color="neutral" variant="outline" @click="isModalOpen = false" />
         <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="handleSubmit(() => isModalOpen = false)" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" />
       </template>
     </UModal>
@@ -78,15 +77,25 @@
         </p>
       </template>
       <template #footer>
-        <UButton label="Close" color="neutral" size="xl" variant="outline" @click="isShareModalOpen = false" />
         <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
+        <UButton v-if="qrCodeUrl" icon="i-lucide-qr-code" label="Share QR Code" size="lg" variant="solid" @click="qrCodeModal = true"></UButton>
       </template>
     </UModal>
-    <!-- TODO: keep QR Code in mind -->
+    <!-- QR Code Modal -->
+     <UModal v-model:open="qrCodeModal" v-if="qrCodeUrl" title="Your QR Code is created">
+      <template #body class="block justify-center">
+        <img :src="qrCodeUrl" class="mt-4 mx-auto"/>
+      </template>
+      <template #footer>
+        <UButton icon="i-lucide-download" label="Download QR Code" size="lg" variant="solid" :href="qrCodeUrl" download="share-qr.png"/>
+      </template>
+     </UModal>
   </UContainer>
 </template>
 
 <script setup lang="ts">
+import QRCode from 'qrcode'
+
 const fileUploadValue = ref<File[]>([])
 const isModalOpen = ref(false)
 const expiryType = ref<"date" | "downloads">("date")
@@ -131,4 +140,13 @@ const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = u
 })
 
 const { copyToClipboard } = useCopyToClipboard()
+
+// QR Code
+const qrCodeUrl = ref<string | null>(null)
+const qrCodeModal = ref(false)
+watch(isShareModalOpen, async (isOpen) => {
+  if(isOpen && shareUrl.value){
+    qrCodeUrl.value = await QRCode.toDataURL(shareUrl.value)
+  }
+})
 </script>
