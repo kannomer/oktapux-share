@@ -32,7 +32,7 @@ export const runCleanup = async () => {
     console.log(`Cleanup complete. Removed ${expiredShares.length} share(s) and ${expiredFiles.length} file(s)`)
 }
 
-export const startCleanupScheduler = (intervalMs: number = 1000 * 60) => {
+export const startCleanupScheduler = (intervalMs: number = 1000 * 60 * 15) => {
     runCleanup()
 
     const interval = setInterval(runCleanup, intervalMs)
