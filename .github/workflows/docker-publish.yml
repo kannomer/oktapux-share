@@ -68,7 +68,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             # latest only from main
-            type=raw,value=latest,enable={{is_default_branch}} && {{event_name != 'pull_request'}}
+            type=raw,value=latest,enable={{is_default_branch && !is_pull_request}}
 
             # branch previews
             type=ref,event=branch
