@@ -109,7 +109,7 @@ docker compose up -d --build
 
 ## 🗺️ Roadmap
 
-### ✅ V1.0 — Prototype (Complete)
+### ✅ V1.0 - (Complete)
 
 - [x] File upload with shareable links
 - [x] Expiration by date
@@ -122,7 +122,7 @@ docker compose up -d --build
 - [x] Docker support
 - [x] Auto-publish Docker image via GitHub Actions
 
-### 🔵 V1.1 — Polish & Features
+### 🔵 V1.1 - Polish & Features
 
 - [ ] Characterization — custom theming, branding and styling options
 - [ ] Password-protected shares
@@ -134,7 +134,7 @@ docker compose up -d --build
   - Lock or cap expiry duration
   - Toggle QR code feature
 
-### 🟣 V1.2 — Power Features
+### 🟣 V1.2 - Power Features
 
 - [ ] Custom URL slug — set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
 - [ ] Reverse share — generate an upload request link and send it to someone so they upload files to you
@@ -142,7 +142,7 @@ docker compose up -d --build
 - [ ] One-time download links
 - [ ] Characterization — custom theming, branding and styling options
 
-### 🔴 V1.3 — Scaling & robustness
+### 🔴 V1.3 - Scaling & robustness
 
 - [ ] Rate limiting (IP + per-share)
 - [ ] File type restrictions (MIME + extension)
