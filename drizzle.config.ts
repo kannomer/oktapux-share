@@ -5,6 +5,6 @@ export default defineConfig({
     dialect: "sqlite",
     schema: "./server/db/schema.ts",
     dbCredentials: {
-        url: "./oktapux.db"
+        url: "./data/oktapux.db"
     }
 })
