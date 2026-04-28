@@ -17,8 +17,6 @@ export default defineEventHandler(async (event) => {
     const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id));
     if(!shareFiles || shareFiles.length === 0) throw createError({ statusCode: 404, message: "Files not found" });
 
-    await db.update(shares).set({ download_count: share.download_count+1}).where(eq(shares.id, share.id));
-
     setResponseHeader(event, "Content-Disposition", `attachment; filename="share-${token}.zip"`);
     setResponseHeader(event, "Content-Type", "application/zip");
 
@@ -32,4 +30,5 @@ export default defineEventHandler(async (event) => {
         archive.on('error', reject)
         archive.finalize()
     })
+    await db.update(shares).set({ download_count: share.download_count+1}).where(eq(shares.id, share.id));
 })
