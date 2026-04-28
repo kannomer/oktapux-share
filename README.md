@@ -78,7 +78,7 @@ The easiest way to self-host Oktapux Share is with Docker Compose.
 Create a `docker-compose.yml` file on your server:
 
 ```yaml
-ervices:
+services:
   app:
     image: ghcr.io/kannomer/oktapux-share:latest
     container_name: oktapux-share
