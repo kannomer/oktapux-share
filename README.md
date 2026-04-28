@@ -86,10 +86,13 @@ services:
       - "3003:3000"
     volumes:
       - ./uploads:/app/uploads
-      - ./oktapux.db:/app/oktapux.db
+      - oktapux_db:/app
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+
+volumes:
+  oktapux_db:
 ```
 
 Then run:
