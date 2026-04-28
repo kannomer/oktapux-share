@@ -60,7 +60,7 @@
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                @click="copyToClipboard(fileDownloadUrl(file.id))"
+                                @click="copyToClipboard(fileDownloadUrl(file.id), 'file link')"
                             />
                         </UTooltip>
                         <UTooltip text="Download file">
