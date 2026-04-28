@@ -29,18 +29,6 @@ Upload files, generate shareable links, and control exactly how long they last.
 
 ---
 
-## 🛠️ Tech Stack
-
-| Layer        | Technology                        |
-| ------------ | --------------------------------- |
-| Frontend     | Nuxt 4, Nuxt UI                   |
-| Backend      | Node.js via Nuxt H3 server routes |
-| Database     | SQLite + Drizzle ORM              |
-| File Storage | Local filesystem                  |
-| Deployment   | Docker + Docker Compose           |
-
----
-
 ## ⚙️ Setup
 
 ### Requirements
@@ -91,8 +79,6 @@ services:
       - NODE_ENV=production
     restart: unless-stopped
 ```
-
-Create an empty oktapux.db file in the same folder as your docker-compose file (This will be fixed when the project migrates from better-sqlite3)
 
 Then run:
 
