@@ -82,6 +82,7 @@
                 <p v-else-if="shareData?.max_downloads" class="text-sm text-muted">
                     {{ shareData.download_count }} of {{ shareData.max_downloads }} downloads used
                 </p>
+                <p v-else-if="errorMessage"></p>
                 <p v-else class="text-sm text-muted">This share never expires</p>
             </template>
         </UCard>
@@ -89,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-    const token = useRoute().params.token
+    const token = useRoute().params.token as string
 
     const { data, error, pending } = await useFetch(`/api/shares/${token}`)
     const errorMessage = computed(() => {
@@ -119,11 +120,7 @@
     })
 
     const fileDownloadUrl = useCreateFileDownloadUrl()
-    const shareDownloadUrl = computed(() => {
-        if(import.meta.client) return `${window.location.origin}/api/shares/${token}/download`
-        return ""
-    })
-
+    const shareDownloadUrl = useCreateShareDownloadUrl(token)
     const { copyToClipboard } = useCopyToClipboard()
 
     const formatSize = useFormatSize()
