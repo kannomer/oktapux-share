@@ -86,14 +86,13 @@ services:
       - "3003:3000"
     volumes:
       - ./uploads:/app/uploads
-      - oktapux_db:/app
+      - ./oktapux.db:/app/oktapux.db
     environment:
       - NODE_ENV=production
     restart: unless-stopped
-
-volumes:
-  oktapux_db:
 ```
+
+Create an empty oktapux.db file in the same folder as your docker-compose file (This will be fixed when the project migrates from better-sqlite3)
 
 Then run:
 

@@ -6,10 +6,7 @@ services:
       - "3003:3000"
     volumes:
       - ./uploads:/app/uploads
-      - oktapux_db:/app
+      - ./oktapux.db:/app/oktapux.db
     environment:
       - NODE_ENV=production
     restart: unless-stopped
-
-volumes:
-  oktapux_db:
