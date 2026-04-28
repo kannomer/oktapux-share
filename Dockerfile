@@ -35,4 +35,4 @@ RUN mkdir -p /app/uploads
 EXPOSE 3000
 
 # Run migrations then start the app
-CMD ["sh", "-c", "npx drizzle-kit migrate && node .output/server/index.mjs"]
+CMD ["sh", "-c", "touch /app/oktapux.db && npx drizzle-kit migrate && node .output/server/index.mjs"]
