@@ -124,10 +124,10 @@ docker compose up -d --build
 
 ### 🔵 V1.1 - Polish & Features
 
-- [ ] Characterization — custom theming, branding and styling options
+- [ ] Characterization of the app
 - [ ] Password-protected shares
-- [ ] Share name & description — add a title and optional description at upload time
-- [ ] In-app config page — hosters can configure the instance without touching env files:
+- [ ] Share name & description - add a title and optional description at upload time
+- [ ] In-app config page - hosters can configure the instance without touching env files:
   - Max file size
   - Disable passwordless shares
   - Disable permanent shares
@@ -136,11 +136,11 @@ docker compose up -d --build
 
 ### 🟣 V1.2 - Power Features
 
-- [ ] Custom URL slug — set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
-- [ ] Reverse share — generate an upload request link and send it to someone so they upload files to you
-- [ ] Share audit log — track when shares were created, accessed, downloaded and expired
+- [ ] Custom URL slug - set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
+- [ ] Reverse share - generate an upload request link and send it to someone so they upload files to you
+- [ ] Share audit log - track when shares were created, accessed, downloaded and expired
 - [ ] One-time download links
-- [ ] Characterization — custom theming, branding and styling options
+- [ ] Characterization - custom theming, branding and styling options
 
 ### 🔴 V1.3 - Scaling & robustness
 
