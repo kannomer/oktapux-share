@@ -126,7 +126,7 @@ docker compose up -d --build
 
 - [ ] Characterization of the app
 - [ ] Password-protected shares
-- [ ] Share name & description - add a title and optional description at upload time
+- [x] Share name & description - add a title and optional description at upload time
 - [ ] In-app config page - hosters can configure the instance without touching env files:
   - Max file size
   - Disable passwordless shares

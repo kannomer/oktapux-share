@@ -7,7 +7,9 @@ export const shares = table("shares", {
     created_at: t.int({ mode: "timestamp" }).$defaultFn(() => new Date()),
     expires_at: t.int({ mode: "timestamp" }),
     max_downloads: t.int(),
-    download_count: t.int().default(0).notNull()
+    download_count: t.int().default(0).notNull(),
+    name: t.text(),
+    description: t.text()
 });
 
 export const files = table("files", {

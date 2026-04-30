@@ -19,7 +19,7 @@
       </div>
     </UCard>
     
-    <UModal v-model:open="isModalOpen" title="Set Expiration" description="Choose how this share expires">
+    <UModal v-model:open="isModalOpen" title="Create share" description="Set a name, description and expiration">
       <template #body>
         <!-- Expiration type selector -->
         <URadioGroup
@@ -51,6 +51,12 @@
           v-model="maxDownloads"
           :min="1"
         />
+        <USeparator type="dashed" class="mt-5"/>
+        <!-- Share naming -->
+        <div class="flex flex-col gap-2 mt-4">
+          <UInput v-model="shareName" placeholder="Share name (optional)"/>
+          <UTextarea v-model="shareDescription" placeholder="Share description (optional)" autoresize :maxrows="4"/>
+        </div>
         <USeparator type="dashed" class="mt-5"/>
         <USwitch v-model="isPermanent" label="Permanent share" class="mt-4" />
       </template>
@@ -102,6 +108,8 @@ const expiryType = ref<"date" | "downloads">("date")
 const isPermanent = ref(false)
 const expiryAmount = ref(1)
 const expiryUnit = ref("day")
+const shareName = ref<string>("")
+const shareDescription = ref<string>("")
 
 // Expiration options
 const expiryUnitOptions = [
@@ -136,7 +144,9 @@ const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = u
   expiryAmount,
   expiryUnit,
   maxDownloads,
-  computedExpiryDate
+  computedExpiryDate,
+  shareName,
+  shareDescription
 })
 
 const { copyToClipboard } = useCopyToClipboard()

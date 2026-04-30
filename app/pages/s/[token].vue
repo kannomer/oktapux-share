@@ -6,7 +6,9 @@
                 <p v-else-if="errorMessage">{{ errorMessage }}</p>
                 <div v-else-if="data" class="flex items-center justify-between">
                     <div>
-                        <p class="font-semibold">Share details</p>
+                        <p v-if="shareData?.name" class="font-semibold">{{ shareData.name }}</p>
+                        <p v-else class="font-semibold">Share details</p>
+                        <p v-if="shareData?.description" class="text-sm text-muted mt-1">{{ shareData.description }}</p>
                         <p class="text-sm text-muted mt-1">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
                     </div>
                     <div class="flex items-center gap-1">
@@ -82,7 +84,6 @@
                 <p v-else-if="shareData?.max_downloads" class="text-sm text-muted">
                     {{ shareData.download_count }} of {{ shareData.max_downloads }} downloads used
                 </p>
-                <p v-else-if="errorMessage"></p>
                 <p v-else class="text-sm text-muted">This share never expires</p>
             </template>
         </UCard>

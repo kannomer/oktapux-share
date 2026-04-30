@@ -35,6 +35,8 @@ export default defineEventHandler(async (event) => {
   const expiryType = uploadFields.expiry_type?.[0]
   const expiresAt = uploadFields.expires_at?.[0]
   const maxDownloads = uploadFields.max_downloads?.[0]
+  const shareName = uploadFields.name?.[0]
+  const shareDescription = uploadFields.description?.[0]
 
   let parsedExpiry: Date | null = null
   let parsedDownloads: number | null = null
@@ -51,7 +53,9 @@ export default defineEventHandler(async (event) => {
   const [share] = await db.insert(shares).values({
     token,
     expires_at: parsedExpiry,
-    max_downloads: parsedDownloads
+    max_downloads: parsedDownloads,
+    name: shareName,
+    description: shareDescription
   }).returning()
   if (!share) {
     throw createError({ statusCode: 500, message: "Failed to create share" });

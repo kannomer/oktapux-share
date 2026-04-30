@@ -6,6 +6,8 @@ interface ShareFormState {
   expiryUnit: Ref<string>
   maxDownloads: Ref<number>
   computedExpiryDate: ComputedRef<string> | Ref<string>
+  shareName: Ref<string>
+  shareDescription: Ref<string>
 }
 
 interface SubmittedShareInfo {
@@ -29,6 +31,8 @@ export default function (form: ShareFormState) {
     form.expiryAmount.value = 1
     form.expiryUnit.value = 'day'
     form.maxDownloads.value = 1
+    form.shareName.value = ""
+    form.shareDescription.value = ""
   }
 
   const handleSubmit = async (closeExpirationModal: () => void) => {
@@ -45,12 +49,12 @@ export default function (form: ShareFormState) {
     } else if (effectiveExpiryType === 'date') {
       formData.append('expiry_type', 'date')
       formData.append('expires_at', form.computedExpiryDate.value)
-      console.log(form.computedExpiryDate.value)
     } else if (effectiveExpiryType === 'downloads') {
       formData.append('expiry_type', 'downloads')
       formData.append('max_downloads', form.maxDownloads.value.toString())
-      console.log(form.maxDownloads.value.toString())
     }
+    if(form.shareName.value) formData.append("name", form.shareName.value)
+    if(form.shareDescription.value) formData.append("description", form.shareDescription.value)
 
     try {
       const response = await $fetch<{ token: string }>('/api/upload', {
