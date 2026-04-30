@@ -51,14 +51,13 @@
           v-model="maxDownloads"
           :min="1"
         />
+        <USwitch v-model="isPermanent" label="Permanent share" class="mt-4" />
         <USeparator type="dashed" class="mt-5"/>
         <!-- Share naming -->
         <div class="flex flex-col gap-2 mt-4">
           <UInput v-model="shareName" placeholder="Share name (optional)"/>
           <UTextarea v-model="shareDescription" placeholder="Share description (optional)" autoresize :maxrows="4"/>
         </div>
-        <USeparator type="dashed" class="mt-5"/>
-        <USwitch v-model="isPermanent" label="Permanent share" class="mt-4" />
       </template>
 
 
