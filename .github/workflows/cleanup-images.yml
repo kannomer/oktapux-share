@@ -1,135 +1,30 @@
-name: Cleanup GHCR Images (branch-aware, digest-safe)
+name: GHCR Cleanup
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "30 1 * * *" # runs daily at 01:30 UTC
   workflow_dispatch:
 
 jobs:
   cleanup:
+    name: Clean up GHCR images
     runs-on: ubuntu-latest
 
     permissions:
-      packages: write
+      packages: write # required to delete images
       contents: read
 
-    env:
-      OWNER: ${{ github.repository_owner }}
-      PACKAGE: oktapux-share
-
-      PROTECT_TAGS: "^(latest|main|testing)$"
-
-      RELEASE_TAGS: '^v?[0-9]+\.[0-9]+\.[0-9]+([.-].*)?$'
-
-      UNTAGGED_DAYS: 7
-
     steps:
-      - name: Cleanup GHCR package versions
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
+      - name: Delete old and untagged images
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          dry-run: true
 
-          now=$(date +%s)
-          tmp=$(mktemp -d)
+          # ---- retention rules ----
+          delete-untagged: true
+          keep-n-tagged: 10
+          keep-n-untagged: 5
 
-          echo "Fetching versions for $OWNER/$PACKAGE..."
-
-          gh api \
-            --paginate \
-            -H "Accept: application/vnd.github+json" \
-            "/users/$OWNER/packages/container/$PACKAGE/versions?per_page=100" \
-            > "$tmp/versions.json"
-
-          jq 'sort_by(.created_at) | reverse' "$tmp/versions.json" > "$tmp/sorted.json"
-
-          total=$(jq 'length' "$tmp/sorted.json")
-          echo "Found $total versions"
-
-          # Track newest digest per branch
-          declare -A keep_branch
-
-          # Pass 1: determine newest digest for each branch tag
-          jq -c '.[]' "$tmp/sorted.json" | while read -r row; do
-            id=$(echo "$row" | jq -r '.id')
-            tags=$(echo "$row" | jq -r '(.metadata.container.tags // [])[]?' || true)
-
-            while IFS= read -r tag; do
-              [ -z "$tag" ] && continue
-
-              # Skip protected/release tags here
-              if echo "$tag" | grep -Eq "$PROTECT_TAGS"; then
-                continue
-              fi
-
-              if echo "$tag" | grep -Eq "$RELEASE_TAGS"; then
-                continue
-              fi
-
-              # branch-main, branch-feature-x, etc.
-              if [[ "$tag" =~ ^branch-(.+)$ ]]; then
-                branch="${BASH_REMATCH[1]}"
-                if [ -z "${keep_branch[$branch]+x}" ]; then
-                  keep_branch[$branch]="$id"
-                fi
-              fi
-            done <<< "$tags"
-          done
-
-          echo "Newest digest per branch selected."
-
-          # Pass 2: delete or keep
-          jq -c '.[]' "$tmp/sorted.json" | while read -r row; do
-            id=$(echo "$row" | jq -r '.id')
-            created=$(echo "$row" | jq -r '.created_at')
-            created_epoch=$(date -d "$created" +%s)
-            age_days=$(( (now - created_epoch) / 86400 ))
-
-            mapfile -t tags < <(echo "$row" | jq -r '(.metadata.container.tags // [])[]?')
-
-            keep_reason=""
-
-            if [ "${#tags[@]}" -eq 0 ]; then
-              # untagged digest
-              if [ "$age_days" -lt "$UNTAGGED_DAYS" ]; then
-                keep_reason="recent untagged"
-              fi
-            fi
-
-            # keep protected/release tags
-            for tag in "${tags[@]:-}"; do
-              if echo "$tag" | grep -Eq "$PROTECT_TAGS"; then
-                keep_reason="protected tag ($tag)"
-              fi
-
-              if echo "$tag" | grep -Eq "$RELEASE_TAGS"; then
-                keep_reason="release tag ($tag)"
-              fi
-            done
-
-            # keep newest digest for each branch
-            if [ -z "$keep_reason" ]; then
-              for tag in "${tags[@]:-}"; do
-                if [[ "$tag" =~ ^branch-(.+)$ ]]; then
-                  branch="${BASH_REMATCH[1]}"
-                  if [ "${keep_branch[$branch]:-}" = "$id" ]; then
-                    keep_reason="newest image for branch $branch"
-                  fi
-                fi
-              done
-            fi
-
-            tag_list=$(printf "%s," "${tags[@]:-}" | sed 's/,$//')
-            [ -z "$tag_list" ] && tag_list="<none>"
-
-            if [ -n "$keep_reason" ]; then
-              echo "KEEP   id=$id tags=$tag_list reason=$keep_reason"
-            else
-              echo "DELETE id=$id tags=$tag_list"
-
-              gh api \
-                --method DELETE \
-                -H "Accept: application/vnd.github+json" \
-                "/users/$OWNER/packages/container/$PACKAGE/versions/$id"
-            fi
-          done
+          # Optional filters
+          exclude-tags: latest,stable
+          older-than: 30 days
