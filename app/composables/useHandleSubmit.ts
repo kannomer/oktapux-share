@@ -8,12 +8,14 @@ interface ShareFormState {
   computedExpiryDate: ComputedRef<string> | Ref<string>
   shareName: Ref<string>
   shareDescription: Ref<string>
+  sharePassword: Ref<string>
 }
 
 interface SubmittedShareInfo {
   expiryType: string
   maxDownloads: number | null
   expiryDate: string | null
+  isPasswordProtected: boolean
 }
 
 export default function (form: ShareFormState) {
@@ -33,6 +35,7 @@ export default function (form: ShareFormState) {
     form.maxDownloads.value = 1
     form.shareName.value = ""
     form.shareDescription.value = ""
+    form.sharePassword.value = ""
   }
 
   const handleSubmit = async (closeExpirationModal: () => void) => {
@@ -55,6 +58,7 @@ export default function (form: ShareFormState) {
     }
     if(form.shareName.value) formData.append("name", form.shareName.value)
     if(form.shareDescription.value) formData.append("description", form.shareDescription.value)
+    if(form.sharePassword.value) formData.append("password", form.sharePassword.value)
 
     try {
       const response = await $fetch<{ token: string }>('/api/upload', {
@@ -66,7 +70,8 @@ export default function (form: ShareFormState) {
       submittedInfo.value = {
         expiryType: effectiveExpiryType,
         maxDownloads: effectiveExpiryType === 'downloads' ? form.maxDownloads.value : null,
-        expiryDate: effectiveExpiryType === 'date' ? form.computedExpiryDate.value : null
+        expiryDate: effectiveExpiryType === 'date' ? form.computedExpiryDate.value : null,
+        isPasswordProtected: !!form.sharePassword.value
       }
 
       shareUrl.value = `${window.location.origin}/s/${response.token}`

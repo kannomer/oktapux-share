@@ -57,6 +57,7 @@
         <div class="flex flex-col gap-2 mt-4">
           <UInput v-model="shareName" placeholder="Share name (optional)"/>
           <UTextarea v-model="shareDescription" placeholder="Share description (optional)" autoresize :maxrows="4"/>
+          <UInput v-model="sharePassword" type="password" placeholder="Password (optional)" icon="i-lucide-lock"/>
         </div>
       </template>
 
@@ -79,6 +80,9 @@
         </p>
         <p v-if="submittedInfo?.expiryType === 'permanent'" class="text-xs text-muted mt-2">
           This share never expires
+        </p>
+        <p v-if="submittedInfo?.isPasswordProtected" class="text-xs text-muted mt-2">
+          Password protected
         </p>
       </template>
       <template #footer>
@@ -109,6 +113,7 @@ const expiryAmount = ref(1)
 const expiryUnit = ref("day")
 const shareName = ref<string>("")
 const shareDescription = ref<string>("")
+const sharePassword = ref<string>("")
 
 // Expiration options
 const expiryUnitOptions = [
@@ -145,7 +150,8 @@ const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = u
   maxDownloads,
   computedExpiryDate,
   shareName,
-  shareDescription
+  shareDescription,
+  sharePassword
 })
 
 const { copyToClipboard } = useCopyToClipboard()

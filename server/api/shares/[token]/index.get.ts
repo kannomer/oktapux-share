@@ -19,11 +19,16 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 410, message: "Share has expired" })
   }
 
+  // Check password protection
+  await requirePasswordIfProtected(event, share.password_hash)
+
   // Query the files table for all files belonging to this share
   const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id))
-  
+
+  const { password_hash, ...safeShare } = share
+
   return {
-    share,
+    share: safeShare,
     files: shareFiles
   }
 });

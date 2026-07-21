@@ -9,7 +9,8 @@ export const shares = table("shares", {
     max_downloads: t.int(),
     download_count: t.int().default(0).notNull(),
     name: t.text(),
-    description: t.text()
+    description: t.text(),
+    password_hash: t.text()
 });
 
 export const files = table("files", {

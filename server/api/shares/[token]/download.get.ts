@@ -14,6 +14,8 @@ export default defineEventHandler(async (event) => {
     if(share.expires_at && new Date() > share.expires_at) throw createError({ statusCode: 410, message: "Share has expired" });
     if(share.max_downloads && share.download_count >= share.max_downloads)throw createError({ statusCode: 410, message: "Share has expired" });
 
+    await requirePasswordIfProtected(event, share.password_hash)
+
     const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id));
     if(!shareFiles || shareFiles.length === 0) throw createError({ statusCode: 404, message: "Files not found" });
 

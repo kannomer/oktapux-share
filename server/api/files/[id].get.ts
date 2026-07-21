@@ -27,6 +27,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 410, message: "Share has expired" });
   }
 
+  await requirePasswordIfProtected(event, share.password_hash)
+
   // Set the response headers
   setResponseHeader(event, "Content-Disposition", `attachment; filename="${file.original_name}"`);
   setResponseHeader(event, "Content-Type", file.mime_type)

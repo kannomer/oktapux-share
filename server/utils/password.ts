@@ -1,0 +1,46 @@
+import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto'
+import { promisify } from 'node:util'
+import type { H3Event } from 'h3'
+
+const scrypt = promisify(scryptCallback)
+const KEY_LENGTH = 64
+
+// Stored format: "<saltHex>:<hashHex>"
+export const hashPassword = async (plain: string): Promise<string> => {
+  const salt = randomBytes(16).toString('hex')
+  const derivedKey = (await scrypt(plain, salt, KEY_LENGTH)) as Buffer
+  return `${salt}:${derivedKey.toString('hex')}`
+}
+
+export const verifyPassword = async (plain: string, stored: string): Promise<boolean> => {
+  const [salt, hashHex] = stored.split(':')
+  if (!salt || !hashHex) return false
+
+  const derivedKey = (await scrypt(plain, salt, KEY_LENGTH)) as Buffer
+  const storedBuffer = Buffer.from(hashHex, 'hex')
+
+  if (derivedKey.length !== storedBuffer.length) return false
+  return timingSafeEqual(derivedKey, storedBuffer)
+}
+
+// Reads a password from the request (query param or header) and throws
+// a 401 if the share is protected and the password is missing/incorrect.
+export const requirePasswordIfProtected = async (
+  event: H3Event,
+  passwordHash: string | null
+): Promise<void> => {
+  if (!passwordHash) return
+
+  const query = getQuery(event)
+  const headerPassword = getHeader(event, 'x-share-password')
+  const provided = (query.password as string | undefined) ?? headerPassword
+
+  if (!provided) {
+    throw createError({ statusCode: 401, message: 'Password required' })
+  }
+
+  const valid = await verifyPassword(provided, passwordHash)
+  if (!valid) {
+    throw createError({ statusCode: 401, message: 'Incorrect password' })
+  }
+}

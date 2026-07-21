@@ -15,6 +15,13 @@
       "when": 1777507134128,
       "tag": "0001_next_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784670559078,
+      "tag": "0002_elite_night_nurse",
+      "breakpoints": true
     }
   ]
 }

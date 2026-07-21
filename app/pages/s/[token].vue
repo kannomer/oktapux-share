@@ -1,6 +1,28 @@
 <template>
     <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
-        <UCard class="w-full" variant="subtle">
+        <UCard v-if="isLocked" class="w-full" variant="subtle">
+            <template #header>
+                <p class="font-semibold flex items-center gap-2">
+                    <UIcon name="i-lucide-lock" />
+                    Password required
+                </p>
+                <p class="text-sm text-muted mt-1">This share is protected. Enter the password to view its files.</p>
+            </template>
+            <UInput
+                v-model="passwordInput"
+                type="password"
+                placeholder="Password"
+                icon="i-lucide-lock"
+                class="w-full"
+                @keyup.enter="submitPassword"
+            />
+            <p v-if="hasAttempted" class="text-xs text-error mt-2">Incorrect password. Please try again.</p>
+            <template #footer>
+                <UButton label="Unlock" icon="i-lucide-unlock" @click="submitPassword" :loading="pending" />
+            </template>
+        </UCard>
+
+        <UCard v-else class="w-full" variant="subtle">
             <template #header>
                 <USkeleton v-if="pending" class="h-5 w-62.5" />
                 <p v-else-if="errorMessage">{{ errorMessage }}</p>
@@ -62,7 +84,7 @@
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                @click="copyToClipboard(fileDownloadUrl(file.id), 'file link')"
+                                @click="copyToClipboard(fileDownloadUrl(file.id, passwordAttempt), 'file link')"
                             />
                         </UTooltip>
                         <UTooltip text="Download file">
@@ -71,7 +93,7 @@
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                :href="`/api/files/${file.id}`"
+                                :href="fileDownloadUrl(file.id, passwordAttempt)"
                                 target="_blank"
                             />
                         </UTooltip>
@@ -93,11 +115,27 @@
 <script setup lang="ts">
     const token = useRoute().params.token as string
 
-    const { data, error, pending } = await useFetch(`/api/shares/${token}`)
+    const passwordAttempt = ref<string>('')
+    const passwordInput = ref<string>('')
+    const hasAttempted = ref(false)
+
+    const { data, error, pending, refresh } = await useFetch(`/api/shares/${token}`, {
+        query: { password: passwordAttempt },
+        watch: false
+    })
+
+    const isLocked = computed(() => error.value?.statusCode === 401)
+
+    const submitPassword = async () => {
+        passwordAttempt.value = passwordInput.value
+        await refresh()
+        hasAttempted.value = isLocked.value
+    }
+
     const errorMessage = computed(() => {
-        if(!error.value) return null
-        if(error.value.statusCode == 404) return "Share not found"
-        if(error.value.statusCode == 410) return "This share has expired"
+        if (!error.value || isLocked.value) return null
+        if (error.value.statusCode == 404) return "Share not found"
+        if (error.value.statusCode == 410) return "This share has expired"
         return "Something went wrong"
     })
     const shareData = computed(() => data.value?.share)
@@ -121,7 +159,7 @@
     })
 
     const fileDownloadUrl = useCreateFileDownloadUrl()
-    const shareDownloadUrl = useCreateShareDownloadUrl(token)
+    const shareDownloadUrl = useCreateShareDownloadUrl(token, passwordAttempt)
     const { copyToClipboard } = useCopyToClipboard()
 
     const formatSize = useFormatSize()

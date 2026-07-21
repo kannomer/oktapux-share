@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
   const maxDownloads = uploadFields.max_downloads?.[0]
   const shareName = uploadFields.name?.[0]
   const shareDescription = uploadFields.description?.[0]
+  const password = uploadFields.password?.[0]
 
   let parsedExpiry: Date | null = null
   let parsedDownloads: number | null = null
@@ -50,12 +51,15 @@ export default defineEventHandler(async (event) => {
   throw createError({ statusCode: 400, message: "Invalid date" })
   }
 
+  const passwordHash = password ? await hashPassword(password) : null
+
   const [share] = await db.insert(shares).values({
     token,
     expires_at: parsedExpiry,
     max_downloads: parsedDownloads,
     name: shareName,
-    description: shareDescription
+    description: shareDescription,
+    password_hash: passwordHash
   }).returning()
   if (!share) {
     throw createError({ statusCode: 500, message: "Failed to create share" });
