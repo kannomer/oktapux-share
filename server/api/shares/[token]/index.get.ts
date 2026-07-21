@@ -20,15 +20,17 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check password protection
-  await requirePasswordIfProtected(event, share.password_hash)
+  await verifySharePassword(event, share.password_hash)
 
   // Query the files table for all files belonging to this share
   const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id))
 
   const { password_hash, ...safeShare } = share
 
+  const safeFiles = shareFiles.map(({ iv, salt, auth_tag, ...rest }) => rest)
+
   return {
     share: safeShare,
-    files: shareFiles
+    files: safeFiles
   }
 });

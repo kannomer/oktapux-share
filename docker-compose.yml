@@ -9,4 +9,5 @@ services:
       - ./data:/app/data
     environment:
       - NODE_ENV=production
+      - ENCRYPTION_KEY_SECRET=${ENCRYPTION_KEY_SECRET}
     restart: unless-stopped

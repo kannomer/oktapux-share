@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     if(share.expires_at && new Date() > share.expires_at) throw createError({ statusCode: 410, message: "Share has expired" });
     if(share.max_downloads && share.download_count >= share.max_downloads)throw createError({ statusCode: 410, message: "Share has expired" });
 
-    await requirePasswordIfProtected(event, share.password_hash)
+    const providedPassword = await verifySharePassword(event, share.password_hash)
 
     const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id));
     if(!shareFiles || shareFiles.length === 0) throw createError({ statusCode: 404, message: "Files not found" });
@@ -25,7 +25,10 @@ export default defineEventHandler(async (event) => {
     const archive = archiver("zip", { zlib: { level: 6 } })
     archive.pipe(event.node.res)
     for(const shareFile of shareFiles){
-        archive.append(createReadStream(join(process.cwd(), "uploads", shareFile.stored_name)), { name: shareFile.original_name })
+        const key = deriveFileKey(Buffer.from(shareFile.salt, 'hex'), providedPassword)
+        const decipher = createDecryptCipher(key, Buffer.from(shareFile.iv, 'hex'), Buffer.from(shareFile.auth_tag, 'hex'))
+        const decryptedStream = createReadStream(join(process.cwd(), "uploads", shareFile.stored_name)).pipe(decipher)
+        archive.append(decryptedStream, { name: shareFile.original_name })
     }
     await new Promise<void>((resolve, reject) => {
         archive.on('finish', resolve)

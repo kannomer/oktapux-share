@@ -27,14 +27,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 410, message: "Share has expired" });
   }
 
-  await requirePasswordIfProtected(event, share.password_hash)
+  const providedPassword = await verifySharePassword(event, share.password_hash)
 
   // Set the response headers
   setResponseHeader(event, "Content-Disposition", `attachment; filename="${file.original_name}"`);
   setResponseHeader(event, "Content-Type", file.mime_type)
 
-  // Stream the file from uploads/ back to the client
-  const stream = createReadStream(join(process.cwd(), "uploads", file.stored_name));
+  // Stream the file from uploads/ back to the client, decrypting as we go
+  const key = deriveFileKey(Buffer.from(file.salt, 'hex'), providedPassword)
+  const decipher = createDecryptCipher(key, Buffer.from(file.iv, 'hex'), Buffer.from(file.auth_tag, 'hex'))
+  const encryptedStream = createReadStream(join(process.cwd(), "uploads", file.stored_name));
+  const stream = encryptedStream.pipe(decipher)
   // Increment download_count on the share by 1
   await db.update(shares).set({ download_count: share.download_count+1}).where(eq(shares.id, share.id));
   return sendStream(event, stream)

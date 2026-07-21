@@ -1,7 +1,9 @@
 import formidable from 'formidable';
 import { randomUUID } from 'node:crypto';
 import { join, extname } from 'node:path';
-import { rename } from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { unlink } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 import { db } from '../db/index';
 import { shares, files } from '../db/schema';
 import { nanoid } from "nanoid";
@@ -69,14 +71,31 @@ export default defineEventHandler(async (event) => {
   for (const file of uploadFiles["files"]) {
     const ext = extname(file.originalFilename ?? "");
     const storedName = randomUUID() + ext;
-    await rename(file.filepath, join(process.cwd(), "uploads", storedName))
+    const destPath = join(process.cwd(), "uploads", storedName)
+
+    // Encrypt the file while streaming it from formidable's temp path
+    // into its final location, instead of a plain rename.
+    const salt = generateSalt()
+    const key = deriveFileKey(salt, password)
+    const { iv, cipher } = createEncryptCipher(key)
+
+    await pipeline(
+      createReadStream(file.filepath),
+      cipher,
+      createWriteStream(destPath)
+    )
+    const authTag = cipher.getAuthTag()
+    await unlink(file.filepath)
 
     await db.insert(files).values({
       share_id: share.id,
       original_name: file.originalFilename ?? "unknown",
       stored_name: storedName,
       size: file.size,
-      mime_type: file.mimetype ?? "application/octet-stream"
+      mime_type: file.mimetype ?? "application/octet-stream",
+      iv: iv.toString('hex'),
+      salt: salt.toString('hex'),
+      auth_tag: authTag.toString('hex')
     })
   }
   return { token };

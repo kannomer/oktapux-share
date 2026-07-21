@@ -19,5 +19,8 @@ export const files = table("files", {
     original_name: t.text().notNull(),
     stored_name: t.text().notNull(),
     size: t.int().notNull(),
-    mime_type: t.text().notNull()
+    mime_type: t.text().notNull(),
+    iv: t.text().notNull(),
+    salt: t.text().notNull(),
+    auth_tag: t.text().notNull()
 })

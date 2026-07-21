@@ -23,13 +23,15 @@ export const verifyPassword = async (plain: string, stored: string): Promise<boo
   return timingSafeEqual(derivedKey, storedBuffer)
 }
 
-// Reads a password from the request (query param or header) and throws
-// a 401 if the share is protected and the password is missing/incorrect.
-export const requirePasswordIfProtected = async (
+// Reads a password from the request (query param or header), throws a 401
+// if the share is protected and the password is missing/incorrect, and
+// returns the plaintext password that was verified (or undefined if the
+// share has no password) so callers can use it for key derivation.
+export const verifySharePassword = async (
   event: H3Event,
   passwordHash: string | null
-): Promise<void> => {
-  if (!passwordHash) return
+): Promise<string | undefined> => {
+  if (!passwordHash) return undefined
 
   const query = getQuery(event)
   const headerPassword = getHeader(event, 'x-share-password')
@@ -43,4 +45,6 @@ export const requirePasswordIfProtected = async (
   if (!valid) {
     throw createError({ statusCode: 401, message: 'Incorrect password' })
   }
+
+  return provided
 }

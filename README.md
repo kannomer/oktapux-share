@@ -25,6 +25,7 @@ Upload files, generate shareable links, and control exactly how long they last.
 - 🔢 Expiration by download count
 - ♾️ Permanent share option
 - 🪶 Lightweight: single SQLite database, zero external services required
+- 🔐 Files encrypted at rest (AES-256-GCM)
 - 🐳 Docker support for easy self-hosting
 
 ---
@@ -47,11 +48,14 @@ cd oktapux-share
 # 2. Install dependencies
 pnpm install
 
-# 3. Run database migrations
+# 3. Set an encryption key (used to encrypt uploaded files at rest)
+echo "ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)" > .env
+
+# 4. Run database migrations
 pnpm drizzle-kit generate
 pnpm drizzle-kit migrate
 
-# 4. Start the dev server
+# 5. Start the dev server
 pnpm run dev
 ```
 
@@ -77,14 +81,18 @@ services:
       - ./data:/app/data
     environment:
       - NODE_ENV=production
+      - ENCRYPTION_KEY_SECRET=${ENCRYPTION_KEY_SECRET}
     restart: unless-stopped
 ```
 
-Then run:
+Then create a `.env` file next to it with a generated key, and start the app:
 
 ```bash
+echo "ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)" > .env
 docker compose up -d
 ```
+
+> ⚠️ Back up your `.env` along with `data/`. If `ENCRYPTION_KEY_SECRET` is ever lost, passwordless shares become unrecoverable.
 
 App runs at `http://localhost:3003`. Database migrations run automatically on startup.
 
