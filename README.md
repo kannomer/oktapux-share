@@ -133,7 +133,7 @@ docker compose up -d --build
 ### 🔵 V1.1 - Polish & Features
 
 - [ ] Characterization of the app
-- [ ] Password-protected shares
+- [x] Password-protected shares
 - [x] Share name & description - add a title and optional description at upload time
 - [ ] In-app config page - hosters can configure the instance without touching env files:
   - Max file size
