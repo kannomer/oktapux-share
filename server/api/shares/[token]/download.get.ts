@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id));
     if(!shareFiles || shareFiles.length === 0) throw createError({ statusCode: 404, message: "Files not found" });
 
-    setResponseHeader(event, "Content-Disposition", `attachment; filename="share-${token}.zip"`);
+    setResponseHeader(event, "Content-Disposition", buildContentDisposition(`share-${token}.zip`));
     setResponseHeader(event, "Content-Type", "application/zip");
 
     const archive = archiver("zip", { zlib: { level: 6 } })

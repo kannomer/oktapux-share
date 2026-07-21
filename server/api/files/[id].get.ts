@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
   const providedPassword = await verifySharePassword(event, share.password_hash)
 
   // Set the response headers
-  setResponseHeader(event, "Content-Disposition", `attachment; filename="${file.original_name}"`);
+  setResponseHeader(event, "Content-Disposition", buildContentDisposition(file.original_name));
   setResponseHeader(event, "Content-Type", file.mime_type)
 
   // Stream the file from uploads/ back to the client, decrypting as we go
