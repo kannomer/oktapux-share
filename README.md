@@ -72,7 +72,7 @@ Create a `docker-compose.yml` file on your server:
 ```yaml
 services:
   app:
-    image: ghcr.io/kannomer/oktapux-share:latest
+    image: ghcr.io/kannomer/oktapux-share:main
     container_name: oktapux-share
     ports:
       - "3003:3000"
