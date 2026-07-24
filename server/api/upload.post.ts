@@ -5,15 +5,24 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { unlink } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import { db } from '../db/index';
-import { shares, files } from '../db/schema';
+import { shares, files, settings } from '../db/schema';
 import { nanoid } from "nanoid";
 
 export default defineEventHandler(async (event) => {
   const req = event.node.req;
 
+  // Load server config before parsing 
+  // max_file_size needs to be handed
+  // to formidable itself so oversized uploads are rejected mid-parse,
+  // not after the whole file has already been received.
+  const [config] = await db.select().from(settings).limit(1)
+  if (!config) {
+    throw createError({ statusCode: 500, message: "Server is not configured yet" })
+  }
+
   const form = formidable({
     uploadDir: join(process.cwd(), "uploads"),
-    maxFileSize: 500 * 1024 * 1024, // 500MB
+    maxFileSize: config.max_file_size,
     multiples: true
   });
 
@@ -52,6 +61,43 @@ export default defineEventHandler(async (event) => {
   if (parsedExpiry && isNaN(parsedExpiry.getTime())) {
   throw createError({ statusCode: 400, message: "Invalid date" })
   }
+
+  // ---- Server config enforcement ----
+  // These mirror the toggles/caps shown (or hidden) on the frontend, but
+  // must be re-checked here since the frontend can be bypassed entirely
+  // by calling this endpoint directly.
+
+  for (const file of uploadFiles["files"]) {
+    if (file.size > config.max_file_size) {
+      throw createError({ statusCode: 400, message: `File exceeds the maximum allowed size of ${config.max_file_size} bytes` })
+    }
+  }
+
+  if (!config.allow_passwordless_shares && !password) {
+    throw createError({ statusCode: 400, message: "This server requires a password on all shares" })
+  }
+
+  if (!config.allow_permanent_shares && expiryType === "permanent") {
+    throw createError({ statusCode: 400, message: "Permanent shares are disabled on this server" })
+  }
+
+  if (config.max_expiry_days && expiryType === "date") {
+    const maxAllowed = new Date()
+    maxAllowed.setDate(maxAllowed.getDate() + config.max_expiry_days)
+    if (parsedExpiry && parsedExpiry > maxAllowed) {
+      throw createError({ statusCode: 400, message: `Expiry cannot exceed ${config.max_expiry_days} days` })
+    }
+  }
+
+  // Downloads-based shares can also be capped to the same day limit, so
+  // whichever condition (download count or days) hits first ends the share.
+  // existing cleanup logic already checks both independently.
+  if (config.max_expiry_days && config.cap_download_based_expiry && expiryType === "downloads") {
+    const cappedExpiry = new Date()
+    cappedExpiry.setDate(cappedExpiry.getDate() + config.max_expiry_days)
+    parsedExpiry = cappedExpiry
+  }
+  // ---- end server config enforcement ----
 
   const passwordHash = password ? await hashPassword(password) : null
 
