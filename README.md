@@ -26,6 +26,8 @@ Upload files, generate shareable links, and control exactly how long they last.
 - ♾️ Permanent share option
 - 🪶 Lightweight: single SQLite database, zero external services required
 - 🔐 Files encrypted at rest (AES-256-GCM)
+- 🔑 Optional password protection per share
+- 🛠️ Admin-configurable instance settings (max file size, allowed share types, expiry caps)
 - 🐳 Docker support for easy self-hosting
 
 ---
@@ -49,7 +51,9 @@ cd oktapux-share
 pnpm install
 
 # 3. Set an encryption key (used to encrypt uploaded files at rest)
+#    and a session secret (used to encrypt the admin login session)
 echo "ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)" > .env
+echo "NUXT_SESSION_PASSWORD=$(openssl rand -hex 32)" >> .env
 
 # 4. Run database migrations
 pnpm drizzle-kit generate
@@ -59,7 +63,7 @@ pnpm drizzle-kit migrate
 pnpm run dev
 ```
 
-App runs at `http://localhost:3000`.
+App runs at `http://localhost:3000`. On first visit, you'll be redirected to a one-time setup wizard to create the admin account before the rest of the site becomes accessible.
 
 ### Production (Docker)
 
@@ -82,19 +86,21 @@ services:
     environment:
       - NODE_ENV=production
       - ENCRYPTION_KEY_SECRET=${ENCRYPTION_KEY_SECRET}
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
     restart: unless-stopped
 ```
 
-Then create a `.env` file next to it with a generated key, and start the app:
+Then create a `.env` file next to it with generated secrets, and start the app:
 
 ```bash
 echo "ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)" > .env
+echo "NUXT_SESSION_PASSWORD=$(openssl rand -hex 32)" >> .env
 docker compose up -d
 ```
 
 > ⚠️ Back up your `.env` along with `data/`. If `ENCRYPTION_KEY_SECRET` is ever lost, passwordless shares become unrecoverable.
 
-App runs at `http://localhost:3003`. Database migrations run automatically on startup.
+App runs at `http://localhost:3003`. Database migrations run automatically on startup. On first visit, you'll be redirected to a one-time setup wizard to create the admin account.
 
 **2. Updating to a newer version**
 
@@ -135,12 +141,7 @@ docker compose up -d --build
 - [ ] Characterization of the app
 - [x] Password-protected shares
 - [x] Share name & description - add a title and optional description at upload time
-- [ ] In-app config page - hosters can configure the instance without touching env files:
-  - Max file size
-  - Disable passwordless shares
-  - Disable permanent shares
-  - Lock or cap expiry duration
-  - Toggle QR code feature
+- [x] In-app config page - hosters can configure the instance without touching env files
 
 ### 🟣 V1.2 - Power Features
 
