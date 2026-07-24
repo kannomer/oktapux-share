@@ -3,7 +3,10 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ["@nuxt/ui"],
+  modules: [
+	"@nuxt/ui",
+	"nuxt-auth-utils"
+	],
   css: ['~/assets/css/main.css'],
   ui: {
     theme: {
@@ -32,6 +35,12 @@ export default defineNuxtConfig({
 		include: [
 			'qrcode',
 		]
+	}
+  },
+
+  auth: {
+	session: {
+		maxAge: 60 * 30 // 30 minutes
 	}
   }
 })

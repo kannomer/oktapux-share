@@ -29,6 +29,13 @@
       "when": 1784672306480,
       "tag": "0003_careless_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784851691491,
+      "tag": "0004_special_firebrand",
+      "breakpoints": true
     }
   ]
 }
