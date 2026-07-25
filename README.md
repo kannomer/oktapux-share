@@ -138,7 +138,6 @@ docker compose up -d --build
 
 ### 🔵 V1.1 - Polish & Features
 
-- [ ] Characterization of the app
 - [x] Password-protected shares
 - [x] Share name & description - add a title and optional description at upload time
 - [x] In-app config page - hosters can configure the instance without touching env files
@@ -149,7 +148,6 @@ docker compose up -d --build
 - [ ] Reverse share - generate an upload request link and send it to someone so they upload files to you
 - [ ] Share audit log - track when shares were created, accessed, downloaded and expired
 - [ ] One-time download links
-- [ ] Characterization - custom theming, branding and styling options
 
 ### 🔴 V1.3 - Scaling & robustness
 

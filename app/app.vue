@@ -11,6 +11,11 @@
           </div>
         </a>
       </template>
+	  <template #right>
+		<UTooltip :content="{ side: 'left' }" text="Site Config">
+			<UButton to="/admin" icon="i-lucide-cog" color="neutral" variant="soft" />
+		</UTooltip>
+	  </template>
     </UHeader>
 
     <UMain>
@@ -19,10 +24,10 @@
 
     <UFooter>
       <p class="text-muted text-sm">
-        Powered By
-        <a href="https://github.com/kannomer/oktapux-share" target="_blank">
-          <span class="text-blue-400">Oktapux Share</span>
-        </a>
+        Powered by
+		<UButton to="https://github.com/kannomer/oktapux-share" target="_blank" class="hover:text-white text-blue-400" variant="link">
+			Oktapux Share
+		</UButton>
       </p>
     </UFooter>
 
