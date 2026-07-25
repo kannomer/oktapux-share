@@ -9,6 +9,7 @@ interface ShareFormState {
   shareName: Ref<string>
   shareDescription: Ref<string>
   sharePassword: Ref<string>
+  shareSlug: Ref<string>
 }
 
 interface SubmittedShareInfo {
@@ -36,6 +37,7 @@ export default function (form: ShareFormState) {
     form.shareName.value = ""
     form.shareDescription.value = ""
     form.sharePassword.value = ""
+	form.shareSlug.value = ""
   }
 
   const handleSubmit = async (closeExpirationModal: () => void) => {
@@ -59,6 +61,7 @@ export default function (form: ShareFormState) {
     if(form.shareName.value) formData.append("name", form.shareName.value)
     if(form.shareDescription.value) formData.append("description", form.shareDescription.value)
     if(form.sharePassword.value) formData.append("password", form.sharePassword.value)
+	if(form.shareSlug.value) formData.append("slug", form.shareSlug.value)
 
     try {
       const response = await $fetch<{ token: string }>('/api/upload', {
@@ -80,7 +83,15 @@ export default function (form: ShareFormState) {
       closeExpirationModal()
       isShareModalOpen.value = true
     } catch (error: any) {
-      toast.add({ title: 'Upload failed', description: 'Please try again later.', color: 'error' })
+	  if(error?.status === 409 || error?.response?.status === 409) {
+		toast.add({ title: "Upload failed", description: "This URL is taken.", color: "error" })
+	  }
+	  else if(error?.status === 400 || error?.response?.status === 400) {
+		toast.add({ title: "Upload failed", description: "The slug should contain only letters, numbers and underscores. Length between 3-50 characters.", color: "error" })
+	  }
+	  else {
+		toast.add({ title: 'Upload failed', description: 'Please try again later.', color: 'error' })
+	  }
       console.error(error)
     } finally {
       isLoading.value = false

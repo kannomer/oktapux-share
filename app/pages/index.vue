@@ -72,6 +72,7 @@
           <p v-if="config?.allow_passwordless_shares === false" class="text-xs text-muted">
             This server requires a password on every share
           </p>
+		  <UInput v-model="shareSlug" placeholder="Custom URL (optional)"/>
         </div>
       </template>
 
@@ -138,6 +139,7 @@ const expiryUnit = ref("day")
 const shareName = ref<string>("")
 const shareDescription = ref<string>("")
 const sharePassword = ref<string>("")
+const shareSlug = ref<string>("")
 
 // Expiration options
 const expiryUnitOptions = [
@@ -189,7 +191,8 @@ const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = u
   computedExpiryDate,
   shareName,
   shareDescription,
-  sharePassword
+  sharePassword,
+  shareSlug
 })
 
 const { copyToClipboard } = useCopyToClipboard()

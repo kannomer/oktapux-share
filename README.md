@@ -144,7 +144,7 @@ docker compose up -d --build
 
 ### 🟣 V1.2 - Power Features
 
-- [ ] Custom URL slug - set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
+- [x] Custom URL slug - set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
 - [ ] Reverse share - generate an upload request link and send it to someone so they upload files to you
 - [ ] Share audit log - track when shares were created, accessed, downloaded and expired
 - [ ] One-time download links

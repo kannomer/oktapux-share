@@ -7,6 +7,7 @@ import { pipeline } from 'node:stream/promises';
 import { db } from '../db/index';
 import { shares, files, settings } from '../db/schema';
 import { nanoid } from "nanoid";
+import { eq } from "drizzle-orm"
 
 export default defineEventHandler(async (event) => {
   const req = event.node.req;
@@ -57,14 +58,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: "Validation failed. No files exist in request"})
   }
 
-  // Insert a new row into shares table
-  const token = nanoid();
+  let token = nanoid()
   const expiryType = uploadFields.expiry_type?.[0]
   const expiresAt = uploadFields.expires_at?.[0]
   const maxDownloads = uploadFields.max_downloads?.[0]
   const shareName = uploadFields.name?.[0]
   const shareDescription = uploadFields.description?.[0]
   const password = uploadFields.password?.[0]
+  const customSlug = uploadFields.slug?.[0]
 
   let parsedExpiry: Date | null = null
   let parsedDownloads: number | null = null
@@ -77,7 +78,18 @@ export default defineEventHandler(async (event) => {
   if (parsedExpiry && isNaN(parsedExpiry.getTime())) {
   throw createError({ statusCode: 400, message: "Invalid date" })
   }
-
+  if(customSlug) {
+	if (/^[A-Za-z0-9_-]{3,50}$/.test(customSlug)) {
+		const checkSlug = await db.select().from(shares).where(eq(shares.token, customSlug)).limit(1)
+		if(checkSlug.length) {
+			throw createError({ statusCode: 409, message: "This URL is taken" })
+		}
+		token = customSlug
+	}
+	else {
+		throw createError({ statusCode: 400, message: "The slug should contain only letters, numbers and underscores. 3-50 length"})
+	}
+  }
   // ---- Server config enforcement ----
   // These mirror the toggles/caps shown (or hidden) on the frontend, but
   // must be re-checked here since the frontend can be bypassed entirely
