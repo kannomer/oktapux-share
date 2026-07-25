@@ -122,7 +122,7 @@ import QRCode from 'qrcode'
 // Server-side config — controls which upload options are shown/allowed.
 // The frontend only uses this for UX (hiding/disabling fields); the real
 // enforcement happens server-side in /api/upload.
-const { data: config } = await useFetch('/api/config')
+const { data: config } = await useSiteConfig()
 const formatSize = useFormatSize()
 
 useHead({

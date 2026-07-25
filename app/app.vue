@@ -7,7 +7,7 @@
         <a href="/">
           <div class="flex items-center gap-2">
               <img src="/logo_circle.svg" class="w-8 h-8" />
-              <span class="font-bold text-lg">Oktapux</span>
+              <span class="font-bold text-lg">{{ config?.site_name || "Oktapux" }}</span>
           </div>
         </a>
       </template>
@@ -29,3 +29,6 @@
     <UToaster />
   </UApp>
 </template>
+<script setup lang="ts">
+const { data: config } = await useSiteConfig()
+</script>

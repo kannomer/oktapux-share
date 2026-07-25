@@ -20,7 +20,7 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'require-admin' })
 
-const { data: config, pending, refresh } = await useFetch('/api/config')
+const { data: config, pending, refresh } = await useSiteConfig()
 const isSaving = ref(false)
 const toast = useToast()
 
