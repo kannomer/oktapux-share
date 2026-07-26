@@ -1,17 +1,9 @@
-import formidable from 'formidable';
-import { randomUUID } from 'node:crypto';
-import { join, extname } from 'node:path';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { unlink } from 'node:fs/promises';
-import { pipeline } from 'node:stream/promises';
 import { db } from '../db/index';
-import { shares, files, settings } from '../db/schema';
+import { shares, settings } from '../db/schema';
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm"
 
 export default defineEventHandler(async (event) => {
-  const req = event.node.req;
-
   // Load server config before parsing 
   // max_file_size needs to be handed
   // to formidable itself so oversized uploads are rejected mid-parse,
@@ -21,36 +13,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: "Server is not configured yet" })
   }
 
-  const form = formidable({
-    uploadDir: join(process.cwd(), "uploads"),
-    maxFileSize: config.max_file_size,
-    // maxTotalFileSize defaults to maxFileSize if left unset, which wrongly
-    // caps the *sum* of all files in a multi-file upload at the per-file
-    // limit. max_file_size is meant to be a per-file cap, so disable the
-    // total cap and let maxFileSize do the enforcement per file instead.
-    maxTotalFileSize: Infinity,
-    multiples: true
-  });
-
-  // formidable's multipart parser emits an 'error' event on the form
-  // itself when a size limit is exceeded. If nothing is listening for it,
-  // Node treats it as an uncaught error and dumps a raw stack trace to
-  // the console instead of just rejecting form.parse()'s promise. This
-  // no-op listener ensures the error only ever surfaces through the
-  // catch block below, as a clean response to the client.
-  form.on('error', () => {})
-
-  let uploadFields;
-  let uploadFiles;
-  try {
-    [uploadFields, uploadFiles] = await form.parse(req);
-  } catch(err: any) {
-    console.error(err);
-    if (typeof err?.message === 'string' && /maxFileSize|maxTotalFileSize/i.test(err.message)) {
-      throw createError({ statusCode: 400, message: `File exceeds the maximum allowed size of ${formatBytes(config.max_file_size)}` })
-    }
-    throw createError({ statusCode: 400, message: "Failed to parse upload"});
-  }
+  const [uploadFields, uploadFiles] = await parseUploadForm(event, config.max_file_size)
 
   // make sure files exist in the request
   if(uploadFiles?.["files"] === undefined || uploadFiles?.["files"].length == 0) {
@@ -143,34 +106,7 @@ export default defineEventHandler(async (event) => {
 
   // Loop through uploaded files:
   for (const file of uploadFiles["files"]) {
-    const ext = extname(file.originalFilename ?? "");
-    const storedName = randomUUID() + ext;
-    const destPath = join(process.cwd(), "uploads", storedName)
-
-    // Encrypt the file while streaming it from formidable's temp path
-    // into its final location, instead of a plain rename.
-    const salt = generateSalt()
-    const key = deriveFileKey(salt, password)
-    const { iv, cipher } = createEncryptCipher(key)
-
-    await pipeline(
-      createReadStream(file.filepath),
-      cipher,
-      createWriteStream(destPath)
-    )
-    const authTag = cipher.getAuthTag()
-    await unlink(file.filepath)
-
-    await db.insert(files).values({
-      share_id: share.id,
-      original_name: file.originalFilename ?? "unknown",
-      stored_name: storedName,
-      size: file.size,
-      mime_type: file.mimetype ?? "application/octet-stream",
-      iv: iv.toString('hex'),
-      salt: salt.toString('hex'),
-      auth_tag: authTag.toString('hex')
-    })
+    await storeEncryptedFile(file, share.id, password)
   }
   return { token };
 });

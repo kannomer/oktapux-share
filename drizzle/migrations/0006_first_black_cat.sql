@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `allow_reverse_shares` integer DEFAULT true NOT NULL;

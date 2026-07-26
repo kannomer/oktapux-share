@@ -23,6 +23,22 @@
         </UCard>
 
         <UCard v-else class="w-full" variant="subtle">
+            <div v-if="shareData?.is_reverse" class="flex items-center justify-between gap-2 mb-4 p-3 rounded-lg bg-elevated">
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold flex items-center gap-1.5">
+                        <UIcon name="i-lucide-inbox" />
+                        Share this link to collect files
+                    </p>
+                    <p class="text-xs text-muted truncate mt-0.5">{{ uploadPageUrl }}</p>
+                </div>
+                <UButton
+                    icon="i-lucide-link"
+                    variant="ghost"
+                    color="neutral"
+                    size="sm"
+                    @click="copyToClipboard(uploadPageUrl, 'collection link')"
+                />
+            </div>
             <template #header>
                 <USkeleton v-if="pending" class="h-5 w-62.5" />
                 <p v-else-if="errorMessage">{{ errorMessage }}</p>
@@ -155,6 +171,13 @@
 
     const sharePageUrl = computed(() => {
         if (import.meta.client) return window.location.href
+        return ''
+    })
+
+    const uploadPageUrl = computed(() => {
+        if (import.meta.client && shareData.value?.upload_token) {
+            return `${window.location.origin}/r/${shareData.value.upload_token}`
+        }
         return ''
     })
 

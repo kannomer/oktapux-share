@@ -14,8 +14,9 @@
         color="neutral"
       />
       
-      <div class="flex justify-center mt-6">
+      <div class="flex justify-center mt-6 gap-2">
         <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral" size="xl"/>
+        <UButton v-if="config?.allow_reverse_shares" type="button" label="Request files" icon="i-lucide-inbox" @click="() => { isReverseModalOpen = true }" color="neutral" variant="subtle" size="xl"/>
       </div>
     </UCard>
     
@@ -79,6 +80,76 @@
 
       <template #footer>
         <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="attemptSubmit" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" />
+      </template>
+    </UModal>
+
+    <!-- Request files (reverse share) -->
+    <UModal v-model:open="isReverseModalOpen" title="Request files" description="Create a link others can use to send you files">
+      <template #body>
+        <div v-if="!reverseIsPermanent" class="flex gap-2">
+          <UInputNumber v-model="reverseExpiryAmount" :min="1" class="w-24" />
+          <USelect
+            v-model="reverseExpiryUnit"
+            :items="expiryUnitOptions"
+            class="flex-1"
+          />
+        </div>
+        <p v-if="!reverseIsPermanent" class="text-xs text-muted mt-1">
+          Expires on {{ reverseComputedExpiryDisplay }}
+        </p>
+        <p v-if="!reverseIsPermanent && config?.max_expiry_days" class="text-xs text-muted">
+          This server caps expiry at {{ config.max_expiry_days }} day{{ config.max_expiry_days === 1 ? '' : 's' }}
+        </p>
+        <USwitch v-if="config?.allow_permanent_shares" v-model="reverseIsPermanent" label="Permanent request" class="mt-4" />
+        <USeparator type="dashed" class="mt-5"/>
+        <div class="flex flex-col gap-2 mt-4">
+          <UInput v-model="reverseName" placeholder="Request name (optional)"/>
+          <UTextarea v-model="reverseDescription" placeholder="Tell submitters what to upload (optional)" autoresize :maxrows="4"/>
+          <UInput
+            v-model="reversePassword"
+            type="password"
+            :placeholder="config?.allow_passwordless_shares === false ? 'Password (required)' : 'Password (optional)'"
+            icon="i-lucide-lock"
+          />
+          <p v-if="config?.allow_passwordless_shares === false" class="text-xs text-muted">
+            This server requires a password on every share
+          </p>
+        </div>
+      </template>
+
+      <template #footer>
+        <UButton label="Create request" size="lg" icon="i-lucide-inbox" @click="attemptReverseCreate" loading-auto :disabled="isReverseLoading" loading-icon="i-lucide-loader" />
+      </template>
+    </UModal>
+
+    <!-- Display reverse share links -->
+    <UModal v-model:open="isReverseShareModalOpen" title="Your file request is ready">
+      <template #body class="block justify-center">
+        <p class="font-semibold flex items-center gap-1.5">
+          <UIcon name="i-lucide-inbox" />
+          Collection link — share this with submitters
+        </p>
+        <UInput :model-value="collectionUrl ?? ''" readonly class="w-full mt-2"/>
+
+        <p class="font-semibold flex items-center gap-1.5 mt-4">
+          <UIcon name="i-lucide-lock" />
+          Owner link — keep this private, use it to view collected files
+        </p>
+        <UInput :model-value="ownerUrl ?? ''" readonly class="w-full mt-2"/>
+
+        <p v-if="reverseSubmittedInfo?.isPermanent" class="text-xs text-muted mt-3">
+          This request never expires
+        </p>
+        <p v-else-if="reverseSubmittedInfo?.expiryDate" class="text-xs text-muted mt-3">
+          Expires on {{ new Date(reverseSubmittedInfo.expiryDate).toLocaleString() }}
+        </p>
+        <p v-if="reverseSubmittedInfo?.isPasswordProtected" class="text-xs text-muted mt-2">
+          Password protected
+        </p>
+      </template>
+      <template #footer>
+        <UButton icon="i-lucide-clipboard-pen" label="Copy collection link" size="lg" variant="solid" @click="copyToClipboard(collectionUrl ?? '')"/>
+        <UButton icon="i-lucide-clipboard-pen" label="Copy owner link" size="lg" variant="outline" @click="copyToClipboard(ownerUrl ?? '')"/>
       </template>
     </UModal>
 
@@ -179,6 +250,41 @@ const openExpirationModal = () => {
   }
 
   isModalOpen.value = true
+}
+
+const isReverseModalOpen = ref(false)
+const reverseIsPermanent = ref(false)
+const reverseExpiryAmount = ref(1)
+const reverseExpiryUnit = ref("day")
+const reverseName = ref<string>("")
+const reverseDescription = ref<string>("")
+const reversePassword = ref<string>("")
+const { computedExpiryDate: reverseComputedExpiryDate } = useComputeExpiryDate(reverseExpiryAmount, reverseExpiryUnit)
+const reverseComputedExpiryDisplay = computed(() => new Date(reverseComputedExpiryDate.value).toLocaleString())
+
+const {
+  handleReverseCreate,
+  isLoading: isReverseLoading,
+  ownerUrl,
+  collectionUrl,
+  isReverseShareModalOpen,
+  submittedInfo: reverseSubmittedInfo
+} = useHandleReverseCreate({
+  isPermanent: reverseIsPermanent,
+  expiryAmount: reverseExpiryAmount,
+  expiryUnit: reverseExpiryUnit,
+  computedExpiryDate: reverseComputedExpiryDate,
+  shareName: reverseName,
+  shareDescription: reverseDescription,
+  sharePassword: reversePassword
+})
+
+const attemptReverseCreate = () => {
+  if (config.value?.allow_passwordless_shares === false && !reversePassword.value) {
+    useToast().add({ title: "Password required", description: "This server requires a password on every share", color: "warning" })
+    return
+  }
+  handleReverseCreate(() => { isReverseModalOpen.value = false })
 }
 
 const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = useHandleSubmit({

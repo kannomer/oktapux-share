@@ -10,7 +10,9 @@ export const shares = table("shares", {
     download_count: t.int().default(0).notNull(),
     name: t.text(),
     description: t.text(),
-    password_hash: t.text()
+    password_hash: t.text(),
+	is_reverse: t.int({ mode: "boolean" }).notNull().default(false),
+	upload_token: t.text().unique()
 });
 
 export const files = table("files", {
@@ -40,5 +42,6 @@ export const settings = table("settings", {
 	max_expiry_days: t.int(),
 	cap_download_based_expiry: t.int({ mode: "boolean" }).notNull().default(false),
 	enable_qr_code: t.int({ mode: "boolean" }).notNull().default(true),
+	allow_reverse_shares: t.int({ mode: "boolean" }).notNull().default(true),
 	site_name: t.text()
 })

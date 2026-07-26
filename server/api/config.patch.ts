@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
 		max_expiry_days,
 		cap_download_based_expiry,
 		enable_qr_code,
+		allow_reverse_shares,
 		site_name
 	} = body
 
@@ -29,6 +30,7 @@ export default defineEventHandler(async (event) => {
 		max_expiry_days,
 		cap_download_based_expiry,
 		enable_qr_code,
+		allow_reverse_shares,
 		site_name
 	}).where(eq(settings.id, row.id))
 

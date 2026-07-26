@@ -145,16 +145,8 @@ docker compose up -d --build
 ### 🟣 V1.2 - Power Features
 
 - [x] Custom URL slug - set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
-- [ ] Reverse share - generate an upload request link and send it to someone so they upload files to you
+- [x] Reverse share - generate an upload request link and send it to someone so they upload files to you
 - [ ] Share audit log - track when shares were created, accessed, downloaded and expired
-- [ ] One-time download links
-
-### 🔴 V1.3 - Scaling & robustness
-
-- [ ] Rate limiting (IP + per-share)
-- [ ] File type restrictions (MIME + extension)
-- [ ] Storage caps (global + per share)
-- [ ] Chunked/resumable uploads
 
 ---
 
