@@ -6,13 +6,15 @@ const scrypt = promisify(scryptCallback)
 const KEY_LENGTH = 64
 
 // Stored format: "<saltHex>:<hashHex>"
-export const hashPassword = async (plain: string): Promise<string> => {
+// Rename from hashPassword to avoid collision with nuxt-auth-utils auto-import
+export const hashSharePassword = async (plain: string): Promise<string> => {
   const salt = randomBytes(16).toString('hex')
   const derivedKey = (await scrypt(plain, salt, KEY_LENGTH)) as Buffer
   return `${salt}:${derivedKey.toString('hex')}`
 }
 
-export const verifyPassword = async (plain: string, stored: string): Promise<boolean> => {
+// Rename from verifyPassword to avoid collision with nuxt-auth-utils auto-import
+export const verifySharePasswordHash = async (plain: string, stored: string): Promise<boolean> => {
   const [salt, hashHex] = stored.split(':')
   if (!salt || !hashHex) return false
 
@@ -41,7 +43,7 @@ export const verifySharePassword = async (
     throw createError({ statusCode: 401, message: 'Password required' })
   }
 
-  const valid = await verifyPassword(provided, passwordHash)
+  const valid = await verifySharePasswordHash(provided, passwordHash)
   if (!valid) {
     throw createError({ statusCode: 401, message: 'Incorrect password' })
   }

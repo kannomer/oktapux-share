@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const passwordHash = password ? await hashPassword(password) : null
+  const passwordHash = password ? await hashSharePassword(password) : null
 
   const [share] = await db.insert(shares).values({
     token: nanoid(),

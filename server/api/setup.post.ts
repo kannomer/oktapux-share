@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, message: "Username and password required" })
 	}
 
-	const passwordHash = await hashPassword(password)
+	const passwordHash = await hashSharePassword(password)
 
 	await db.insert(admin).values({ username, password_hash: passwordHash })
 	await db.insert(settings).values({}) // defaults
