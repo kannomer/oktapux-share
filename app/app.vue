@@ -12,9 +12,12 @@
         </a>
       </template>
 	  <template #right>
-		<UTooltip :content="{ side: 'left' }" text="Site Config">
+		<UTooltip text="Site Config">
 			<UButton to="/admin" icon="i-lucide-cog" color="neutral" variant="soft" />
 		</UTooltip>
+		<UDropdownMenu :items="items">
+			<UButton icon="i-lucide-menu" color="neutral" variant="soft" />
+		</UDropdownMenu>
 	  </template>
     </UHeader>
 
@@ -35,5 +38,21 @@
   </UApp>
 </template>
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui';
 const { data: config } = await useSiteConfig()
+
+const items = ref<DropdownMenuItem[][]>([
+	[
+		{
+			label: "Share",
+			icon: "i-lucide-share",
+			to: "/"
+		},
+		{
+			label: "Reverse Share",
+			icon: "i-lucide-folder-up",
+			to: "/request"
+		}
+	]
+])
 </script>
