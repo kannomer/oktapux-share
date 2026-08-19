@@ -9,6 +9,8 @@ import { nanoid } from "nanoid";
 // `upload_token` is the public link handed out to submitters (used at
 // /r/[uploadToken] to upload only).
 export default defineEventHandler(async (event) => {
+  checkRateLimit(`reverse-create:${getClientIp(event)}`, 20, 10 * 60 * 1000)
+
   const [config] = await db.select().from(settings).limit(1)
   if (!config) {
     throw createError({ statusCode: 500, message: "Server is not configured yet" })

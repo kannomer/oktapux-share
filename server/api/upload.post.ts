@@ -4,6 +4,8 @@ import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm"
 
 export default defineEventHandler(async (event) => {
+  checkRateLimit(`upload:${getClientIp(event)}`, 20, 10 * 60 * 1000)
+
   // Load server config before parsing 
   // max_file_size needs to be handed
   // to formidable itself so oversized uploads are rejected mid-parse,
@@ -92,14 +94,33 @@ export default defineEventHandler(async (event) => {
 
   const passwordHash = password ? await hashSharePassword(password) : null
 
-  const [share] = await db.insert(shares).values({
-    token,
-    expires_at: parsedExpiry,
-    max_downloads: parsedDownloads,
-    name: shareName,
-    description: shareDescription,
-    password_hash: passwordHash
-  }).returning()
+  let share
+  try {
+    [share] = await db.insert(shares).values({
+      token,
+      expires_at: parsedExpiry,
+      max_downloads: parsedDownloads,
+      name: shareName,
+      description: shareDescription,
+      password_hash: passwordHash
+    }).returning()
+  } catch (err: any) {
+    // The slug availability check above is a look-then-insert: two
+    // requests for the same custom slug can race between the check and
+    // this insert, and the DB's unique constraint on shares.token is what
+    // actually catches it. Without this, that race surfaces as a raw
+    // SQLite constraint error instead of the same clean 409 the earlier
+    // check gives everyone else.
+    const isTokenCollision = customSlug
+      && (err?.code === 'SQLITE_CONSTRAINT_UNIQUE' || err?.code === 'SQLITE_CONSTRAINT')
+      && typeof err?.message === 'string'
+      && /shares\.token/i.test(err.message)
+    if (isTokenCollision) {
+      throw createError({ statusCode: 409, message: "This URL is taken" })
+    }
+    console.error(err)
+    throw createError({ statusCode: 500, message: "Failed to create share" })
+  }
   if (!share) {
     throw createError({ statusCode: 500, message: "Failed to create share" });
   }

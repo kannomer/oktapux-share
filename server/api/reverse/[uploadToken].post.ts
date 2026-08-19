@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm';
 // description, expiry, or password fields are read here, those were
 // already fixed when the share was created via POST /api/reverse.
 export default defineEventHandler(async (event) => {
+  checkRateLimit(`reverse-submit:${getClientIp(event)}`, 20, 10 * 60 * 1000)
+
   const uploadToken = getRouterParam(event, "uploadToken");
   if (!uploadToken) throw createError({ statusCode: 400, message: 'Missing upload token' });
 
