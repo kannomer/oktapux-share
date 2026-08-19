@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 	const session = await requireUserSession(event) // 401 if not logged in
 
 	const body = await readBody(event)
-	// Only allow known columns through — never spread raw body into .set()
+	// Only allow known columns through, never spread raw body into .set()
 	const {
 		max_file_size,
 		allow_passwordless_shares,

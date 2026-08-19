@@ -15,7 +15,7 @@
 		<UTooltip text="Site Config">
 			<UButton to="/admin" icon="i-lucide-cog" color="neutral" variant="soft" />
 		</UTooltip>
-		<UDropdownMenu :items="items">
+		<UDropdownMenu :items="items" v-if="config?.allow_reverse_shares">
 			<UButton icon="i-lucide-menu" color="neutral" variant="soft" />
 		</UDropdownMenu>
 	  </template>

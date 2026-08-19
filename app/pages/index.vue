@@ -193,8 +193,9 @@ const { handleSubmit, isLoading, shareUrl, isShareModalOpen, submittedInfo } = u
 
 const { copyToClipboard } = useCopyToClipboard()
 
-// Client-side check before submitting — mirrors the server-side rule in
-// /api/upload so the user gets instant feedback instead of a round-trip
+// Client-side check before submitting
+// mirrors the server-side rule in /api/upload so the user
+// gets instant feedback instead of a round-trip
 // error, but this is UX only; the server re-checks independently.
 const attemptSubmit = () => {
   if (config.value?.allow_passwordless_shares === false && !sharePassword.value) {

@@ -49,8 +49,8 @@ export const checkRateLimit = (key: string, limit: number, windowMs: number): vo
 }
 
 // Best-effort client identifier. x-forwarded-for is only trustworthy if
-// you're behind a reverse proxy that sets it (Nginx, Caddy, Cloudflare,
-// etc.) — if you're exposing the Node process directly, the socket address
+// you're behind a reverse proxy that sets it (Nginx, Caddy, Cloudflare, etc.) 
+// if you're exposing the Node process directly, the socket address
 // is used instead. Either way this is "best effort", not a hard identity:
 // it's meant to slow down casual brute-forcing, not survive a determined
 // attacker rotating IPs.
