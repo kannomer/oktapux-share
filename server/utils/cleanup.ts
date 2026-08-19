@@ -4,6 +4,28 @@ import { lt, lte, and, isNotNull, inArray, or } from 'drizzle-orm'
 import { unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 
+// Deletes one or more shares, their file rows, and the encrypted blobs on
+// disk. Shared by the cleanup scheduler (expired shares) and the admin
+// "delete share" endpoint.
+export const deleteShares = async (shareIds: number[]): Promise<{ shareCount: number; fileCount: number }> => {
+    if (!shareIds.length) return { shareCount: 0, fileCount: 0 }
+
+    const targetFiles = await db.select().from(files).where(inArray(files.share_id, shareIds))
+
+    for (const targetFile of targetFiles) {
+        try {
+            await unlink(join(process.cwd(), "uploads", targetFile.stored_name))
+        } catch (err) { console.log(err) }
+    }
+
+    if (targetFiles.length) {
+        await db.delete(files).where(inArray(files.share_id, shareIds))
+    }
+    await db.delete(shares).where(inArray(shares.id, shareIds))
+
+    return { shareCount: shareIds.length, fileCount: targetFiles.length }
+}
+
 export const runCleanup = async () => {
     const expiredShares = await db.select().from(shares).where(
         or(
@@ -13,23 +35,9 @@ export const runCleanup = async () => {
     )
     if(!expiredShares.length){ console.log("No expired shares found"); return }
 
-    const expiredShareIds = expiredShares.map(share => share.id);
-    const expiredFiles = await db.select().from(files).where(
-        inArray(files.share_id, expiredShareIds)
-    )
+    const { shareCount, fileCount } = await deleteShares(expiredShares.map(share => share.id))
 
-    for(const expiredFile of expiredFiles){
-        try{
-            await unlink(join(process.cwd(), "uploads", expiredFile.stored_name));
-        } catch(err){ console.log(err) }
-    }
-
-    if(expiredFiles.length){
-        await db.delete(files).where(inArray(files.share_id, expiredShareIds))
-    }
-    await db.delete(shares).where(inArray(shares.id, expiredShareIds))
-
-    console.log(`Cleanup complete. Removed ${expiredShares.length} share(s) and ${expiredFiles.length} file(s)`)
+    console.log(`Cleanup complete. Removed ${shareCount} share(s) and ${fileCount} file(s)`)
 }
 
 export const startCleanupScheduler = (intervalMs: number = 1000 * 60 * 15) => {

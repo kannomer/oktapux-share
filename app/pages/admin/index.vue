@@ -7,7 +7,10 @@
             <p class="font-semibold">Instance settings</p>
             <p class="text-sm text-muted mt-1">Configure how this Oktapux Share instance behaves</p>
           </div>
-          <UButton icon="i-lucide-log-out" variant="ghost" color="neutral" size="sm" label="Log out" @click="logout" />
+          <div class="flex items-center gap-2">
+            <UButton to="/admin/shares" icon="i-lucide-folder-tree" variant="ghost" color="neutral" size="sm" label="Manage shares" />
+            <UButton icon="i-lucide-log-out" variant="ghost" color="neutral" size="sm" label="Log out" @click="logout" />
+          </div>
         </div>
       </template>
 
