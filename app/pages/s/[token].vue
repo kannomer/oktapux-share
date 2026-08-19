@@ -100,7 +100,7 @@
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                @click="copyToClipboard(fileDownloadUrl(file.id, passwordAttempt), 'file link')"
+                                @click="copyToClipboard(fileDownloadUrl(token, file.id, passwordAttempt), 'file link')"
                             />
                         </UTooltip>
                         <UTooltip text="Download file">
@@ -109,7 +109,7 @@
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                :href="fileDownloadUrl(file.id, passwordAttempt)"
+                                :href="fileDownloadUrl(token, file.id, passwordAttempt)"
                                 target="_blank"
                             />
                         </UTooltip>
