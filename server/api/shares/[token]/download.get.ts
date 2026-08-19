@@ -24,11 +24,19 @@ export default defineEventHandler(async (event) => {
 
     const archive = archiver("zip", { zlib: { level: 6 } })
     archive.pipe(event.node.res)
+    const usedNames = new Set<string>()
     for(const shareFile of shareFiles){
         const key = deriveFileKey(Buffer.from(shareFile.salt, 'hex'), providedPassword)
         const decipher = createDecryptCipher(key, Buffer.from(shareFile.iv, 'hex'), Buffer.from(shareFile.auth_tag, 'hex'))
         const decryptedStream = createReadStream(join(process.cwd(), "uploads", shareFile.stored_name)).pipe(decipher)
-        archive.append(decryptedStream, { name: shareFile.original_name })
+        // Reduced to a safe basename. See sanitizeArchiveEntryName for why
+        // the raw original_name can't be trusted as an archive entry path.
+        let entryName = sanitizeArchiveEntryName(shareFile.original_name)
+        if (usedNames.has(entryName)) {
+            entryName = `${shareFile.id}-${entryName}`
+        }
+        usedNames.add(entryName)
+        archive.append(decryptedStream, { name: entryName })
     }
     await new Promise<void>((resolve, reject) => {
         archive.on('finish', resolve)
