@@ -29,6 +29,17 @@ export default defineNuxtConfig({
   nitro: {
     preset: "node-server"
   },
+
+  routeRules: {
+    '/**': {
+      headers: {
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+      }
+    }
+  },
   
   vite: {
 	optimizeDeps: {
@@ -38,9 +49,14 @@ export default defineNuxtConfig({
 	}
   },
 
-  auth: {
-	session: {
-		maxAge: 60 * 30 // 30 minutes
-	}
+  runtimeConfig: {
+    session: {
+      maxAge: 60 * 30, // 30 minutes
+      cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax'
+      }
+    }
   }
 })
