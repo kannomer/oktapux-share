@@ -121,35 +121,6 @@ docker compose up -d --build
 
 ---
 
-## 🗺️ Roadmap
-
-### ✅ V1.0 - (Complete)
-
-- [x] File upload with shareable links
-- [x] Expiration by date
-- [x] Expiration by download count
-- [x] Permanent share option
-- [x] Share page UI (download page for recipients)
-- [x] Download entire share as zip
-- [x] Copy link & QR code
-- [x] Automated cleanup of expired shares & files
-- [x] Docker support
-- [x] Auto-publish Docker image via GitHub Actions
-
-### 🔵 V1.1 - Polish & Features
-
-- [x] Password-protected shares
-- [x] Share name & description - add a title and optional description at upload time
-- [x] In-app config page - hosters can configure the instance without touching env files
-
-### 🟣 V1.2 - Power Features
-
-- [x] Custom URL slug - set a custom path for a share e.g. `/s/birthday-photos` instead of `/s/abc123`
-- [x] Reverse share - generate an upload request link and send it to someone so they upload files to you
-- [ ] Share audit log - track when shares were created, accessed, downloaded and expired
-
----
-
 ## 🤝 Contributing
 
 Contributions, issues and feature requests are welcome. Feel free to open an issue or submit a pull request.
