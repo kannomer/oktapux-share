@@ -2,6 +2,7 @@
   "name": "oktapux-share",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
