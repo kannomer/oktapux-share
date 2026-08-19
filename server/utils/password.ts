@@ -43,6 +43,11 @@ export const verifySharePassword = async (
     throw createError({ statusCode: 401, message: 'Password required' })
   }
 
+  // Only throttle actual guesses (a provided password), not the initial
+  // request that reveals a share is password-protected. Scoped per-IP so
+  // one visitor guessing wrong repeatedly can't lock others out.
+  checkRateLimit(`share-pw:${getClientIp(event)}`, 10, 5 * 60 * 1000)
+
   const valid = await verifySharePasswordHash(provided, passwordHash)
   if (!valid) {
     throw createError({ statusCode: 401, message: 'Incorrect password' })
