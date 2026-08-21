@@ -13,8 +13,8 @@ jobs:
         with:
           token: ${{ secrets.GHCR_PAT }}
           package: oktapux-share
-          owner: kannomer
+          owner: users/kannomer
           minimum_days: 7
           keep_versions: 5
-          delete_tags: true
-          delete_untagged: true
+          delete_tagged: 1
+          delete_untagged: 1
