@@ -65,16 +65,19 @@ Run the same checks used by CI locally:
 
 ```bash
 pnpm lint
-pnpm nuxi typecheck
-pnpm test
+pnpm exec nuxi typecheck
+pnpm run setup
+pnpm test -- --coverage
 pnpm audit --prod
 ```
+
+The Vitest suite measures coverage for the critical server routes and composables and enforces minimum thresholds in CI.
 
 ### Operations
 
 The service exposes `GET /api/health` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
 
-Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity.
+Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity. The sample environment file includes `LOG_LEVEL=info`.
 
 ### Production (Docker)
 
