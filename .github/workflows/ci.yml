@@ -40,7 +40,7 @@ jobs:
       - name: Bootstrap
         run: pnpm run setup
 
-      - name: Test
+      - name: Test with coverage
         run: pnpm test -- --coverage
 
       - name: Audit production dependencies
