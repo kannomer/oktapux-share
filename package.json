@@ -21,7 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "drizzle-orm": "^0.45.2",
     "formidable": "^3.5.4",
-    "nanoid": "^5.1.16",
+    "nanoid": "^6.0.1",
     "nuxt": "^4.5.1",
     "nuxt-auth-utils": "^0.5.29",
     "pino": "^10.0.0",
