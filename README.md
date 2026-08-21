@@ -50,20 +50,31 @@ cd oktapux-share
 # 2. Install dependencies
 pnpm install
 
-# 3. Set an encryption key (used to encrypt uploaded files at rest)
-#    and a session secret (used to encrypt the admin login session)
-echo "ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)" > .env
-echo "NUXT_SESSION_PASSWORD=$(openssl rand -hex 32)" >> .env
+# 3. Bootstrap the local environment and database
+pnpm run setup
 
-# 4. Run database migrations
-pnpm drizzle-kit generate
-pnpm drizzle-kit migrate
-
-# 5. Start the dev server
+# 4. Start the dev server
 pnpm run dev
 ```
 
 App runs at `http://localhost:3000`. On first visit, you'll be redirected to a one-time setup wizard to create the admin account before the rest of the site becomes accessible.
+
+### Verification
+
+Run the same checks used by CI locally:
+
+```bash
+pnpm lint
+pnpm nuxi typecheck
+pnpm test
+pnpm audit --prod
+```
+
+### Operations
+
+The service exposes `GET /api/health` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
+
+Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity.
 
 ### Production (Docker)
 
