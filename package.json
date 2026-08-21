@@ -12,7 +12,8 @@
     "setup": "node scripts/setup.mjs",
     "lint": "eslint .",
     "test": "vitest run",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@nuxt/ui": "^4.10.0",
