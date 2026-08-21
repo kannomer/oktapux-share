@@ -3,19 +3,19 @@
     <!-- File upload card -->
     <UCard :title="config?.site_name || 'Create a share'" description="Share your files across the globe" class="w-full" variant="subtle">
       <UFileUpload
+	    v-model="fileUploadValue"
         multiple
         icon="i-lucide-cloud-upload"
         label="Select or drop your files here" 
         :description="`(Max. ${formatSize(config?.max_file_size ?? 0)})`"
         layout="list"
-        :interactive="true"
-        v-model="fileUploadValue" 
+        :interactive="true" 
         class="w-full min-h-48"
         color="neutral"
       />
       
       <div class="flex justify-center mt-6 gap-2">
-        <UButton type="button" label="Share" icon="i-lucide-share" @click="openExpirationModal" color="neutral" size="xl"/>
+        <UButton type="button" label="Share" icon="i-lucide-share" color="neutral" size="xl" @click="openExpirationModal"/>
       </div>
     </UCard>
     
@@ -31,7 +31,7 @@
 
         <!-- Conditional: date input (amount + unit) -->
         <div v-if="expiryType === 'date'" class="flex gap-2 mt-4">
-          <UInputNumber :disabled="isPermanent" v-model="expiryAmount" :min="1" class="w-24" />
+          <UInputNumber v-model="expiryAmount" :disabled="isPermanent" :min="1" class="w-24" />
           <USelect
             v-model="expiryUnit"
             :disabled="isPermanent"
@@ -50,8 +50,8 @@
         <p v-if="expiryType === 'downloads'" class="text-sm text-muted mt-4 mb-1">Max downloads</p>
         <UInputNumber
           v-if="expiryType === 'downloads'"
+		  v-model="maxDownloads"
           :disabled="isPermanent"
-          v-model="maxDownloads"
           :min="1"
         />
         <p v-if="expiryType === 'downloads' && config?.cap_download_based_expiry && config?.max_expiry_days" class="text-xs text-muted mt-1">
@@ -78,37 +78,41 @@
 
 
       <template #footer>
-        <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="attemptSubmit" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" />
+        <UButton label="Upload" size="lg" icon="i-lucide-upload" loading-auto :disabled="isLoading" loading-icon="i-lucide-loader" @click="attemptSubmit" />
       </template>
     </UModal>
 
     <!-- Display share link -->
     <UModal v-model:open="isShareModalOpen" title="Your share is ready">
-      <template #body class="block justify-center">
-        <p class="font-semibold">Here's your share link:</p>
-        <UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
-        <p v-if="submittedInfo?.expiryType === 'downloads'" class="text-xs text-muted mt-2">
-          Expires after {{ submittedInfo?.maxDownloads }} downloads
-        </p>
-        <p v-if="submittedInfo?.expiryType === 'date'" class="text-xs text-muted mt-2">
-          Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
-        </p>
-        <p v-if="submittedInfo?.expiryType === 'permanent'" class="text-xs text-muted mt-2">
-          This share never expires
-        </p>
-        <p v-if="submittedInfo?.isPasswordProtected" class="text-xs text-muted mt-2">
-          Password protected
-        </p>
+      <template #body>
+		<div class="block justify-center">
+			<p class="font-semibold">Here's your share link:</p>
+			<UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
+			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-xs text-muted mt-2">
+			Expires after {{ submittedInfo?.maxDownloads }} downloads
+			</p>
+			<p v-if="submittedInfo?.expiryType === 'date'" class="text-xs text-muted mt-2">
+			Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
+			</p>
+			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-xs text-muted mt-2">
+			This share never expires
+			</p>
+			<p v-if="submittedInfo?.isPasswordProtected" class="text-xs text-muted mt-2">
+			Password protected
+			</p>
+	  	</div>
       </template>
       <template #footer>
         <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
-        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="Share QR Code" size="lg" variant="solid" @click="() => { qrCodeModal = true }"></UButton>
+        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="Share QR Code" size="lg" variant="solid" @click="() => { qrCodeModal = true }" />
       </template>
     </UModal>
     <!-- QR Code Modal -->
-     <UModal v-model:open="qrCodeModal" v-if="config?.enable_qr_code && qrCodeUrl" title="Your QR Code is created">
-      <template #body class="block justify-center">
-        <img :src="qrCodeUrl" class="mt-4 mx-auto"/>
+     <UModal v-if="config?.enable_qr_code && qrCodeUrl" v-model:open="qrCodeModal" title="Your QR Code is created">
+      <template #body>
+		<div class="block justify-center">
+        	<img :src="qrCodeUrl" class="mt-4 mx-auto">
+		</div>
       </template>
       <template #footer>
         <UButton icon="i-lucide-download" label="Download QR Code" size="lg" variant="solid" :href="qrCodeUrl" download="share-qr.png"/>

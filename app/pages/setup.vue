@@ -77,8 +77,13 @@ const submit = async () => {
     })
     await refreshSession()
     await navigateTo('/admin')
-  } catch (error: any) {
-    toast.add({ title: 'Setup failed', description: error?.data?.message ?? 'Please try again.', color: 'error' })
+  } catch (error) {
+	const err = error as {
+		data?: {
+			message?: string
+		}
+	}
+    toast.add({ title: 'Setup failed', description: err?.data?.message ?? 'Please try again.', color: 'error' })
   } finally {
     isLoading.value = false
   }

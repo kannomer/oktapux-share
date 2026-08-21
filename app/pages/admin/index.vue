@@ -21,20 +21,23 @@
 </template>
 
 <script setup lang="ts">
+import type { Settings } from '~/types/settings'
+
 definePageMeta({ middleware: 'require-admin' })
 
 const { data: config, pending, refresh } = await useSiteConfig()
 const isSaving = ref(false)
 const toast = useToast()
 
-const saveConfig = async (values: any) => {
+const saveConfig = async (values: Settings) => {
   isSaving.value = true
   try {
     await $fetch('/api/config', { method: 'PATCH', body: values })
     await refresh()
     toast.add({ title: 'Settings saved', color: 'success' })
-  } catch (error: any) {
-    toast.add({ title: 'Failed to save settings', description: error?.data?.message ?? 'Please try again.', color: 'error' })
+  } catch (error) {
+	const err = error as { data?: { message?: string } }
+    toast.add({ title: 'Failed to save settings', description: err?.data?.message ?? 'Please try again.', color: 'error' })
   } finally {
     isSaving.value = false
   }

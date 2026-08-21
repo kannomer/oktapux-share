@@ -1,3 +1,5 @@
+import type { FetchError } from 'ofetch'
+
 interface ShareFormState {
   files: Ref<File[]>
   isPermanent: Ref<boolean>
@@ -82,20 +84,29 @@ export default function (form: ShareFormState) {
       resetForm()
       closeExpirationModal()
       isShareModalOpen.value = true
-    } catch (error: any) {
-	  if(error?.status === 409 || error?.response?.status === 409) {
-		toast.add({ title: "Upload failed", description: "This URL is taken.", color: "error" })
-	  }
-	  else if(error?.status === 400 || error?.response?.status === 400) {
-		toast.add({ title: "Upload failed", description: "The slug should contain only letters, numbers and underscores. Length between 3-50 characters.", color: "error" })
-	  }
-	  else {
-		toast.add({ title: 'Upload failed', description: 'Please try again later.', color: 'error' })
-	  }
-      console.error(error)
-    } finally {
-      isLoading.value = false
-    }
+    } catch (error) {
+		const err = error as FetchError
+		if (err.status === 409 || err.response?.status === 409) {
+			toast.add({
+				title: "Upload failed",
+				description: "This URL is taken.",
+				color: "error"
+			})
+		} else if (err.status === 400 || err.response?.status === 400) {
+			toast.add({
+				title: "Upload failed",
+				description: "The slug should contain only letters, numbers and underscores. Length between 3-50 characters.",
+				color: "error"
+			})
+		} else {
+			toast.add({
+				title: 'Upload failed',
+				description: 'Please try again later.',
+				color: 'error'
+			})
+		}
+		console.error(error)
+	}
   }
 
   return {

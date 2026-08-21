@@ -65,7 +65,7 @@ export default function (form: ReverseFormState) {
       resetForm()
       closeModal()
       isReverseShareModalOpen.value = true
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.add({ title: 'Failed to create request', description: 'Please try again later.', color: 'error' })
       console.error(error)
     } finally {

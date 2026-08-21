@@ -18,7 +18,7 @@
             />
             <p v-if="hasAttempted" class="text-xs text-error mt-2">Incorrect password. Please try again.</p>
             <template #footer>
-                <UButton label="Unlock" icon="i-lucide-unlock" @click="submitPassword" :loading="pending" />
+                <UButton label="Unlock" icon="i-lucide-unlock" :loading="pending" @click="submitPassword" />
             </template>
         </UCard>
 
@@ -73,7 +73,7 @@
                 </div>
             </template>
             <template v-if="pending">
-                <div class="grid grid-cols-[1fr_120px_120px] gap-2 py-2" v-for="i in 3" :key="i">
+                <div v-for="i in 3" :key="i" class="grid grid-cols-[1fr_120px_120px] gap-2 py-2">
                     <USkeleton class="h-5" />
                     <USkeleton class="h-5" />
                     <USkeleton class="h-5" />

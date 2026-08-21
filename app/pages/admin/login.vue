@@ -44,8 +44,13 @@ const submit = async () => {
     })
     await refreshSession()
     await navigateTo('/admin')
-  } catch (error: any) {
-    errorMessage.value = error?.data?.message ?? 'Invalid credentials'
+  } catch (error) {
+	const err = error as {
+		data?: {
+			message?: string
+		}
+  	}
+    errorMessage.value = err?.data?.message ?? 'Invalid credentials'
   } finally {
     isLoading.value = false
   }

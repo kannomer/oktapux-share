@@ -12,7 +12,7 @@
       </template>
 
       <template v-if="pending">
-        <div class="grid grid-cols-[1fr_100px_100px_80px] gap-2 py-2" v-for="i in 4" :key="i">
+        <div v-for="i in 4" :key="i" class="grid grid-cols-[1fr_100px_100px_80px] gap-2 py-2">
           <USkeleton class="h-5" />
           <USkeleton class="h-5" />
           <USkeleton class="h-5" />
@@ -116,8 +116,13 @@ const doDelete = async () => {
     toast.add({ title: 'Share deleted', color: 'success' })
     isConfirmOpen.value = false
     await refresh()
-  } catch (error: any) {
-    toast.add({ title: 'Failed to delete share', description: error?.data?.message ?? 'Please try again.', color: 'error' })
+  } catch (error) {
+	const err = error as {
+		data?: {
+			message?: string
+		}
+  	}
+    toast.add({ title: 'Failed to delete share', description: err?.data?.message ?? 'Please try again.', color: 'error' })
   } finally {
     deletingId.value = null
   }

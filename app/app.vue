@@ -6,7 +6,7 @@
       <template #left>
         <a href="/">
           <div class="flex items-center gap-2">
-              <img src="/logo_circle.svg" class="w-8 h-8" />
+              <img src="/logo_circle.svg" class="w-8 h-8">
               <span class="font-bold text-lg">{{ config?.site_name || "Oktapux" }}</span>
           </div>
         </a>
@@ -15,7 +15,7 @@
 		<UTooltip text="Site Config">
 			<UButton to="/admin" icon="i-lucide-cog" color="neutral" variant="soft" />
 		</UTooltip>
-		<UDropdownMenu :items="items" v-if="config?.allow_reverse_shares">
+		<UDropdownMenu v-if="config?.allow_reverse_shares" :items="items">
 			<UButton icon="i-lucide-menu" color="neutral" variant="soft" />
 		</UDropdownMenu>
 	  </template>

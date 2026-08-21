@@ -20,7 +20,7 @@
             />
             <p v-if="hasAttempted" class="text-xs text-error mt-2">Incorrect password. Please try again.</p>
             <template #footer>
-                <UButton label="Unlock" icon="i-lucide-unlock" @click="submitPassword" :loading="pending" />
+                <UButton label="Unlock" icon="i-lucide-unlock" :loading="pending" @click="submitPassword" />
             </template>
         </UCard>
 
@@ -47,12 +47,12 @@
 
             <div v-else-if="data">
                 <UFileUpload
+				    v-model="fileUploadValue"
                     multiple
                     icon="i-lucide-cloud-upload"
                     label="Select or drop your files here"
                     layout="list"
                     :interactive="true"
-                    v-model="fileUploadValue"
                     class="w-full min-h-48"
                     color="neutral"
                 />
@@ -130,9 +130,13 @@
             })
             fileUploadValue.value = []
             submitted.value = true
-        } catch (err: any) {
-            toast.add({ title: "Upload failed", description: "Please try again later.", color: "error" })
-            console.error(err)
+        } catch (err) {
+            toast.add({
+				title: "Upload failed",
+				description: "Please try again later.",
+				color: "error"
+			})
+		console.error(err)
         } finally {
             isSubmitting.value = false
         }

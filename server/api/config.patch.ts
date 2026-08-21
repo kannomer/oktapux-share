@@ -3,7 +3,7 @@ import { db } from "../db/index"
 import { settings } from "../db/schema"
 
 export default defineEventHandler(async (event) => {
-	const session = await requireUserSession(event) // 401 if not logged in
+	await requireUserSession(event) // 401 if not logged in
 
 	const body = await readBody(event)
 	// Only allow known columns through, never spread raw body into .set()

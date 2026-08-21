@@ -30,11 +30,19 @@ export const parseUploadForm = async (event: H3Event, maxFileSize: number) => {
 
   try {
     return await form.parse(req);
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
-    if (typeof err?.message === 'string' && /maxFileSize|maxTotalFileSize/i.test(err.message)) {
-      throw createError({ statusCode: 400, message: `File exceeds the maximum allowed size of ${formatBytes(maxFileSize)}` })
-    }
-    throw createError({ statusCode: 400, message: "Failed to parse upload" });
+
+    if (err instanceof Error && /maxFileSize|maxTotalFileSize/i.test(err.message)) {
+		throw createError({
+			statusCode: 400,
+			message: `File exceeds the maximum allowed size of ${formatBytes(maxFileSize)}`
+		})
+  	}
+
+	throw createError({
+		statusCode: 400,
+		message: "Failed to parse upload"
+	})
   }
 }

@@ -2,7 +2,7 @@
   <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
     <UCard title="Request files" description="Create a link others can use to send you files" class="w-full" variant="subtle">
       <div class="flex justify-center mt-2">
-        <UButton type="button" label="Create request" icon="i-lucide-folder-up" @click="openReverseModal" color="neutral" size="xl"/>
+        <UButton type="button" label="Create request" icon="i-lucide-folder-up" color="neutral" size="xl" @click="openReverseModal"/>
       </div>
     </UCard>
 
@@ -40,7 +40,7 @@
         </div>
       </template>
       <template #footer>
-        <UButton label="Create request" size="lg" icon="i-lucide-folder-up" @click="attemptReverseCreate" loading-auto :disabled="isReverseLoading" loading-icon="i-lucide-loader" />
+        <UButton label="Create request" size="lg" icon="i-lucide-folder-up" loading-auto :disabled="isReverseLoading" loading-icon="i-lucide-loader" @click="attemptReverseCreate" />
       </template>
     </UModal>
 
