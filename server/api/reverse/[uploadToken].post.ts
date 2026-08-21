@@ -1,6 +1,7 @@
 import { db } from '../../db/index';
 import { shares, settings } from '../../db/schema';
 import { eq } from 'drizzle-orm';
+import { logger } from '../../utils/logger';
 
 // Where submitters actually POST files to a reverse share. No name,
 // description, expiry, or password fields are read here, those were
@@ -27,7 +28,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: "Server is not configured yet" })
   }
 
-  const [, uploadFiles] = await parseUploadForm(event, config.max_file_size)
+  let uploadFiles
+  try {
+    ;[, uploadFiles] = await parseUploadForm(event, config.max_file_size)
+  } catch (error) {
+    logger.error({ err: error, uploadToken, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to parse reverse upload')
+    throw error
+  }
 
   if (uploadFiles?.["files"] === undefined || uploadFiles?.["files"].length == 0) {
     throw createError({ statusCode: 400, message: "Validation failed. No files exist in request" })
@@ -39,8 +46,13 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  for (const file of uploadFiles["files"]) {
-    await storeEncryptedFile(file, share.id, password)
+  try {
+    for (const file of uploadFiles["files"]) {
+      await storeEncryptedFile(file, share.id, password)
+    }
+  } catch (error) {
+    logger.error({ err: error, uploadToken, shareId: share.id, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to store reverse upload')
+    throw error
   }
 
   return { success: true, count: uploadFiles["files"].length };
