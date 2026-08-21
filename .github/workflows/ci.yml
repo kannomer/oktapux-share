@@ -37,8 +37,11 @@ jobs:
       - name: Typecheck
         run: pnpm exec nuxi typecheck
 
+      - name: Bootstrap
+        run: pnpm run setup
+
       - name: Test
-        run: pnpm test
+        run: pnpm test -- --coverage
 
       - name: Audit production dependencies
         run: pnpm audit --prod
