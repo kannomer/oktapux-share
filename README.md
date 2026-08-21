@@ -65,7 +65,7 @@ Run the same checks used by CI locally:
 
 ```bash
 pnpm lint
-pnpm exec nuxi typecheck
+pnpm nuxi typecheck
 pnpm run setup
 pnpm test -- --coverage
 pnpm audit --prod
