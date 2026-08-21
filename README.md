@@ -77,6 +77,8 @@ The Vitest suite measures coverage for the critical server routes and composable
 
 The service exposes `GET /api/health` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
 
+Authenticated users can use `GET /api/metrics` to inspect in-process request and error counters for the running instance.
+
 Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity. The sample environment file includes `LOG_LEVEL=info`.
 
 ### Production (Docker)
@@ -137,7 +139,7 @@ docker compose up -d --build
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome. Feel free to open an issue or submit a pull request.
+Contributions, issues and feature requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development, testing, commit, and pull request workflow. Feel free to open an issue or submit a pull request.
 
 ---
 
