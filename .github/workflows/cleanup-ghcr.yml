@@ -16,5 +16,5 @@ jobs:
           owner: users/kannomer
           minimum_days: 7
           keep_versions: 5
-          delete_tagged: true
-          delete_untagged: true
+          delete_tagged: 1
+          delete_untagged: 1
