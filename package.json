@@ -2,12 +2,16 @@
   "name": "oktapux-share",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+	"start": "node .output/server/index.mjs",
+    "setup": "node scripts/setup.mjs",
+    "lint": "eslint .",
+    "test": "vitest run",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
@@ -20,6 +24,7 @@
     "nanoid": "^5.1.16",
     "nuxt": "^4.5.1",
     "nuxt-auth-utils": "^0.5.29",
+    "pino": "^10.0.0",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.3.3",
     "vue": "^3.5.40",
@@ -27,10 +32,18 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.119",
+    "@nuxt/eslint": "^1.13.0",
+    "@nuxt/test-utils": "^3.20.0",
     "@types/archiver": "^7.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/formidable": "^3.5.1",
     "@types/qrcode": "^1.5.6",
-    "drizzle-kit": "^0.31.10"
+    "@vue/test-utils": "^2.4.6",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.1",
+    "happy-dom": "^20.11.6",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.3.10"
   }
 }
