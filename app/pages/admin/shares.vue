@@ -48,6 +48,7 @@
           <span class="text-sm text-muted">{{ statusLabel(share) }}</span>
           <div class="flex justify-end">
             <UButton
+			  data-test="share-delete-button"
               icon="i-lucide-trash-2"
               variant="ghost"
               color="error"
@@ -63,7 +64,7 @@
     <UModal v-model:open="isConfirmOpen" title="Delete this share?" description="This permanently removes the share and its files. This can't be undone.">
       <template #footer>
         <UButton label="Cancel" variant="ghost" color="neutral" @click="isConfirmOpen = false" />
-        <UButton label="Delete" color="error" :loading="deletingId !== null" @click="doDelete" />
+        <UButton label="Delete" color="error" data-test="confirm-delete-button" :loading="deletingId !== null" @click="doDelete" />
       </template>
     </UModal>
   </UContainer>
