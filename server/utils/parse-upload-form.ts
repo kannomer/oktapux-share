@@ -1,6 +1,7 @@
 import formidable from 'formidable';
 import { join } from 'node:path';
 import type { H3Event } from 'h3';
+import { logger } from './logger';
 
 // Sets up formidable, parses a multipart upload request, and normalizes its
 // error handling. Shared by both server/api/upload.post.ts and
@@ -31,7 +32,7 @@ export const parseUploadForm = async (event: H3Event, maxFileSize: number) => {
   try {
     return await form.parse(req);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Failed to parse upload form')
 
     if (err instanceof Error && /maxFileSize|maxTotalFileSize/i.test(err.message)) {
 		throw createError({
