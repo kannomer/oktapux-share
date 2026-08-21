@@ -3,6 +3,7 @@ import { shares, settings } from '../db/schema';
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
 import { logger } from '../utils/logger';
+import { recordError } from '../utils/metrics';
 import { expiryDateSchema, expiryTypeSchema, maxDownloadsSchema, passwordSchema, slugSchema } from '../utils/validation';
 
 export default defineEventHandler(async (event) => {
@@ -124,6 +125,7 @@ export default defineEventHandler(async (event) => {
     if (isTokenCollision) {
       throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
     }
+    recordError();
     logger.error({ err, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to create share');
     throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
   }
