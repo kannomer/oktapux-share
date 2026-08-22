@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
     if (isTokenCollision) {
       throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
     }
-    recordError();
+    recordError(err, { operation: 'create-share' });
     logger.error({ err, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to create share');
     throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
   }
