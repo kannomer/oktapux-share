@@ -26,7 +26,7 @@ describe('ShareExpirationModal', () => {
         maxDownloads: 1,
         shareName: '',
         shareDescription: '',
-        sharePassword: '',
+        shareSecretInput: '',
         shareSlug: '',
         config: {
           allow_permanent_shares: true,

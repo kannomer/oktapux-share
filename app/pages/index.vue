@@ -28,7 +28,7 @@
       v-model:max-downloads="maxDownloads"
       v-model:share-name="shareName"
       v-model:share-description="shareDescription"
-      v-model:share-password="sharePassword"
+      v-model:share-secret-input="sharePassword"
       v-model:share-slug="shareSlug"
       :config="config"
       @submit="attemptSubmit"

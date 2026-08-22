@@ -18,7 +18,7 @@ const expiryUnit = defineModel<string>('expiryUnit', { required: true })
 const maxDownloads = defineModel<number>('maxDownloads', { required: true })
 const shareName = defineModel<string>('shareName', { required: true })
 const shareDescription = defineModel<string>('shareDescription', { required: true })
-const sharePassword = defineModel<string>('sharePassword', { required: true })
+const sharePassword = defineModel<string>('shareSecretInput', { required: true })
 const shareSlug = defineModel<string>('shareSlug', { required: true })
 
 const emit = defineEmits<{
