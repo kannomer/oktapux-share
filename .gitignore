@@ -26,3 +26,5 @@ logs
 oktapux.db
 uploads/*
 !uploads/.gitkeep
+# Test coverage output
+coverage/

@@ -1,0 +1,43 @@
+# Changelog
+
+All notable changes to Oktapux Share are documented here.
+
+## [Unreleased]
+
+### Added
+- Automated Vitest coverage for server routes, composables, and Vue components/pages.
+- CI coverage enforcement and dependency freshness checks.
+- Structured logging, health checks, and authenticated runtime metrics.
+- Shared Zod validation for API request boundaries.
+- Contributor workflow documentation.
+
+## [1.2.0] - 2026-08-19
+
+### Added
+- Reverse-share/file-request workflows.
+- Custom URL slugs.
+- Rate limiting.
+- Structured logs and manual share deletion.
+- Multi-platform Docker workflow support.
+
+## [1.1.0] - 2026-07-25
+
+### Added
+- Server-side configuration enforcement.
+- Admin configuration UI and backend support.
+- File encryption and password-protected shares.
+- Share names and descriptions.
+- Permanent share configuration.
+
+## [1.0.0] - 2026-04-29
+
+### Added
+- Initial Oktapux Share release.
+- File uploads with shareable links and expiration controls.
+- SQLite/Drizzle persistence.
+- Docker deployment support.
+
+[Unreleased]: https://github.com/kannomer/oktapux-share/compare/V.1.2.0...HEAD
+[1.2.0]: https://github.com/kannomer/oktapux-share/releases/tag/V.1.2.0
+[1.1.0]: https://github.com/kannomer/oktapux-share/releases/tag/V1.1.0
+[1.0.0]: https://github.com/kannomer/oktapux-share/releases/tag/v1.0.0

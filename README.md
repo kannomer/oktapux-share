@@ -61,20 +61,38 @@ App runs at `http://localhost:3000`. On first visit, you'll be redirected to a o
 
 ### Verification
 
+Run the full local verification with:
+
+```bash
+pnpm lint
+pnpm nuxi typecheck
+pnpm test:coverage
+pnpm build
+```
+
+`pnpm test:coverage` enforces the Vitest coverage thresholds configured in `vitest.config.ts`; the command exits non-zero when coverage falls below the configured gate.
+
+For a clean-room install, CI runs `scripts/verify-fresh-clone.sh`, which creates a temporary checkout from `HEAD`, installs from the committed lockfile, runs `pnpm run setup`, runs the coverage-gated test suite, and builds the production bundle.
+
 Run the same checks used by CI locally:
 
 ```bash
 pnpm lint
 pnpm nuxi typecheck
-pnpm test
+pnpm run setup
+pnpm test:coverage
 pnpm audit --prod
 ```
+
+The Vitest suite measures coverage for the critical server routes and composables and enforces minimum thresholds in CI.
 
 ### Operations
 
 The service exposes `GET /api/health` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
 
-Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity.
+Authenticated users can use `GET /api/metrics` to inspect in-process request and error counters for the running instance.
+
+Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity. The sample environment file includes `LOG_LEVEL=info`.
 
 ### Production (Docker)
 
@@ -134,7 +152,7 @@ docker compose up -d --build
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome. Feel free to open an issue or submit a pull request.
+Contributions, issues and feature requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development, testing, commit, and pull request workflow. Feel free to open an issue or submit a pull request.
 
 ---
 

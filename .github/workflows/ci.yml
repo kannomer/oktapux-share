@@ -19,7 +19,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4.1.0
         with:
-          version: 10.17.1
+          version: 11.22.0
           run_install: false
 
       - name: Set up Node.js
@@ -37,8 +37,33 @@ jobs:
       - name: Typecheck
         run: pnpm exec nuxi typecheck
 
-      - name: Test
-        run: pnpm test
+      - name: Bootstrap
+        run: pnpm run setup
+
+      - name: Test with coverage
+        run: pnpm test:coverage
 
       - name: Audit production dependencies
         run: pnpm audit --prod
+
+  fresh-clone:
+    name: Fresh clone
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4.1.0
+        with:
+          version: 11.22.0
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Verify clean checkout
+        run: bash scripts/verify-fresh-clone.sh

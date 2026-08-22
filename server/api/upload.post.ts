@@ -3,6 +3,8 @@ import { shares, settings } from '../db/schema';
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
 import { logger } from '../utils/logger';
+import { recordError } from '../utils/metrics';
+import { expiryDateSchema, expiryTypeSchema, maxDownloadsSchema, passwordSchema, slugSchema } from '../utils/validation';
 
 export default defineEventHandler(async (event) => {
   checkRateLimit(`upload:${getClientIp(event)}`, 20, 10 * 60 * 1000);
@@ -28,26 +30,46 @@ export default defineEventHandler(async (event) => {
   const password = uploadFields.password?.[0];
   const customSlug = uploadFields.slug?.[0];
 
+  if (expiryType) {
+    const result = expiryTypeSchema.safeParse(expiryType);
+    if (!result.success) {
+      throw createError({ statusCode: 400, statusMessage: "Invalid expiry type" });
+    }
+  }
+
   let parsedExpiry: Date | null = null;
   let parsedDownloads: number | null = null;
   if (expiryType === "date" && expiresAt) {
-    parsedExpiry = new Date(expiresAt);
+    const result = expiryDateSchema.safeParse(expiresAt);
+    if (!result.success) {
+      throw createError({ statusCode: 400, statusMessage: "Invalid date" });
+    }
+    parsedExpiry = new Date(result.data);
   }
   if (expiryType === "downloads" && maxDownloads) {
-    parsedDownloads = Number(maxDownloads);
-  }
-  if (parsedExpiry && isNaN(parsedExpiry.getTime())) {
-    throw createError({ statusCode: 400, statusMessage: "Invalid date" });
+    const result = maxDownloadsSchema.safeParse(maxDownloads);
+    if (!result.success) {
+      throw createError({ statusCode: 400, statusMessage: "Invalid maximum download count" });
+    }
+    parsedDownloads = result.data;
   }
   if (customSlug) {
-    if (/^[A-Za-z0-9_-]{3,50}$/.test(customSlug)) {
-      const checkSlug = await db.select().from(shares).where(eq(shares.token, customSlug)).limit(1);
-      if (checkSlug.length) {
-        throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
-      }
-      token = customSlug;
-    } else {
-      throw createError({ statusCode: 400, statusMessage: "The slug should contain only letters, numbers and underscores. 3-50 length" });
+    const result = slugSchema.safeParse(customSlug);
+    if (!result.success) {
+      throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? "Invalid slug" });
+    }
+
+    const checkSlug = await db.select().from(shares).where(eq(shares.token, result.data)).limit(1);
+    if (checkSlug.length) {
+      throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
+    }
+    token = result.data;
+  }
+
+  if (password) {
+    const result = passwordSchema.safeParse(password);
+    if (!result.success) {
+      throw createError({ statusCode: 400, statusMessage: "Invalid password" });
     }
   }
 
@@ -103,6 +125,7 @@ export default defineEventHandler(async (event) => {
     if (isTokenCollision) {
       throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
     }
+    recordError();
     logger.error({ err, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to create share');
     throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
   }

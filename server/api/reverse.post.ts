@@ -1,6 +1,7 @@
 import { db } from '../db/index';
 import { shares, settings } from '../db/schema';
 import { nanoid } from "nanoid";
+import { expiryDateSchema, expiryTypeSchema, passwordSchema } from '../utils/validation';
 
 // Creates a reverse share (a "file request" link). No files are attached at
 // creation time, files arrive later from submitters via
@@ -23,12 +24,27 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { name, description, expiry_type: expiryType, expires_at: expiresAt, password } = body ?? {}
 
+  if (expiryType) {
+    const result = expiryTypeSchema.safeParse(expiryType)
+    if (!result.success) {
+      throw createError({ statusCode: 400, message: "Invalid expiry type" })
+    }
+  }
+
   let parsedExpiry: Date | null = null
   if (expiryType === "date" && expiresAt) {
-    parsedExpiry = new Date(expiresAt)
+    const result = expiryDateSchema.safeParse(expiresAt)
+    if (!result.success) {
+      throw createError({ statusCode: 400, message: "Invalid date" })
+    }
+    parsedExpiry = new Date(result.data)
   }
-  if (parsedExpiry && isNaN(parsedExpiry.getTime())) {
-    throw createError({ statusCode: 400, message: "Invalid date" })
+
+  if (password) {
+    const result = passwordSchema.safeParse(password)
+    if (!result.success) {
+      throw createError({ statusCode: 400, message: "Invalid password" })
+    }
   }
 
   // Same config enforcement upload.post.ts applies before any files exist.
