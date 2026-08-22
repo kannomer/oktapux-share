@@ -79,6 +79,17 @@ describe('share page', () => {
     expect(wrapper.text()).toContain('This share has expired')
   })
 
+  it('retries a protected share with the entered password', async () => {
+    errorRef.value = { statusCode: 401 }
+    const wrapper = await mountPage()
+
+    const passwordInput = wrapper.get('input')
+    await passwordInput.setValue('secret123')
+    await wrapper.get('button').trigger('click')
+
+    expect(refreshMock).toHaveBeenCalledOnce()
+  })
+
   it('renders share details and files for an accessible share', async () => {
     dataRef.value = {
       share: {
