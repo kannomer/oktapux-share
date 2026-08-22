@@ -16,6 +16,8 @@ export default defineVitestConfig({
         'server/api/health.get.ts',
         'server/api/metrics.get.ts',
         'server/utils/validation.ts',
+        'server/utils/errors.ts',
+        'server/utils/schemas/uploadRequestSchema.ts',
         'app/composables/useHandleSubmit.ts',
         'app/composables/useHandleReverseCreate.ts',
         'app/composables/useComputeExpiryDate.ts',
