@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   // returns the plaintext password if correct,
   // throws 401 if missing or wrong.
-  await verifySharePassword(event, share.password_hash)
+  await verifySharePassword(event, share.password_hash, share.upload_token ?? uploadToken, share.expires_at)
 
   return {
     name: share.name,
