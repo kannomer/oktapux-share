@@ -65,7 +65,7 @@ Run the full local verification with:
 
 ```bash
 pnpm lint
-pnpm nuxi typecheck
+pnpm typecheck
 pnpm test:coverage
 pnpm build
 ```
@@ -78,7 +78,7 @@ Run the same checks used by CI locally:
 
 ```bash
 pnpm lint
-pnpm nuxi typecheck
+pnpm typecheck
 pnpm run setup
 pnpm test:coverage
 pnpm audit --prod
