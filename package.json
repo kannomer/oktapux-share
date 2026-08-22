@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "postinstall": "nuxt prepare",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "nuxi typecheck"
   },
   "dependencies": {
     "@nuxt/ui": "^4.10.0",
