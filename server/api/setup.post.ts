@@ -4,46 +4,113 @@ import { checkAdminExists, markAdminCreated } from "../utils/admin-state"
 import { isDbConstraintError } from "../utils/errors"
 
 export default defineEventHandler(async (event) => {
-  // Fast path for normal requests, but the transaction below performs its own
-  // authoritative check so two first-run requests cannot both complete setup.
+  // Fast path. The transaction below performs the authoritative check.
   if (await checkAdminExists()) {
-    throw createError({ statusCode: 403, message: "Setup has already been completed" })
+    throw createError({
+      statusCode: 403,
+      message: "Setup has already been completed"
+    })
   }
 
   const body = await readBody(event)
   const { username, password, confirmPassword } = body ?? {}
 
   if (!username || !password || !confirmPassword) {
-    throw createError({ statusCode: 400, message: "Username, password, and password confirmation are required" })
+    throw createError({
+      statusCode: 400,
+      message: "Username, password, and password confirmation are required"
+    })
   }
 
   if (password !== confirmPassword) {
-    throw createError({ statusCode: 400, message: "Passwords do not match" })
+    throw createError({
+      statusCode: 400,
+      message: "Passwords do not match"
+    })
   }
 
   const passwordHash = await hashSharePassword(password)
 
   try {
-    await db.transaction(async (tx) => {
-      const [existingAdmin] = await tx.select({ id: admin.id }).from(admin).limit(1)
+    // better-sqlite3 transactions are synchronous.
+    // Do not make this callback async and do not invoke the
+    // result of db.transaction().
+    db.transaction((tx) => {
+      const existingAdmin = tx
+        .select({ id: admin.id })
+        .from(admin)
+        .limit(1)
+        .all()[0]
+
       if (existingAdmin) {
-        throw createError({ statusCode: 403, message: "Setup has already been completed" })
+        throw createError({
+          statusCode: 403,
+          message: "Setup has already been completed"
+        })
       }
 
-      await tx.insert(admin).values({ username, password_hash: passwordHash })
-      await tx.insert(settings).values({})
+      tx.insert(admin)
+        .values({
+          username: username.trim(),
+          password_hash: passwordHash
+        })
+        .run()
+
+      tx.insert(settings)
+        .values({})
+        .run()
     })
   } catch (error) {
-    if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 403) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "statusCode" in error &&
+      error.statusCode === 403
+    ) {
       throw error
     }
+
     if (isDbConstraintError(error)) {
-      throw createError({ statusCode: 403, message: "Setup has already been completed" })
+      throw createError({
+        statusCode: 403,
+        message: "Setup has already been completed"
+      })
     }
-    throw createError({ statusCode: 500, message: "Failed to complete setup" })
+
+    console.error("Failed to complete setup", error)
+
+    throw createError({
+      statusCode: 500,
+      message: "Failed to complete setup"
+    })
   }
 
+  // The database transaction has definitely committed at this point.
   markAdminCreated()
-  await setUserSession(event, { user: { username } })
-  return { success: true }
+
+  // Session creation happens after the transaction. If this fails,
+  // setup itself must still be considered successful because the
+  // admin account already exists.
+  try {
+    await setUserSession(event, {
+      user: {
+        username: username.trim()
+      }
+    })
+  } catch (error) {
+    console.error(
+      "Setup completed, but failed to initialize the admin session",
+      error
+    )
+
+    return {
+      success: true,
+      sessionInitialized: false
+    }
+  }
+
+  return {
+    success: true,
+    sessionInitialized: true
+  }
 })
