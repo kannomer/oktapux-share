@@ -61,13 +61,26 @@ App runs at `http://localhost:3000`. On first visit, you'll be redirected to a o
 
 ### Verification
 
+Run the full local verification with:
+
+```bash
+pnpm lint
+pnpm nuxi typecheck
+pnpm test:coverage
+pnpm build
+```
+
+`pnpm test:coverage` enforces the Vitest coverage thresholds configured in `vitest.config.ts`; the command exits non-zero when coverage falls below the configured gate.
+
+For a clean-room install, CI runs `scripts/verify-fresh-clone.sh`, which creates a temporary checkout from `HEAD`, installs from the committed lockfile, runs `pnpm run setup`, runs the coverage-gated test suite, and builds the production bundle.
+
 Run the same checks used by CI locally:
 
 ```bash
 pnpm lint
 pnpm nuxi typecheck
 pnpm run setup
-pnpm test -- --coverage
+pnpm test:coverage
 pnpm audit --prod
 ```
 
