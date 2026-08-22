@@ -17,6 +17,7 @@ type EventHandler = (...args: unknown[]) => unknown
 const {
   selectMock,
   insertMock,
+  deleteMock,
   parseUploadFormMock,
   checkRateLimitMock,
   getClientIpMock,
@@ -27,6 +28,7 @@ const {
 } = vi.hoisted(() => ({
   selectMock: vi.fn(),
   insertMock: vi.fn(),
+  deleteMock: vi.fn(),
   parseUploadFormMock: vi.fn(),
   checkRateLimitMock: vi.fn(),
   getClientIpMock: vi.fn(),
@@ -36,11 +38,12 @@ const {
   nanoidMock: vi.fn(),
 }))
 
-const dbMock = { select: selectMock, insert: insertMock }
+const dbMock = { select: selectMock, insert: insertMock, delete: deleteMock }
 
 vi.mock('../db/index', () => ({ db: dbMock }))
 vi.mock('../db/schema', () => ({
   shares: { token: 'token', id: 'id' },
+  files: { share_id: 'share_id' },
   settings: { id: 'id', max_file_size: 'max_file_size' },
 }))
 vi.mock('drizzle-orm', () => ({ eq: vi.fn(() => ({ kind: 'eq' })) }))
@@ -98,6 +101,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   selectMock.mockReset()
   insertMock.mockReset()
+  deleteMock.mockReset()
 
   getClientIpMock.mockReturnValue('127.0.0.1')
   getHeaderMock.mockReturnValue(undefined)
@@ -299,6 +303,27 @@ it('returns 400 when permanent shares are disabled', async () => {
     statusCode: 400,
     statusMessage: 'Permanent shares are disabled on this server',
   })
+})
+
+it('rolls back the share and completed files when a later file fails to store', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    {},
+    { files: [{ size: 10 }, { size: 10 }] },
+  ])
+
+  let deleteCall = 0
+  deleteMock.mockReturnValue({
+    where: vi.fn(async () => { deleteCall += 1 }),
+  })
+  storeEncryptedFileMock
+    .mockResolvedValueOnce({ id: 11, storedName: 'missing-file' })
+    .mockRejectedValueOnce(new Error('disk full'))
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 500,
+    statusMessage: 'Failed to store uploaded files',
+  })
+  expect(deleteCall).toBe(2)
 })
 
 it('caps download-based expiry when configured', async () => {
