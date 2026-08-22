@@ -32,7 +32,19 @@ const toast = useToast()
 const saveConfig = async (values: Settings) => {
   isSaving.value = true
   try {
-    await $fetch('/api/config', { method: 'PATCH', body: values })
+    await $fetch('/api/config', {
+	method: 'PATCH',
+	body: {
+			max_file_size: values.max_file_size,
+			allow_passwordless_shares: values.allow_passwordless_shares,
+			allow_permanent_shares: values.allow_permanent_shares,
+			max_expiry_days: values.max_expiry_days,
+			cap_download_based_expiry: values.cap_download_based_expiry,
+			enable_qr_code: values.enable_qr_code,
+			allow_reverse_shares: values.allow_reverse_shares,
+			site_name: values.site_name,
+		},
+	})
     await refresh()
     toast.add({ title: 'Settings saved', color: 'success' })
   } catch (error) {
