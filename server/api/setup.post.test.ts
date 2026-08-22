@@ -40,14 +40,18 @@ beforeEach(() => {
   readBodyMock.mockResolvedValue({ username: 'admin', password: 'secret123', confirmPassword: 'secret123' })
   hashSharePasswordMock.mockResolvedValue('hashed')
   setUserSessionMock.mockResolvedValue(undefined)
-  transactionMock.mockImplementation(async (callback: (tx: unknown) => Promise<void>) => callback({
+  transactionMock.mockImplementation((callback: (tx: unknown) => void) => callback({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
-        limit: vi.fn(async () => []),
+        limit: vi.fn(() => ({
+          all: vi.fn(() => []),
+        })),
       })),
     })),
     insert: vi.fn(() => ({
-      values: vi.fn(async () => undefined),
+      values: vi.fn(() => ({
+        run: vi.fn(() => undefined),
+      })),
     })),
   }))
 })
@@ -74,20 +78,22 @@ it('rejects setup when the passwords do not match', async () => {
 })
 
 it('performs the final admin check inside the transaction', async () => {
-  await expect(setup(makeEvent())).resolves.toEqual({ success: true })
+  await expect(setup(makeEvent())).resolves.toEqual({ success: true, sessionInitialized: true })
   expect(transactionMock).toHaveBeenCalledOnce()
   expect(markAdminCreatedMock).toHaveBeenCalledOnce()
   expect(setUserSessionMock).toHaveBeenCalledOnce()
 })
 
 it('does not create an account when another request completed setup first', async () => {
-  transactionMock.mockImplementation(async (callback: (tx: unknown) => Promise<void>) => callback({
+  transactionMock.mockImplementation((callback: (tx: unknown) => void) => callback({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
-        limit: vi.fn(async () => [{ id: 1 }]),
+        limit: vi.fn(() => ({
+          all: vi.fn(() => [{ id: 1 }]),
+        })),
       })),
     })),
-    insert: vi.fn(() => ({ values: vi.fn() })),
+    insert: vi.fn(() => ({ values: vi.fn(() => ({ run: vi.fn() })) })),
   }))
 
   await expect(setup(makeEvent())).rejects.toMatchObject({ statusCode: 403 })
