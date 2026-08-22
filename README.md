@@ -88,11 +88,11 @@ The Vitest suite measures coverage for the critical server routes and composable
 
 ### Operations
 
-The service exposes `GET /api/health` from `server/api/health.get.ts` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
+The service exposes `GET /api/health` from `server/api/health.get.ts` (the Nitro health route) for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
 
 Authenticated users can use `GET /api/metrics` to inspect in-process request and error counters for the running instance.
 
-Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity. The sample environment file includes `LOG_LEVEL=info`.
+Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity. The sample environment file includes `LOG_LEVEL=info`.\n\nOptional external error tracking can be enabled with `SENTRY_DSN`. When unset, reporting is a no-op; when configured, application errors are forwarded to the configured Sentry-compatible endpoint without affecting request handling.
 
 ### Production (Docker)
 
@@ -138,6 +138,10 @@ docker compose pull
 docker compose up -d
 ```
 
+**Multi-architecture image builds**
+
+The published image targets `linux/amd64` and `linux/arm64`. The Docker dependency stage uses Debian slim plus BuildKit's pnpm cache so native dependencies can reuse downloaded artifacts and avoid slow Alpine/QEMU source builds where prebuilt ARM64 binaries are available.
+
 **3. Build from source**
 
 If you prefer to build the image yourself:
@@ -149,6 +153,10 @@ docker compose up -d --build
 ```
 
 ---
+
+## 🧰 Dev Container
+
+The repository includes a `.devcontainer/devcontainer.json` for contributors using a Dev Container-compatible editor. The container runs Node.js 22, forwards port `3000`, and bootstraps dependencies and the local database with `pnpm install && pnpm run setup`.
 
 ## 🤝 Contributing
 
