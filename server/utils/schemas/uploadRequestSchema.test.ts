@@ -6,10 +6,18 @@ describe('uploadRequestSchema', () => {
     const result = uploadRequestSchema.safeParse({
       expiry_type: 'weekly',
       slug: 'bad slug',
-      password: 'short',
+      password: 'x',
     })
 
     expect(result.success).toBe(false)
+  })
+
+  it('accepts a short share password', () => {
+    const result = uploadRequestSchema.safeParse({
+      password: 'x',
+    })
+
+    expect(result.success).toBe(true)
   })
 
   it('accepts a valid upload request', () => {
