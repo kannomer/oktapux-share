@@ -13,7 +13,17 @@ vi.mock('drizzle-orm', () => ({ eq: vi.fn() }))
 
 vi.stubGlobal('defineEventHandler', (handler: (event: H3Event) => unknown) => handler)
 vi.stubGlobal('requireUserSession', requireUserSessionMock)
-vi.stubGlobal('readBody', vi.fn(async () => ({ site_name: 'Updated' })))
+const readBodyMock = vi.fn<() => Promise<unknown>>(async () => ({
+  max_file_size: 500 * 1024 * 1024,
+  allow_passwordless_shares: true,
+  allow_permanent_shares: true,
+  max_expiry_days: null,
+  cap_download_based_expiry: false,
+  enable_qr_code: true,
+  allow_reverse_shares: true,
+  site_name: 'Updated',
+}))
+vi.stubGlobal('readBody', readBodyMock)
 vi.stubGlobal('createError', ({ statusCode, statusMessage }: { statusCode: number; statusMessage: string }) => {
   const error = new Error(statusMessage) as Error & { statusCode?: number; statusMessage?: string }
   error.statusCode = statusCode
@@ -26,6 +36,17 @@ const makeEvent = () => ({ context: {}, node: { req: {} }, headers: {} }) as H3E
 
 beforeEach(() => {
   vi.clearAllMocks()
+  readBodyMock.mockReset()
+  readBodyMock.mockResolvedValue({
+    max_file_size: 500 * 1024 * 1024,
+    allow_passwordless_shares: true,
+    allow_permanent_shares: true,
+    max_expiry_days: null,
+    cap_download_based_expiry: false,
+    enable_qr_code: true,
+    allow_reverse_shares: true,
+    site_name: 'Updated',
+  })
   requireUserSessionMock.mockResolvedValue({ user: { id: 1 } })
   selectMock.mockReturnValue({
     from: vi.fn(() => ({
@@ -44,6 +65,17 @@ describe('admin config patch', () => {
     await expect(patchConfig(makeEvent())).resolves.toEqual({ success: true })
     expect(requireUserSessionMock).toHaveBeenCalledOnce()
     expect(updateMock).toHaveBeenCalledOnce()
+  })
+
+  it('returns 400 for an invalid settings payload', async () => {
+    readBodyMock.mockResolvedValue({
+      site_name: 'Updated',
+      enable_qr_code: 'yes',
+    })
+
+    await expect(patchConfig(makeEvent())).rejects.toMatchObject({
+      statusCode: 400,
+    })
   })
 
   it('returns 404 when settings are missing', async () => {
