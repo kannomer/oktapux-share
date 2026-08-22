@@ -1,5 +1,8 @@
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
+// Tests are isolated from external services: server dependencies are mocked with vi.mock,
+// so the suite does not require Docker, a live database, or network access.
+
 export default defineVitestConfig({
   test: {
     environment: 'nuxt',
