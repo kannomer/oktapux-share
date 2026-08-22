@@ -2,7 +2,7 @@
 
 All notable changes to Oktapux Share are documented here.
 
-## [Unreleased]
+## [1.3.0] - 2026-08-23
 
 ### Added
 - production hardening: atomic download-limit reservations, upload rollback/cleanup, encrypted share-auth cookies, and large-file/integrity tests.
@@ -38,7 +38,7 @@ All notable changes to Oktapux Share are documented here.
 - SQLite/Drizzle persistence.
 - Docker deployment support.
 
-[Unreleased]: https://github.com/kannomer/oktapux-share/compare/V.1.2.0...HEAD
+[1.3.0]: https://github.com/kannomer/oktapux-share/compare/V1.3.0
 [1.2.0]: https://github.com/kannomer/oktapux-share/releases/tag/V.1.2.0
 [1.1.0]: https://github.com/kannomer/oktapux-share/releases/tag/V1.1.0
 [1.0.0]: https://github.com/kannomer/oktapux-share/releases/tag/v1.0.0
