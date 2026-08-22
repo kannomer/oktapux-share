@@ -31,6 +31,7 @@ describe('useHandleSubmit', () => {
 
   it('resets the form after a successful upload', async () => {
     fetchMock.mockResolvedValue({ token: 'abc123' })
+
     const form = makeForm()
     const { handleSubmit } = useHandleSubmit(form)
     const closeExpirationModal = vi.fn()
@@ -51,41 +52,61 @@ describe('useHandleSubmit', () => {
   })
 
   it('shows the taken-URL toast for a 409 response', async () => {
-    fetchMock.mockRejectedValue({ status: 409 })
+    fetchMock.mockRejectedValue({
+      status: 409,
+    })
+
     const { handleSubmit } = useHandleSubmit(makeForm())
 
     await handleSubmit(vi.fn())
 
-    expect(addToast).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Upload failed',
-      description: 'This URL is taken.',
-      color: 'error',
-    }))
+    expect(addToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Upload failed',
+        description: 'This URL is taken.',
+        color: 'error',
+      })
+    )
   })
 
   it('shows the validation toast for a 400 response', async () => {
-    fetchMock.mockRejectedValue({ response: { status: 400 } })
+    fetchMock.mockRejectedValue({
+      response: {
+        status: 400,
+      },
+      data: {
+        message:
+          'The slug should contain only letters, numbers and underscores. Length between 3-50 characters.',
+      },
+    })
+
     const { handleSubmit } = useHandleSubmit(makeForm())
 
     await handleSubmit(vi.fn())
 
-    expect(addToast).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Upload failed',
-      description: 'The slug should contain only letters, numbers and underscores. Length between 3-50 characters.',
-      color: 'error',
-    }))
+    expect(addToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Upload failed',
+        description:
+          'The slug should contain only letters, numbers and underscores. Length between 3-50 characters.',
+        color: 'error',
+      })
+    )
   })
 
   it('shows the generic toast for unexpected failures', async () => {
     fetchMock.mockRejectedValue(new Error('network'))
+
     const { handleSubmit } = useHandleSubmit(makeForm())
 
     await handleSubmit(vi.fn())
 
-    expect(addToast).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Upload failed',
-      description: 'Please try again later.',
-      color: 'error',
-    }))
+    expect(addToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Upload failed',
+        description: 'Please try again later.',
+        color: 'error',
+      })
+    )
   })
 })

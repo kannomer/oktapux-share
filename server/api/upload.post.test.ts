@@ -253,16 +253,16 @@ it('returns 400 for an invalid custom slug', async () => {
   })
 })
 
-it('returns 400 for an invalid password', async () => {
+it('accepts a short share password', async () => {
   parseUploadFormMock.mockResolvedValue([
     { password: ['x'] },
     { files: [{ size: 10 }] },
   ])
 
-  await expect(upload(makeEvent())).rejects.toMatchObject({
-    statusCode: 400,
-    statusMessage: 'Invalid password',
+  await expect(upload(makeEvent())).resolves.toEqual({
+    token: 'generated-token',
   })
+  expect(hashSharePasswordMock).toHaveBeenCalledWith('x')
 })
 
 it('returns 400 when a file exceeds the configured size limit', async () => {

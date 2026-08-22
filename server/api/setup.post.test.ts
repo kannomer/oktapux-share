@@ -37,7 +37,7 @@ const makeEvent = () => ({ context: {}, node: { req: {} }, headers: {} }) as H3E
 beforeEach(() => {
   vi.clearAllMocks()
   checkAdminExistsMock.mockResolvedValue(false)
-  readBodyMock.mockResolvedValue({ username: 'admin', password: 'secret123' })
+  readBodyMock.mockResolvedValue({ username: 'admin', password: 'secret123', confirmPassword: 'secret123' })
   hashSharePasswordMock.mockResolvedValue('hashed')
   setUserSessionMock.mockResolvedValue(undefined)
   transactionMock.mockImplementation(async (callback: (tx: unknown) => Promise<void>) => callback({
@@ -50,6 +50,27 @@ beforeEach(() => {
       values: vi.fn(async () => undefined),
     })),
   }))
+})
+
+
+it('rejects setup when the password confirmation is missing', async () => {
+  readBodyMock.mockResolvedValue({ username: 'admin', password: 'secret123', confirmPassword: '' })
+
+  await expect(setup(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    message: 'Username, password, and password confirmation are required',
+  })
+  expect(transactionMock).not.toHaveBeenCalled()
+})
+
+it('rejects setup when the passwords do not match', async () => {
+  readBodyMock.mockResolvedValue({ username: 'admin', password: 'secret123', confirmPassword: 'different123' })
+
+  await expect(setup(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    message: 'Passwords do not match',
+  })
+  expect(transactionMock).not.toHaveBeenCalled()
 })
 
 it('performs the final admin check inside the transaction', async () => {
