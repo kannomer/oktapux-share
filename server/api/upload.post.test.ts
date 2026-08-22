@@ -182,3 +182,275 @@ it('returns 400 when passwordless shares are disabled', async () => {
     statusMessage: 'This server requires a password on all shares',
   })
 })
+
+it('returns 500 when the server has no configuration', async () => {
+  selectMock.mockReturnValue({
+    from: vi.fn(() => ({
+      limit: vi.fn(async () => []),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 500,
+    statusMessage: 'Server is not configured yet',
+  })
+})
+
+it('returns 400 for an invalid expiry type', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    { expiry_type: ['invalid'] },
+    { files: [{ size: 10 }] },
+  ])
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    statusMessage: 'Invalid expiry type',
+  })
+})
+
+it('returns 400 for an invalid expiry date', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    {
+      expiry_type: ['date'],
+      expires_at: ['not-a-date'],
+    },
+    { files: [{ size: 10 }] },
+  ])
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    statusMessage: 'Invalid date',
+  })
+})
+
+it('returns 400 for an invalid maximum download count', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    {
+      expiry_type: ['downloads'],
+      max_downloads: ['0'],
+    },
+    { files: [{ size: 10 }] },
+  ])
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    statusMessage: 'Invalid maximum download count',
+  })
+})
+
+it('returns 400 for an invalid custom slug', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    { slug: ['bad slug'] },
+    { files: [{ size: 10 }] },
+  ])
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+  })
+})
+
+it('returns 400 for an invalid password', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    { password: ['x'] },
+    { files: [{ size: 10 }] },
+  ])
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    statusMessage: 'Invalid password',
+  })
+})
+
+it('returns 400 when a file exceeds the configured size limit', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    {},
+    { files: [{ size: 2048 }] },
+  ])
+
+  selectMock.mockReturnValue({
+    from: vi.fn(() => ({
+      limit: vi.fn(async () => [
+        configuredSettings({ max_file_size: 1024 }),
+      ]),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    statusMessage: 'File exceeds the maximum allowed size of 1024 B',
+  })
+})
+
+it('returns 400 when permanent shares are disabled', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    { expiry_type: ['permanent'] },
+    { files: [{ size: 10 }] },
+  ])
+
+  selectMock.mockReturnValue({
+    from: vi.fn(() => ({
+      limit: vi.fn(async () => [
+        configuredSettings({ allow_permanent_shares: false }),
+      ]),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+    statusMessage: 'Permanent shares are disabled on this server',
+  })
+})
+
+it('caps download-based expiry when configured', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    {
+      expiry_type: ['downloads'],
+      max_downloads: ['5'],
+    },
+    { files: [{ size: 10 }] },
+  ])
+
+  selectMock.mockReturnValue({
+    from: vi.fn(() => ({
+      limit: vi.fn(async () => [
+        configuredSettings({
+          max_expiry_days: 7,
+          cap_download_based_expiry: true,
+        }),
+      ]),
+    })),
+  })
+
+  const returningMock = vi.fn(async () => [{
+    id: 2,
+    token: 'generated-token',
+  }])
+
+  insertMock.mockReturnValue({
+    values: vi.fn((values) => {
+      expect(values.max_downloads).toBe(5)
+      expect(values.expires_at).toBeInstanceOf(Date)
+      return { returning: returningMock }
+    }),
+  })
+
+  await expect(upload(makeEvent())).resolves.toEqual({
+    token: 'generated-token',
+  })
+})
+
+it('returns 400 when date expiry exceeds the configured maximum', async () => {
+  const future = new Date()
+  future.setDate(future.getDate() + 30)
+
+  parseUploadFormMock.mockResolvedValue([
+    {
+      expiry_type: ['date'],
+      expires_at: [future.toISOString()],
+    },
+    { files: [{ size: 10 }] },
+  ])
+
+  selectMock.mockReturnValue({
+    from: vi.fn(() => ({
+      limit: vi.fn(async () => [
+        configuredSettings({ max_expiry_days: 7 }),
+      ]),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 400,
+  })
+})
+
+it('creates a share and stores its files', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    {
+      name: ['Test share'],
+      description: ['Description'],
+      password: ['password123'],
+    },
+    {
+      files: [
+        { size: 10, originalFilename: 'hello.txt' },
+        { size: 20, originalFilename: 'world.txt' },
+      ],
+    },
+  ])
+
+  await expect(upload(makeEvent())).resolves.toEqual({
+    token: 'generated-token',
+  })
+
+  expect(hashSharePasswordMock).toHaveBeenCalledWith('password123')
+  expect(insertMock).toHaveBeenCalled()
+  expect(storeEncryptedFileMock).toHaveBeenCalledTimes(2)
+})
+
+it('returns 409 when a unique token constraint races a custom slug', async () => {
+  parseUploadFormMock.mockResolvedValue([
+    { slug: ['race-slug'] },
+    { files: [{ size: 10 }] },
+  ])
+
+  selectMock
+    .mockReturnValueOnce({
+      from: vi.fn(() => ({
+        limit: vi.fn(async () => [configuredSettings()]),
+      })),
+    })
+    .mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(async () => []),
+        })),
+      })),
+    })
+
+  insertMock.mockReturnValue({
+    values: vi.fn(() => ({
+      returning: vi.fn(async () => {
+        const error = new Error(
+          'UNIQUE constraint failed: shares.token',
+        ) as Error & { code?: string }
+        error.code = 'SQLITE_CONSTRAINT_UNIQUE'
+        throw error
+      }),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 409,
+    statusMessage: 'This URL is taken',
+  })
+})
+
+it('returns 500 when share creation fails for an unexpected database error', async () => {
+  insertMock.mockReturnValue({
+    values: vi.fn(() => ({
+      returning: vi.fn(async () => {
+        throw new Error('database unavailable')
+      }),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 500,
+    statusMessage: 'Failed to create share',
+  })
+})
+
+it('returns 500 when the insert succeeds without returning a share', async () => {
+  insertMock.mockReturnValue({
+    values: vi.fn(() => ({
+      returning: vi.fn(async () => []),
+    })),
+  })
+
+  await expect(upload(makeEvent())).rejects.toMatchObject({
+    statusCode: 500,
+    statusMessage: 'Failed to create share',
+  })
+})
+

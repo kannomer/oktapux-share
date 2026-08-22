@@ -21,6 +21,6 @@ describe('validation schemas', () => {
 
   it('rejects empty passwords', () => {
     expect(passwordSchema.safeParse('').success).toBe(false)
-    expect(passwordSchema.safeParse('secret').success).toBe(true)
+    expect(passwordSchema.safeParse('secret123').success).toBe(true)
   })
 })
