@@ -1,11 +1,12 @@
 import { db } from '../db/index';
-import { shares, settings } from '../db/schema';
+import { shares, settings, files } from '../db/schema';
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
 import { logger } from '../utils/logger';
 import { recordError } from '../utils/metrics';
 import { uploadRequestSchema } from '../utils/schemas/uploadRequestSchema';
 import { isDbConstraintError } from '../utils/errors';
+import { removeStoredFiles, type StoredFile } from '../utils/store-encrypted-file';
 
 export default defineEventHandler(async (event) => {
   checkRateLimit(`upload:${getClientIp(event)}`, 20, 10 * 60 * 1000);
@@ -127,8 +128,23 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
   }
 
-  for (const file of uploadFiles["files"]) {
-    await storeEncryptedFile(file, share.id, password);
+  const storedFiles: StoredFile[] = []
+  try {
+    for (const file of uploadFiles["files"]) {
+      storedFiles.push(await storeEncryptedFile(file, share.id, password))
+    }
+  } catch (err) {
+    await removeStoredFiles(storedFiles)
+    try {
+      await db.delete(files).where(eq(files.share_id, share.id))
+      await db.delete(shares).where(eq(shares.id, share.id))
+    } catch (cleanupError) {
+      logger.error({ err: cleanupError, shareId: share.id }, 'Failed to roll back failed upload')
+    }
+    recordError(err, { operation: 'store-upload-files' })
+    logger.error({ err, shareId: share.id, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to store uploaded files')
+    throw createError({ statusCode: 500, statusMessage: 'Failed to store uploaded files' })
   }
+
   return { token };
 });
