@@ -1,12 +1,11 @@
-export default function(){
-    // file downloads are scoped to their parent share and
-    // can't be reached with the id alone from this version.
-    const fileDownloadUrl = (token: string, fileId: number, password?: string) => {
-        if (import.meta.client) {
-            const url = `${window.location.origin}/api/shares/${token}/files/${fileId}`
-            return password ? `${url}?password=${encodeURIComponent(password)}` : url
-        }
-        return ''
+export default function () {
+  // Passwords are never embedded in URLs. Protected downloads authenticate via
+  // the short-lived HttpOnly share-auth cookie established after unlock.
+  const fileDownloadUrl = (token: string, fileId: number) => {
+    if (import.meta.client) {
+      return `${window.location.origin}/api/shares/${token}/files/${fileId}`
     }
-    return fileDownloadUrl
+    return ''
+  }
+  return fileDownloadUrl
 }
