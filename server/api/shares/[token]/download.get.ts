@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm'
 import archiver from 'archiver'
 import { createReadStream } from 'node:fs'
 import { join } from 'node:path'
+import { reserveDownloadSlot } from '../../../utils/download-limit'
 
 export default defineEventHandler(async (event) => {
     const token = getRouterParam(event, "token");
@@ -14,13 +15,17 @@ export default defineEventHandler(async (event) => {
     if(share.expires_at && new Date() > share.expires_at) throw createError({ statusCode: 410, message: "Share has expired" });
     if(share.max_downloads && share.download_count >= share.max_downloads)throw createError({ statusCode: 410, message: "Share has expired" });
 
-    const providedPassword = await verifySharePassword(event, share.password_hash)
+    const providedPassword = await verifySharePassword(event, share.password_hash, share.token, share.expires_at)
 
     const shareFiles = await db.select().from(files).where(eq(files.share_id, share.id));
     if(!shareFiles || shareFiles.length === 0) throw createError({ statusCode: 404, message: "Files not found" });
 
     setResponseHeader(event, "Content-Disposition", buildContentDisposition(`share-${token}.zip`));
     setResponseHeader(event, "Content-Type", "application/zip");
+    setResponseHeader(event, "X-Content-Type-Options", "nosniff");
+
+    const reserved = await reserveDownloadSlot(share.id)
+    if (!reserved) throw createError({ statusCode: 410, message: "Share has expired" });
 
     const archive = archiver("zip", { zlib: { level: 6 } })
     archive.pipe(event.node.res)
@@ -43,5 +48,4 @@ export default defineEventHandler(async (event) => {
         archive.on('error', reject)
         archive.finalize()
     })
-    await db.update(shares).set({ download_count: share.download_count+1}).where(eq(shares.id, share.id));
 })
