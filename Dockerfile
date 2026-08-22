@@ -41,4 +41,4 @@ RUN mkdir -p /app/uploads /app/data
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "touch /app/data/oktapux.db && pnpm drizzle-kit migrate && node .output/server/index.mjs"]
+CMD ["sh", "-c", "touch /app/data/oktapux.db && ./node_modules/.bin/drizzle-kit migrate && node .output/server/index.mjs"]
