@@ -94,13 +94,13 @@
                     <span class="text-sm truncate pr-4">{{ file.original_name }}</span>
                     <span class="text-sm text-muted">{{ formatSize(file.size) }}</span>
                     <div class="flex justify-end gap-2">
-                        <UTooltip text="Copy file link">
+                        <UTooltip v-if="!shareData?.is_password_protected" text="Copy file link">
                             <UButton
                                 icon="i-lucide-link"
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                @click="copyToClipboard(fileDownloadUrl(token, file.id, passwordAttempt), 'file link')"
+                                @click="copyToClipboard(fileDownloadUrl(token, file.id), 'file link')"
                             />
                         </UTooltip>
                         <UTooltip text="Download file">
@@ -109,7 +109,7 @@
                                 variant="ghost"
                                 color="neutral"
                                 size="sm"
-                                :href="fileDownloadUrl(token, file.id, passwordAttempt)"
+                                :href="fileDownloadUrl(token, file.id)"
                                 target="_blank"
                             />
                         </UTooltip>
@@ -131,21 +131,34 @@
 <script setup lang="ts">
     const token = useRoute().params.token as string
 
-    const passwordAttempt = ref<string>('')
-    const passwordInput = ref<string>('')
+    const passwordInput = ref('')
     const hasAttempted = ref(false)
 
     const { data, error, pending, refresh } = await useFetch(`/api/shares/${token}`, {
-        query: { password: passwordAttempt },
         watch: false
     })
 
     const isLocked = computed(() => error.value?.statusCode === 401)
 
     const submitPassword = async () => {
-        passwordAttempt.value = passwordInput.value
-        await refresh()
-        hasAttempted.value = isLocked.value
+        const password = passwordInput.value
+
+        if (!password) return
+
+        hasAttempted.value = false
+
+        try {
+            await $fetch(`/api/shares/${token}`, {
+                headers: {
+                    'x-share-password': password,
+                },
+            })
+
+            passwordInput.value = ''
+            await refresh()
+        } catch {
+            hasAttempted.value = true
+        }
     }
 
     const errorMessage = computed(() => {
@@ -182,7 +195,7 @@
     })
 
     const fileDownloadUrl = useCreateFileDownloadUrl()
-    const shareDownloadUrl = useCreateShareDownloadUrl(token, passwordAttempt)
+    const shareDownloadUrl = useCreateShareDownloadUrl(token)
     const { copyToClipboard } = useCopyToClipboard()
 
     const formatSize = useFormatSize()
