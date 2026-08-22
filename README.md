@@ -88,7 +88,7 @@ The Vitest suite measures coverage for the critical server routes and composable
 
 ### Operations
 
-The service exposes `GET /api/health` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
+The service exposes `GET /api/health` from `server/api/health.get.ts` for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
 
 Authenticated users can use `GET /api/metrics` to inspect in-process request and error counters for the running instance.
 
