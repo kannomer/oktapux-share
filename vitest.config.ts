@@ -19,9 +19,7 @@ export default defineVitestConfig({
         'app/composables/useHandleSubmit.ts',
         'app/composables/useHandleReverseCreate.ts',
         'app/composables/useComputeExpiryDate.ts',
-        'app/components/ShareExpirationModal.vue',
-        'app/pages/index.vue',
-        'app/pages/admin/shares.vue',
+        'server/api/config.patch.ts',
       ],
       thresholds: {
         lines: 70,
