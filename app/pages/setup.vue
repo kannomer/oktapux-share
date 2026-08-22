@@ -28,7 +28,8 @@
         />
       </div>
 
-      <p v-if="passwordsMismatch" class="text-xs text-error mt-2">Passwords don't match</p>
+      <p v-if="passwordConfirmationMissing" class="text-xs text-warning mt-2">Please confirm your password</p>
+      <p v-else-if="passwordsMismatch" class="text-xs text-error mt-2">Passwords don't match</p>
 
       <template #footer>
         <div class="flex justify-center w-full">
@@ -56,11 +57,17 @@ const isLoading = ref(false)
 
 const checkStrength = useCheckPasswordStrength()
 const strength = computed(() => checkStrength(password.value))
-const passwordsMismatch = computed(() => confirmPassword.value.length > 0 && password.value !== confirmPassword.value)
+const passwordsMismatch = computed(() =>
+  confirmPassword.value.length > 0 && password.value !== confirmPassword.value
+)
+const passwordConfirmationMissing = computed(() =>
+  password.value.length > 0 && confirmPassword.value.length === 0
+)
 
 const canSubmit = computed(() =>
-  username.value.length > 0 &&
+  username.value.trim().length > 0 &&
   password.value.length > 0 &&
+  confirmPassword.value.length > 0 &&
   !passwordsMismatch.value &&
   (strength.value.isStrong || bypassStrength.value)
 )
@@ -73,7 +80,7 @@ const submit = async () => {
   try {
     await $fetch('/api/setup', {
       method: 'POST',
-      body: { username: username.value, password: password.value }
+      body: { username: username.value, password: password.value, confirmPassword: confirmPassword.value }
     })
     await refreshSession()
     await navigateTo('/admin')

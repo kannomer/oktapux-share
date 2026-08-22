@@ -11,10 +11,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const { username, password } = body ?? {}
+  const { username, password, confirmPassword } = body ?? {}
 
-  if (!username || !password) {
-    throw createError({ statusCode: 400, message: "Username and password required" })
+  if (!username || !password || !confirmPassword) {
+    throw createError({ statusCode: 400, message: "Username, password, and password confirmation are required" })
+  }
+
+  if (password !== confirmPassword) {
+    throw createError({ statusCode: 400, message: "Passwords do not match" })
   }
 
   const passwordHash = await hashSharePassword(password)
