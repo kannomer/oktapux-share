@@ -5,6 +5,7 @@ All notable changes to Oktapux Share are documented here.
 ## [Unreleased]
 
 ### Added
+- production hardening: atomic download-limit reservations, upload rollback/cleanup, encrypted share-auth cookies, and large-file/integrity tests.
 - Automated Vitest coverage for server routes, composables, and Vue components/pages.
 - CI coverage enforcement and dependency freshness checks.
 - Structured logging, health checks, and authenticated runtime metrics.
