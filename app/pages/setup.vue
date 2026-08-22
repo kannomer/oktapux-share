@@ -57,9 +57,11 @@ const isLoading = ref(false)
 
 const checkStrength = useCheckPasswordStrength()
 const strength = computed(() => checkStrength(password.value))
+
 const passwordsMismatch = computed(() =>
   confirmPassword.value.length > 0 && password.value !== confirmPassword.value
 )
+
 const passwordConfirmationMissing = computed(() =>
   password.value.length > 0 && confirmPassword.value.length === 0
 )
@@ -76,23 +78,50 @@ const toast = useToast()
 const { fetch: refreshSession } = useUserSession()
 
 const submit = async () => {
+  if (!canSubmit.value || isLoading.value) return
+
   isLoading.value = true
+
   try {
     await $fetch('/api/setup', {
       method: 'POST',
-      body: { username: username.value, password: password.value, confirmPassword: confirmPassword.value }
+      body: {
+        username: username.value.trim(),
+        password: password.value,
+        confirmPassword: confirmPassword.value
+      }
     })
-    await refreshSession()
-    await navigateTo('/admin')
   } catch (error) {
-	const err = error as {
-		data?: {
-			message?: string
-		}
-	}
-    toast.add({ title: 'Setup failed', description: err?.data?.message ?? 'Please try again.', color: 'error' })
+    const err = error as {
+      data?: {
+        message?: string
+      }
+    }
+
+    toast.add({
+      title: 'Setup failed',
+      description: err?.data?.message ?? 'Please try again.',
+      color: 'error'
+    })
+
+    return
   } finally {
     isLoading.value = false
   }
+
+  // /api/setup succeeded. Setup is complete.
+  //
+  // These are intentionally outside the setup error handler so a
+  // session/navigation problem cannot falsely report that setup failed.
+  try {
+    await refreshSession()
+  } catch (error) {
+    console.error(
+      'Setup completed, but session refresh failed',
+      error
+    )
+  }
+
+  await navigateTo('/admin')
 }
 </script>
