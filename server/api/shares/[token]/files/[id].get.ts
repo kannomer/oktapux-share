@@ -3,6 +3,7 @@ import { shares, files } from '../../../../db/schema'
 import { eq, and } from 'drizzle-orm'
 import { join } from 'node:path'
 import { createReadStream } from 'node:fs'
+import { reserveDownloadSlot } from '../../../../utils/download-limit'
 
 // (This replaces the old `/api/files/[id]` route, which trusted a raw
 // integer file id with no share-token check at all. Since file ids are
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 410, message: "Share has expired" })
   }
 
-  const providedPassword = await verifySharePassword(event, share.password_hash)
+  const providedPassword = await verifySharePassword(event, share.password_hash, share.token, share.expires_at)
 
   // The check that was missing before: the file must actually belong to
   // the share named by the token, not just exist somewhere in the DB.
@@ -38,13 +39,15 @@ export default defineEventHandler(async (event) => {
 
   setResponseHeader(event, "Content-Disposition", buildContentDisposition(file.original_name))
   setResponseHeader(event, "Content-Type", file.mime_type)
+  setResponseHeader(event, "X-Content-Type-Options", "nosniff")
+
+  const reserved = await reserveDownloadSlot(share.id)
+  if (!reserved) throw createError({ statusCode: 410, message: "Share has expired" })
 
   const key = deriveFileKey(Buffer.from(file.salt, 'hex'), providedPassword)
   const decipher = createDecryptCipher(key, Buffer.from(file.iv, 'hex'), Buffer.from(file.auth_tag, 'hex'))
   const encryptedStream = createReadStream(join(process.cwd(), "uploads", file.stored_name))
   const stream = encryptedStream.pipe(decipher)
-
-  await db.update(shares).set({ download_count: share.download_count + 1 }).where(eq(shares.id, share.id))
 
   return sendStream(event, stream)
 })
