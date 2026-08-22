@@ -6,7 +6,7 @@ export const slugSchema = z
   .string()
   .regex(/^[A-Za-z0-9_-]{3,50}$/, 'The slug should contain only letters, numbers and underscores. 3-50 length')
 
-export const passwordSchema = z.string().min(8, 'Password must be at least 8 characters')
+export const passwordSchema = z.string().min(1, 'Password cannot be empty')
 
 export const expiryDateSchema = z.string().datetime({ offset: true })
 
