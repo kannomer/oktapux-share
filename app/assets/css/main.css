@@ -1,10 +1,22 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import url("https://fonts.cdnfonts.com/css/redaction");
+
+:root {
+  --font-redaction: "Redaction", sans-serif;
+  --font-redaction-10: "Redaction 10", sans-serif;
+  --font-redaction-20: "Redaction 20", sans-serif;
+  --font-redaction-35: "Redaction 35", sans-serif;
+  --font-redaction-50: "Redaction 50", sans-serif;
+  --font-redaction-70: "Redaction 70", sans-serif;
+  --font-redaction-100: "Redaction 100", sans-serif;
+}
 
 button,
 [role="button"] {
   cursor: pointer;
 }
+
 :disabled {
   cursor: default;
 }
