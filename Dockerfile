@@ -11,6 +11,8 @@ RUN corepack enable \
 # ---- Dependencies ----
 FROM base AS deps
 
+ARG TARGETARCH
+
 WORKDIR /app
 
 # Native dependencies required by better-sqlite3/node-gyp
@@ -25,7 +27,7 @@ ENV PYTHON=/usr/bin/python3
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-RUN --mount=type=cache,id=oktapux-pnpm-store,target=/pnpm/store \
+RUN --mount=type=cache,id=oktapux-pnpm-store-${TARGETARCH},target=/pnpm/store \
     pnpm install --frozen-lockfile --prefer-offline
 
 # ---- Builder ----
