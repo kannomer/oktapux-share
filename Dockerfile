@@ -7,6 +7,7 @@ RUN corepack enable && pnpm config set store-dir /pnpm/store
 
 # ---- Dependencies ----
 FROM base AS deps
+RUN cat /etc/os-release && which apk || true && which apt-get || true
 WORKDIR /app
 
 RUN apk add --no-cache \
