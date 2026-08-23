@@ -1,106 +1,132 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/kannomer/oktapux-share/refs/heads/main/public/logo_mini.svg" width="100" height="100" border="10"/>
+  <img src="https://raw.githubusercontent.com/kannomer/oktapux-share/refs/heads/main/public/logo_mini.svg" width="120">
 </p>
 
-<div align="center">
+<p align="center">
+  <strong>Simple, private, self-hosted file sharing.</strong>
+  <br>
+  Upload files. Share a link. Set an expiration.
+</p>
 
-# Oktapux Share
-
-**Oktapux Share** is a lightweight, self-hosted file sharing platform inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).  
-Upload files, generate shareable links, and control exactly how long they last.
-
-![Nuxt](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt.js&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-Drizzle_ORM-003B57?logo=sqlite&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-blue)
-
-</div>
-
----
-
-## ✨ Features
-
-- 📤 Upload multiple files in a single share
-- 🔗 Auto-generated shareable links per upload
-- ⏳ Expiration by date
-- 🔢 Expiration by download count
-- ♾️ Permanent share option
-- 🪶 Lightweight: single SQLite database, zero external services required
-- 🔐 Files encrypted at rest (AES-256-GCM)
-- 🔑 Optional password protection per share
-- 🛠️ Admin-configurable instance settings (max file size, allowed share types, expiry caps)
-- 🐳 Docker support for easy self-hosting
+<p align="center">
+  <img src="https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt.js&logoColor=white" alt="Nuxt 4">
+  <img src="https://img.shields.io/badge/SQLite-Drizzle-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License">
+</p>
 
 ---
 
-## ⚙️ Setup
+## What is Oktapux Share?
 
-### Requirements
+Oktapux Share is a lightweight, self-hosted alternative to cloud file-sharing services.
 
-- Node.js 18+
-- pnpm
-- Docker _(optional, for self-hosting)_
+Upload one or more files, generate a share link, optionally protect it with a password, and decide when the link should stop working.
 
-### Development
+Oktapux Share uses a single SQLite database and local storage, so you don't need a separate database, object-storage service, or external SaaS account to run it.
+
+Inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).
+
+## Why Oktapux?
+
+* 🔐 **Encrypted at rest** - Uploaded files are encrypted with AES-256-GCM.
+* 🔗 **Simple sharing** - Generate a link and send it wherever you want.
+* ⏳ **Automatic expiration** - Expire shares by date or download count.
+* 🔑 **Password protection** - Add an additional password to individual shares.
+* 📥 **File requests** - Create upload-only links so other people can send files to you.
+* 🗄️ **SQLite** - No external database required.
+* 🐳 **Docker-ready** - Deploy with Docker Compose in minutes.
+* 📊 **Operational endpoints** - Health checks, metrics, structured logging, and optional Sentry support.
+
+---
+
+## Features
+
+### Sharing
+
+* Upload multiple files into a single share
+* Generate secure share tokens
+* Custom share URLs
+* Password-protected shares
+* Permanent shares
+* Expiration by date
+* Expiration by download count
+* Download individual files
+* Download an entire share as an archive
+* QR codes for shares
+
+### File Requests
+
+Need someone to send you files?
+
+Create a **reverse share** and give the generated upload link to another person.
+
+They can upload files without gaining access to the files already stored in the share.
+
+```text
+You
+ │
+ └── Create file request
+          │
+          ▼
+     Upload-only link
+          │
+          ▼
+     Other person
+          │
+          └── Uploads files
+```
+
+This is useful for things like:
+
+* Collecting documents
+* Receiving photos
+* Gathering project files
+* Receiving submissions
+* Asking someone to send you a large file
+
+### Security
+
+Oktapux Share is designed with self-hosted privacy and security in mind.
+
+* AES-256-GCM encryption for files at rest
+* Per-file key derivation
+* Random initialization vectors
+* Password-protected shares
+* Session-protected administration
+* Share/file authorization checks
+* Download limits
+* Rate limiting
+* Input validation
+* Automatic cleanup of expired content
+* No third-party storage required
+
+> **Important:** Keep your `ENCRYPTION_KEY_SECRET` safe. If it is lost, encrypted files may become unrecoverable.
+
+---
+
+# Quick Start
+
+## Docker Compose
+
+The easiest way to run Oktapux Share is Docker.
+
+Create a directory for the application:
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/kannomer/oktapux-share.git
+mkdir oktapux-share
 cd oktapux-share
-
-# 2. Install dependencies
-pnpm install
-
-# 3. Bootstrap the local environment and database
-pnpm run setup
-
-# 4. Start the dev server
-pnpm run dev
 ```
 
-App runs at `http://localhost:3000`. On first visit, you'll be redirected to a one-time setup wizard to create the admin account before the rest of the site becomes accessible.
-
-### Verification
-
-Run the full local verification with:
+Create a `.env` file:
 
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm test:coverage
-pnpm build
+cat > .env <<EOF
+ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)
+NUXT_SESSION_PASSWORD=$(openssl rand -hex 32)
+EOF
 ```
 
-`pnpm test:coverage` enforces the Vitest coverage thresholds configured in `vitest.config.ts`; the command exits non-zero when coverage falls below the configured gate.
-
-For a clean-room install, CI runs `scripts/verify-fresh-clone.sh`, which creates a temporary checkout from `HEAD`, installs from the committed lockfile, runs `pnpm run setup`, runs the coverage-gated test suite, and builds the production bundle.
-
-Run the same checks used by CI locally:
-
-```bash
-pnpm lint
-pnpm typecheck
-pnpm run setup
-pnpm test:coverage
-pnpm audit --prod
-```
-
-The Vitest suite measures coverage for the critical server routes and composables and enforces minimum thresholds in CI.
-
-### Operations
-
-The service exposes `GET /api/health` from `server/api/health.get.ts` (the Nitro health route) for Docker, reverse proxies, and uptime checks. It returns `{ "status": "ok" }` when the SQLite database is reachable and responds with HTTP 503 when the database check fails.
-
-Authenticated users can use `GET /api/metrics` to inspect in-process request and error counters for the running instance.
-
-Application errors are emitted as structured JSON logs. Set `LOG_LEVEL` (for example, `warn` or `debug`) to control log verbosity. The sample environment file includes `LOG_LEVEL=info`.\n\nOptional external error tracking can be enabled with `SENTRY_DSN`. When unset, reporting is a no-op; when configured, application errors are forwarded to the configured Sentry-compatible endpoint without affecting request handling.
-
-### Production (Docker)
-
-The easiest way to self-host Oktapux Share is with Docker Compose.
-
-**1. Pull and run with Docker Compose**
-
-Create a `docker-compose.yml` file on your server:
+Create `docker-compose.yml`:
 
 ```yaml
 services:
@@ -113,57 +139,359 @@ services:
       - ./uploads:/app/uploads
       - ./data:/app/data
     environment:
-      - NODE_ENV=production
-      - ENCRYPTION_KEY_SECRET=${ENCRYPTION_KEY_SECRET}
-      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
+      NODE_ENV: production
+      ENCRYPTION_KEY_SECRET: ${ENCRYPTION_KEY_SECRET}
+      NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD}
     restart: unless-stopped
 ```
 
-Then create a `.env` file next to it with generated secrets, and start the app:
+Start the application:
 
 ```bash
-echo "ENCRYPTION_KEY_SECRET=$(openssl rand -hex 32)" > .env
-echo "NUXT_SESSION_PASSWORD=$(openssl rand -hex 32)" >> .env
 docker compose up -d
 ```
 
-> ⚠️ Back up your `.env` along with `data/`. If `ENCRYPTION_KEY_SECRET` is ever lost, passwordless shares become unrecoverable.
+Then open:
 
-App runs at `http://localhost:3003`. Database migrations run automatically on startup. On first visit, you'll be redirected to a one-time setup wizard to create the admin account.
+**http://localhost:3003**
 
-**2. Updating to a newer version**
+On the first visit, Oktapux Share will guide you through the one-time administrator setup.
+
+### Updating
 
 ```bash
 docker compose pull
 docker compose up -d
 ```
 
-**Multi-architecture image builds**
+The published Docker image supports:
 
-The published image targets `linux/amd64` and `linux/arm64`. The Docker dependency stage uses Debian slim plus BuildKit's pnpm cache so native dependencies can reuse downloaded artifacts and avoid slow Alpine/QEMU source builds where prebuilt ARM64 binaries are available.
+* `linux/amd64`
+* `linux/arm64`
 
-**3. Build from source**
+So it can run on standard x86 servers as well as many ARM-based systems.
 
-If you prefer to build the image yourself:
+---
+
+# Build From Source
+
+## Requirements
+
+* Node.js 22+
+* pnpm 11+
+* Git
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/kannomer/oktapux-share.git
 cd oktapux-share
-docker compose up -d --build
+```
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Initialize the local environment and database:
+
+```bash
+pnpm run setup
+```
+
+Start the development server:
+
+```bash
+pnpm run dev
+```
+
+Open:
+
+```text
+http://localhost:3000
 ```
 
 ---
 
-## 🧰 Dev Container
+# Configuration
 
-The repository includes a `.devcontainer/devcontainer.json` for contributors using a Dev Container-compatible editor. The container runs Node.js 22, forwards port `3000`, and bootstraps dependencies and the local database with `pnpm install && pnpm run setup`.
+Oktapux Share can be configured through environment variables.
 
-## 🤝 Contributing
+Create a `.env` file:
 
-Contributions, issues and feature requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development, testing, commit, and pull request workflow. Feel free to open an issue or submit a pull request.
+```env
+# Required
+# Used to encrypt uploaded files at rest.
+ENCRYPTION_KEY_SECRET=
+
+# Required
+# Used to encrypt the administrator session.
+NUXT_SESSION_PASSWORD=
+
+# Optional
+# Pino log level.
+LOG_LEVEL=info
+
+# Optional
+# Sentry-compatible DSN for external error tracking.
+SENTRY_DSN=
+```
+
+Generate secure secrets with:
+
+```bash
+openssl rand -hex 32
+```
+
+### Backups
+
+Back up both:
+
+```text
+data/
+uploads/
+.env
+```
+
+In particular, **do not lose `ENCRYPTION_KEY_SECRET`**.
+
+The encryption key is part of the data-recovery chain for encrypted files.
 
 ---
 
-## ⚠️ Disclaimer
+# Production
 
-This is a file-sharing platform. Users are fully responsible for any files they upload, share, or distribute through instances of this software. The maintainers do not monitor, control, or endorse user-generated content and assume no responsibility for any content transmitted via deployments of this software.
+Oktapux Share is intended to sit behind a reverse proxy in production.
+
+For example:
+
+```text
+Internet
+   │
+   ▼
+Caddy / Nginx / Traefik
+   │
+   ▼
+Oktapux Share
+   │
+   ├── SQLite
+   └── Encrypted files
+```
+
+HTTPS is strongly recommended when exposing an instance to the public internet.
+
+A reverse proxy can also provide:
+
+* TLS certificates
+* Domain names
+* Access logging
+* Additional rate limiting
+* Network-level security controls
+
+---
+
+# Health & Monitoring
+
+A health endpoint is available at:
+
+```text
+GET /api/health
+```
+
+It returns a successful response when the application and SQLite database are healthy.
+
+This makes it suitable for:
+
+* Docker health checks
+* Uptime Kuma
+* Reverse proxies
+* Monitoring systems
+* Server orchestration
+
+Authenticated administrators can also access:
+
+```text
+GET /api/metrics
+```
+
+for in-process request and error metrics.
+
+Application errors are emitted as structured JSON logs.
+
+Set the log level with:
+
+```env
+LOG_LEVEL=info
+```
+
+Optional Sentry-compatible error tracking can be enabled with:
+
+```env
+SENTRY_DSN=...
+```
+
+---
+
+# Development
+
+Install dependencies and initialize the project:
+
+```bash
+pnpm install
+pnpm run setup
+```
+
+Start the development server:
+
+```bash
+pnpm run dev
+```
+
+## Available scripts
+
+| Command              | Description                               |
+| -------------------- | ----------------------------------------- |
+| `pnpm dev`           | Start the development server              |
+| `pnpm build`         | Build the production application          |
+| `pnpm start`         | Start the production server               |
+| `pnpm preview`       | Preview a production build                |
+| `pnpm setup`         | Initialize local environment and database |
+| `pnpm lint`          | Run ESLint                                |
+| `pnpm typecheck`     | Run Nuxt/TypeScript type checking         |
+| `pnpm test`          | Run the test suite                        |
+| `pnpm test:coverage` | Run tests with coverage                   |
+| `pnpm audit --prod`  | Audit production dependencies             |
+
+---
+
+# Testing
+
+Oktapux Share uses Vitest for automated testing.
+
+Run the test suite:
+
+```bash
+pnpm test
+```
+
+Run coverage:
+
+```bash
+pnpm test:coverage
+```
+
+Before submitting changes, run:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm run setup
+pnpm test:coverage
+pnpm audit --prod
+pnpm build
+```
+
+The project also includes a fresh-clone verification script used to validate that the repository can be installed and built from a clean checkout.
+
+---
+
+# Architecture
+
+Oktapux Share intentionally keeps its infrastructure small.
+
+```text
+┌─────────────────────────────┐
+│          Browser            │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│       Nuxt 4 / Nitro        │
+│                             │
+│  UI · API · Authentication  │
+└───────┬───────────┬─────────┘
+        │           │
+        ▼           ▼
+┌────────────┐  ┌─────────────┐
+│   SQLite   │  │   Storage   │
+│  Drizzle   │  │  encrypted  │
+└────────────┘  │    files    │
+                └─────────────┘
+```
+
+### Why SQLite?
+
+Oktapux Share is designed primarily for straightforward, single-instance self-hosting.
+
+SQLite keeps deployment simple:
+
+* No PostgreSQL container
+* No Redis
+* No external database
+* Easy backups
+* Minimal maintenance
+
+The trade-off is that the application is not designed around horizontally scaled, multi-instance deployments.
+
+For a personal server, homelab, small team, or single VPS, this keeps the architecture pleasantly simple.
+
+---
+
+# Security Notes
+
+Oktapux Share is intended to be self-hosted software, but no software can guarantee complete security.
+
+If you expose an instance to the public internet:
+
+1. Use HTTPS.
+2. Keep the application updated.
+3. Use strong randomly generated secrets.
+4. Back up your data and encryption secret.
+5. Put the application behind a properly configured reverse proxy.
+6. Avoid exposing the SQLite database directly.
+7. Monitor disk usage.
+8. Consider additional network-level rate limiting for public deployments.
+
+Oktapux Share does not inspect or moderate uploaded content.
+
+---
+
+# Contributing
+
+Contributions, bug reports, and feature requests are welcome.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
+
+For changes, please include:
+
+* A description of what changed
+* Why the change is needed
+* Tests covering the relevant behavior
+* Any documentation updates that are necessary
+
+Before opening a pull request:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test:coverage
+pnpm audit --prod
+pnpm build
+```
+
+Please do not commit:
+
+* `.env` files
+* Local databases
+* Uploaded files
+* Build output
+* `node_modules`
+
+---
+
+# License
+
+Oktapux Share is released under the **MIT License**.
+
+See [LICENSE](LICENSE) for the full license text.
