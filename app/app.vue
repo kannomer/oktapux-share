@@ -2,13 +2,10 @@
   <UApp>
     <NuxtRouteAnnouncer />
 
-    <UHeader :ui="{ container: 'px-4 max-w-none' }">
+    <UHeader :ui="{ container: 'px-4 max-w-none' }" class="font-redaction-35">
       <template #left>
-        <a href="/">
-          <div class="flex items-center gap-2">
-              <img src="/logo_circle.svg" class="w-8 h-8">
-              <span class="font-bold text-lg">{{ config?.site_name || "Oktapux" }}</span>
-          </div>
+        <a href="/" class="text-3xl">
+              {{ config?.site_name || "Oktapux" }}
         </a>
       </template>
 	  <template #right>
@@ -26,7 +23,7 @@
     </UMain>
 
     <UFooter>
-      <p class="text-muted text-sm">
+      <p class="text-muted text-sm font-redaction-20">
         Powered by
 		<UButton to="https://github.com/kannomer/oktapux-share" target="_blank" class="hover:text-white text-blue-400" variant="link">
 			Oktapux Share

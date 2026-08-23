@@ -1,26 +1,56 @@
-<!-- TODO: valid toast error messages. For example, if the server has a capped expiry date and the share
-	 the user is trying to create exceeds the cap, it shows the generic slug error. -->
 <template>
-  <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg">
     <!-- File upload card -->
-    <UCard :title="config?.site_name || 'Create a share'" description="Share your files across the globe" class="w-full" variant="subtle">
+    <div class="w-full">
+		<div class="mb-8 text-center">
+			<h1 class="font-redaction-35 text-4xl uppercase tracking-tight">
+				Create a share
+			</h1>
+			<p class="mt-2 text-xl text-muted">
+			Share your files across the globe.
+			</p>
+		</div>
       <UFileUpload
 	    v-model="fileUploadValue"
         multiple
         icon="i-lucide-cloud-upload"
-        label="Select or drop your files here" 
+        label="Drop your files here" 
         :description="`(Max. ${formatSize(config?.max_file_size ?? 0)})`"
         layout="list"
-        :interactive="true" 
-        class="w-full min-h-48"
+        :interactive="false"
+        class="w-full min-h-75"
         color="neutral"
-      />
-      
-      <div class="flex justify-center mt-6 gap-2">
-        <UButton type="button" label="Share" icon="i-lucide-share" color="neutral" size="xl" @click="openExpirationModal"/>
+		:ui="{
+			label: 'text-2xl',
+			description: 'text-xl',
+		}"
+      >
+	  <template #actions="{ open }">
+		<UButton
+			label="Select files"
+			color="neutral"
+			variant="outline"
+			size="xl"
+			class="px-10 py-3 text-xl"
+			@click="open()"
+      	/>
+		</template>
+
+		<template #files-bottom="{ removeFile, files }">
+		<UButton
+			v-if="files?.length"
+			label="Remove all files"
+			color="neutral"
+			size="lg"
+			@click="removeFile()"
+		/>
+		</template>
+  	  </UFileUpload>
+	  <div class="flex justify-center mt-6 gap-2">
+        <UButton type="button" label="Share" icon="i-lucide-share" color="neutral" size="xl" class="px-10 py-3 text-xl" @click="openExpirationModal"/>
       </div>
-    </UCard>
-    
+	</div>
+      
     <ShareExpirationModal
       v-model:open="isModalOpen"
       v-model:expiry-type="expiryType"
@@ -37,21 +67,21 @@
     />
 
     <!-- Display share link -->
-    <UModal v-model:open="isShareModalOpen" title="Your share is ready">
+    <UModal v-model:open="isShareModalOpen" title="Your share is ready" :ui="{ title: 'text-xl'}">
       <template #body>
 		<div class="block justify-center">
-			<p class="font-semibold">Here's your share link:</p>
+			<p class="text-lg">Here's your share link:</p>
 			<UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
-			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-xs text-muted mt-2">
+			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-sm text-muted mt-2">
 			Expires after {{ submittedInfo?.maxDownloads }} downloads
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'date'" class="text-xs text-muted mt-2">
+			<p v-if="submittedInfo?.expiryType === 'date'" class="text-sm text-muted mt-2">
 			Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-xs text-muted mt-2">
+			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-sm text-muted mt-2">
 			This share never expires
 			</p>
-			<p v-if="submittedInfo?.isPasswordProtected" class="text-xs text-muted mt-2">
+			<p v-if="submittedInfo?.isPasswordProtected" class="text-sm text-muted mt-2">
 			Password protected
 			</p>
 	  	</div>

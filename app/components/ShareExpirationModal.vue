@@ -44,28 +44,30 @@ const expiryTypeOptions = [
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" title="Create share" description="Set a name, description and expiration">
+  <UModal v-model:open="isOpen" title="Create share" description="Set a name, description and expiration" :ui="{ title: 'text-xl', description: 'text-base'}">
     <template #body>
       <URadioGroup
         v-model="expiryType"
         :disabled="isPermanent"
         legend="Expires by"
         :items="expiryTypeOptions"
+		:ui="{ legend: 'text-lg', item: 'text-base' }"
       />
 
       <div v-if="expiryType === 'date'" class="flex gap-2 mt-4">
-        <UInputNumber v-model="expiryAmount" :disabled="isPermanent" :min="1" class="w-24" />
+        <UInputNumber v-model="expiryAmount" :disabled="isPermanent" :min="1" class="w-36" size="xl"/>
         <USelect
           v-model="expiryUnit"
           :disabled="isPermanent"
           :items="expiryUnitOptions"
+		  :ui="{ value: 'text-lg' }"
           class="flex-1"
         />
       </div>
-      <p v-if="expiryType === 'date'" class="text-xs text-muted mt-1">
+      <p v-if="expiryType === 'date'" class="text-sm text-muted mt-1">
         Expires on {{ computedExpiryDisplay }}
       </p>
-      <p v-if="expiryType === 'date' && props.config?.max_expiry_days" class="text-xs text-muted">
+      <p v-if="expiryType === 'date' && props.config?.max_expiry_days" class="text-sm text-muted">
         This server caps expiry at {{ props.config.max_expiry_days }} day{{ props.config.max_expiry_days === 1 ? '' : 's' }}
       </p>
 
@@ -75,11 +77,13 @@ const expiryTypeOptions = [
         v-model="maxDownloads"
         :disabled="isPermanent"
         :min="1"
+		size="xl"
+		class="w-full"
       />
-      <p v-if="expiryType === 'downloads' && props.config?.cap_download_based_expiry && props.config?.max_expiry_days" class="text-xs text-muted mt-1">
+      <p v-if="expiryType === 'downloads' && props.config?.cap_download_based_expiry && props.config?.max_expiry_days" class="text-sm text-muted mt-1">
         This server also expires download-based shares after {{ props.config.max_expiry_days }} day{{ props.config.max_expiry_days === 1 ? '' : 's' }}, whichever comes first
       </p>
-      <USwitch v-if="props.config?.allow_permanent_shares" v-model="isPermanent" label="Permanent share" class="mt-4" />
+      <USwitch v-if="props.config?.allow_permanent_shares" v-model="isPermanent" label="Permanent share" class="mt-4" size="xl" />
       <USeparator type="dashed" class="mt-5" />
 
       <div class="flex flex-col gap-2 mt-4">

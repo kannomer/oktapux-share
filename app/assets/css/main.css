@@ -1,8 +1,15 @@
+@import url("https://fonts.cdnfonts.com/css/redaction");
 @import "tailwindcss";
 @import "@nuxt/ui";
-@import url("https://fonts.cdnfonts.com/css/redaction");
 
-:root {
+@theme static {
+  --color-bg: #050505;
+  --color-surface: #0a0a0a;
+  --color-elevated: #111111;
+  --color-border: #242424;
+  --color-text: #f2f2f2;
+  --color-muted: #777777;
+  --color-red: #ff2020;
   --font-redaction: "Redaction", sans-serif;
   --font-redaction-10: "Redaction 10", sans-serif;
   --font-redaction-20: "Redaction 20", sans-serif;
@@ -12,6 +19,9 @@
   --font-redaction-100: "Redaction 100", sans-serif;
 }
 
+body {
+  font-family: var(--font-redaction);	
+}
 button,
 [role="button"] {
   cursor: pointer;
