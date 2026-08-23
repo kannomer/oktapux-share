@@ -30,6 +30,7 @@ RUN pnpm build
 FROM base AS runner
 WORKDIR /app
 
+# Copy built output and required files
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
@@ -37,8 +38,10 @@ COPY --from=builder /app/server/db/schema.ts ./server/db/schema.ts
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
+# Create required directories
 RUN mkdir -p /app/uploads /app/data
 
+# Expose internal port
 EXPOSE 3000
 
 CMD ["sh", "-c", "touch /app/data/oktapux.db && ./node_modules/.bin/drizzle-kit migrate && node .output/server/index.mjs"]
