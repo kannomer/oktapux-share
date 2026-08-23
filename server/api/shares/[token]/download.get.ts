@@ -1,7 +1,7 @@
 import { db } from '../../../db/index'
 import { shares, files } from '../../../db/schema'
 import { eq } from 'drizzle-orm'
-import archiver from 'archiver'
+import * as archiver from 'archiver'
 import { createReadStream } from 'node:fs'
 import { join } from 'node:path'
 import { reserveDownloadSlot } from '../../../utils/download-limit'
