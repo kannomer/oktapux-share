@@ -76,24 +76,36 @@
 <script setup lang="ts">
     const uploadToken = useRoute().params.uploadToken as string
 
-    // passwordAttempt drives the query param sent to the GET endpoint,
-    // the server verifies the password before returning anything,
-    // so nothing is revealed until it's correct.
-    const passwordAttempt = ref<string>('')
-    const passwordInput = ref<string>('')
+    // Passwords are sent only in the request header. A successful unlock
+    // establishes a short-lived HttpOnly cookie for subsequent requests.
+    const passwordInput = ref('')
     const hasAttempted = ref(false)
 
     const { data, error, pending, refresh } = await useFetch(`/api/reverse/${uploadToken}`, {
-        query: { password: passwordAttempt },
         watch: false
     })
 
     const isLocked = computed(() => error.value?.status === 401)
 
     const submitPassword = async () => {
-        passwordAttempt.value = passwordInput.value
-        await refresh()
-        hasAttempted.value = isLocked.value
+        const password = passwordInput.value
+
+        if (!password) return
+
+        hasAttempted.value = false
+
+        try {
+            await $fetch(`/api/reverse/${uploadToken}`, {
+                headers: {
+                    'x-share-password': password,
+                },
+            })
+
+            passwordInput.value = ''
+            await refresh()
+        } catch {
+            hasAttempted.value = true
+        }
     }
 
     const errorMessage = computed(() => {
@@ -121,10 +133,7 @@
         fileUploadValue.value.forEach(file => formData.append('files', file))
 
         try {
-            // passwordAttempt is already the verified correct password at this point,
-            // since the GET above confirmed it
-            const query = passwordAttempt.value ? `?password=${encodeURIComponent(passwordAttempt.value)}` : ''
-            await $fetch(`/api/reverse/${uploadToken}${query}`, {
+            await $fetch(`/api/reverse/${uploadToken}`, {
                 method: 'POST',
                 body: formData
             })

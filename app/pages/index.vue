@@ -1,3 +1,5 @@
+<!-- TODO: valid toast error messages. For example, if the server has a capped expiry date and the share
+	 the user is trying to create exceeds the cap, it shows the generic slug error. -->
 <template>
   <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
     <!-- File upload card -->

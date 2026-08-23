@@ -61,7 +61,10 @@ jobs:
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      # Build and push Docker image with Buildx (don't push on PR)
+      # Build and push Docker image with Buildx (don't push on PR).
+      # The Dockerfile uses Debian slim instead of Alpine so native modules
+      # such as better-sqlite3 have Linux ARM64 prebuilds available when possible,
+      # with a compiler fallback for architectures that need a source build.
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0

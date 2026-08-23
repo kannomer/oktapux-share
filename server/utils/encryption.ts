@@ -12,7 +12,12 @@ const getServerSecret = (): Buffer => {
       'ENCRYPTION_KEY_SECRET is not set. Generate one with `openssl rand -hex 32` and set it as an env var.'
     )
   }
-  return Buffer.from(secret, 'hex')
+
+  const key = Buffer.from(secret, 'hex')
+  if (key.length !== KEY_LENGTH || !/^[0-9a-f]+$/i.test(secret) || secret.length !== KEY_LENGTH * 2) {
+    throw new Error('ENCRYPTION_KEY_SECRET must contain exactly 32 bytes encoded as hex')
+  }
+  return key
 }
 
 export const generateSalt = (): Buffer => randomBytes(SALT_LENGTH)

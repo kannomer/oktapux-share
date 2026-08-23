@@ -1,10 +1,12 @@
 import { db } from '../db/index';
-import { shares, settings } from '../db/schema';
+import { shares, settings, files } from '../db/schema';
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
 import { logger } from '../utils/logger';
 import { recordError } from '../utils/metrics';
-import { expiryDateSchema, expiryTypeSchema, maxDownloadsSchema, passwordSchema, slugSchema } from '../utils/validation';
+import { uploadRequestSchema } from '../utils/schemas/uploadRequestSchema';
+import { isDbConstraintError } from '../utils/errors';
+import { removeStoredFiles, type StoredFile } from '../utils/store-encrypted-file';
 
 export default defineEventHandler(async (event) => {
   checkRateLimit(`upload:${getClientIp(event)}`, 20, 10 * 60 * 1000);
@@ -22,55 +24,53 @@ export default defineEventHandler(async (event) => {
   }
 
   let token = nanoid();
-  const expiryType = uploadFields.expiry_type?.[0];
-  const expiresAt = uploadFields.expires_at?.[0];
-  const maxDownloads = uploadFields.max_downloads?.[0];
-  const shareName = uploadFields.name?.[0];
-  const shareDescription = uploadFields.description?.[0];
-  const password = uploadFields.password?.[0];
-  const customSlug = uploadFields.slug?.[0];
+  const rawUploadFields = {
+    expiry_type: uploadFields.expiry_type?.[0],
+    expires_at: uploadFields.expires_at?.[0],
+    max_downloads: uploadFields.max_downloads?.[0],
+    name: uploadFields.name?.[0],
+    description: uploadFields.description?.[0],
+    password: uploadFields.password?.[0],
+    slug: uploadFields.slug?.[0],
+  };
 
-  if (expiryType) {
-    const result = expiryTypeSchema.safeParse(expiryType);
-    if (!result.success) {
-      throw createError({ statusCode: 400, statusMessage: "Invalid expiry type" });
-    }
+  const parsedRequest = uploadRequestSchema.safeParse(rawUploadFields);
+  if (!parsedRequest.success) {
+    const issue = parsedRequest.error.issues[0];
+    const field = issue?.path[0];
+    const statusMessage = field === 'expiry_type'
+      ? 'Invalid expiry type'
+      : field === 'expires_at'
+        ? 'Invalid date'
+        : field === 'max_downloads'
+          ? 'Invalid maximum download count'
+          : field === 'password'
+            ? 'Invalid password'
+            : issue?.message ?? 'Invalid upload request';
+    throw createError({ statusCode: 400, statusMessage });
   }
+
+  const {
+    expiry_type: expiryType,
+    expires_at: expiresAt,
+    max_downloads: parsedDownloads,
+    name: shareName,
+    description: shareDescription,
+    password,
+    slug: customSlug,
+  } = parsedRequest.data;
 
   let parsedExpiry: Date | null = null;
-  let parsedDownloads: number | null = null;
-  if (expiryType === "date" && expiresAt) {
-    const result = expiryDateSchema.safeParse(expiresAt);
-    if (!result.success) {
-      throw createError({ statusCode: 400, statusMessage: "Invalid date" });
-    }
-    parsedExpiry = new Date(result.data);
+  if (expiryType === 'date' && expiresAt) {
+    parsedExpiry = new Date(expiresAt);
   }
-  if (expiryType === "downloads" && maxDownloads) {
-    const result = maxDownloadsSchema.safeParse(maxDownloads);
-    if (!result.success) {
-      throw createError({ statusCode: 400, statusMessage: "Invalid maximum download count" });
-    }
-    parsedDownloads = result.data;
-  }
+
   if (customSlug) {
-    const result = slugSchema.safeParse(customSlug);
-    if (!result.success) {
-      throw createError({ statusCode: 400, statusMessage: result.error.issues[0]?.message ?? "Invalid slug" });
-    }
-
-    const checkSlug = await db.select().from(shares).where(eq(shares.token, result.data)).limit(1);
+    const checkSlug = await db.select().from(shares).where(eq(shares.token, customSlug)).limit(1);
     if (checkSlug.length) {
-      throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
+      throw createError({ statusCode: 409, statusMessage: 'This URL is taken' });
     }
-    token = result.data;
-  }
-
-  if (password) {
-    const result = passwordSchema.safeParse(password);
-    if (!result.success) {
-      throw createError({ statusCode: 400, statusMessage: "Invalid password" });
-    }
+    token = customSlug;
   }
 
   for (const file of uploadFiles["files"]) {
@@ -114,18 +114,13 @@ export default defineEventHandler(async (event) => {
       password_hash: passwordHash
     }).returning();
   } catch (err) {
-	const dbError = err as {
-		code?: string
-		message?: string
-  	}
     const isTokenCollision = customSlug
-      && (dbError.code === 'SQLITE_CONSTRAINT_UNIQUE' || dbError.code === 'SQLITE_CONSTRAINT')
-      && typeof dbError.message === 'string'
-      && /shares\.token/i.test(dbError.message);
+      && isDbConstraintError(err)
+      && /shares\.token/i.test(err.message);
     if (isTokenCollision) {
       throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
     }
-    recordError();
+    recordError(err, { operation: 'create-share' });
     logger.error({ err, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to create share');
     throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
   }
@@ -133,8 +128,23 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
   }
 
-  for (const file of uploadFiles["files"]) {
-    await storeEncryptedFile(file, share.id, password);
+  const storedFiles: StoredFile[] = []
+  try {
+    for (const file of uploadFiles["files"]) {
+      storedFiles.push(await storeEncryptedFile(file, share.id, password))
+    }
+  } catch (err) {
+    await removeStoredFiles(storedFiles)
+    try {
+      await db.delete(files).where(eq(files.share_id, share.id))
+      await db.delete(shares).where(eq(shares.id, share.id))
+    } catch (cleanupError) {
+      logger.error({ err: cleanupError, shareId: share.id }, 'Failed to roll back failed upload')
+    }
+    recordError(err, { operation: 'store-upload-files' })
+    logger.error({ err, shareId: share.id, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to store uploaded files')
+    throw createError({ statusCode: 500, statusMessage: 'Failed to store uploaded files' })
   }
+
   return { token };
 });

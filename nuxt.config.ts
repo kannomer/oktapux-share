@@ -55,7 +55,7 @@ export default defineNuxtConfig({
       maxAge: 60 * 30, // 30 minutes
       cookie: {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax'
       }
     }

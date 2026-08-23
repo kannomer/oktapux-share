@@ -1,6 +1,7 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 import type { H3Event } from 'h3'
+import { getShareAuthPassword, setShareAuthCookie } from './share-auth'
 
 const scrypt = promisify(scryptCallback)
 const KEY_LENGTH = 64
@@ -25,19 +26,23 @@ export const verifySharePasswordHash = async (plain: string, stored: string): Pr
   return timingSafeEqual(derivedKey, storedBuffer)
 }
 
-// Reads a password from the request (query param or header), throws a 401
-// if the share is protected and the password is missing/incorrect, and
-// returns the plaintext password that was verified (or undefined if the
-// share has no password) so callers can use it for key derivation.
+// Reads a password from a request header or an encrypted, HttpOnly browser
+// cookie. Query-string passwords are intentionally not supported because URLs
+// routinely end up in browser history, proxy logs, analytics, and referrers.
+// A successful header authentication refreshes the short-lived cookie so
+// ordinary download links can still work without putting the password in URLs.
 export const verifySharePassword = async (
   event: H3Event,
-  passwordHash: string | null
+  passwordHash: string | null,
+  shareToken?: string,
+  expiresAt: Date | null = null,
 ): Promise<string | undefined> => {
   if (!passwordHash) return undefined
 
-  const query = getQuery(event)
+  const token = shareToken ?? getRouterParam(event, 'token') ?? getRouterParam(event, 'uploadToken')
   const headerPassword = getHeader(event, 'x-share-password')
-  const provided = (query.password as string | undefined) ?? headerPassword
+  const cookiePassword = token ? getShareAuthPassword(event, token) : undefined
+  const provided = headerPassword ?? cookiePassword
 
   if (!provided) {
     throw createError({ statusCode: 401, message: 'Password required' })
@@ -46,11 +51,17 @@ export const verifySharePassword = async (
   // Only throttle actual guesses (a provided password), not the initial
   // request that reveals a share is password-protected. Scoped per-IP so
   // one visitor guessing wrong repeatedly can't lock others out.
-  checkRateLimit(`share-pw:${getClientIp(event)}`, 10, 5 * 60 * 1000)
+  if (headerPassword) {
+    checkRateLimit(`share-pw:${getClientIp(event)}`, 10, 5 * 60 * 1000)
+  }
 
   const valid = await verifySharePasswordHash(provided, passwordHash)
   if (!valid) {
     throw createError({ statusCode: 401, message: 'Incorrect password' })
+  }
+
+  if (headerPassword && token) {
+    setShareAuthCookie(event, token, provided, expiresAt)
   }
 
   return provided

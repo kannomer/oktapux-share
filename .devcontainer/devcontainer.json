@@ -1,0 +1,20 @@
+{
+  "name": "Oktapux Share",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": "..",
+    "target": "builder"
+  },
+  "workspaceFolder": "/workspaces/oktapux-share",
+  "remoteUser": "root",
+  "forwardPorts": [3000],
+  "postCreateCommand": "pnpm install && pnpm run setup",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Vue.volar",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

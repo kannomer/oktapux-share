@@ -11,4 +11,5 @@ services:
       - NODE_ENV=production
       - ENCRYPTION_KEY_SECRET=${ENCRYPTION_KEY_SECRET}
       - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
+      - SENTRY_DSN=${SENTRY_DSN}
     restart: unless-stopped
