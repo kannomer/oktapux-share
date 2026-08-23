@@ -9,12 +9,10 @@ RUN corepack enable && pnpm config set store-dir /pnpm/store
 FROM base AS deps
 WORKDIR /app
 
-# Native dependencies required by better-sqlite3/node-gyp
+# Native Node modules such as better-sqlite3 may need a compiler on a target
+# architecture when a matching prebuilt binary is unavailable.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        python3 \
-        make \
-        g++ \
+    && apt-get install -y --no-install-recommends python3 make g++ \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
