@@ -2,12 +2,13 @@ import { defineComponent, ref } from 'vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { routeRef, dataRef, errorRef, refreshMock, copyMock } = vi.hoisted(() => ({
+const { routeRef, dataRef, errorRef, refreshMock, copyMock, fetchMock } = vi.hoisted(() => ({
   routeRef: { value: { params: { token: 'share-token' } } },
   dataRef: { value: null as Record<string, unknown> | null },
   errorRef: { value: null as { statusCode?: number } | null },
   refreshMock: vi.fn(),
   copyMock: vi.fn(),
+  fetchMock: vi.fn(),
 }))
 
 mockNuxtImport('useRoute', () => () => routeRef.value)
@@ -17,8 +18,9 @@ mockNuxtImport('useFetch', () => async () => ({
   pending: ref(false),
   refresh: refreshMock,
 }))
-mockNuxtImport('useCreateFileDownloadUrl', () => () => (token: string, id: number, password: string) => `/download/${token}/${id}?password=${password}`)
-mockNuxtImport('useCreateShareDownloadUrl', () => (token: string, password: unknown) => `/share/${token}?password=${String(password)}`)
+mockNuxtImport('$fetch', () => fetchMock)
+mockNuxtImport('useCreateFileDownloadUrl', () => () => (token: string, id: number) => `/download/${token}/${id}`)
+mockNuxtImport('useCreateShareDownloadUrl', () => (token: string) => `/share/${token}`)
 mockNuxtImport('useCopyToClipboard', () => () => ({ copyToClipboard: copyMock }))
 mockNuxtImport('useFormatSize', () => () => (bytes: number) => `${bytes} B`)
 
@@ -48,6 +50,7 @@ describe('share page', () => {
     errorRef.value = null
     refreshMock.mockReset()
     copyMock.mockReset()
+    fetchMock.mockReset()
   })
 
   const mountPage = () => mountSuspended(SharePage, {
@@ -77,6 +80,21 @@ describe('share page', () => {
     const wrapper = await mountPage()
 
     expect(wrapper.text()).toContain('This share has expired')
+  })
+
+  it('retries a protected share with the entered password', async () => {
+    errorRef.value = { statusCode: 401 }
+    const wrapper = await mountPage()
+
+    const passwordInput = wrapper.get('input')
+    await passwordInput.setValue('secret123')
+    fetchMock.mockResolvedValue({ success: true })
+    await wrapper.get('button').trigger('click')
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/shares/share-token', {
+      headers: { 'x-share-password': 'secret123' },
+    })
+    expect(refreshMock).toHaveBeenCalledOnce()
   })
 
   it('renders share details and files for an accessible share', async () => {

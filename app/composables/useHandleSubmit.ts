@@ -36,20 +36,25 @@ export default function (form: ShareFormState) {
     form.expiryAmount.value = 1
     form.expiryUnit.value = 'day'
     form.maxDownloads.value = 1
-    form.shareName.value = ""
-    form.shareDescription.value = ""
-    form.sharePassword.value = ""
-	form.shareSlug.value = ""
+    form.shareName.value = ''
+    form.shareDescription.value = ''
+    form.sharePassword.value = ''
+    form.shareSlug.value = ''
   }
 
   const handleSubmit = async (closeExpirationModal: () => void) => {
     isLoading.value = true
     shareUrl.value = null
 
-    const effectiveExpiryType = form.isPermanent.value ? 'permanent' : form.expiryType.value
+    const effectiveExpiryType = form.isPermanent.value
+      ? 'permanent'
+      : form.expiryType.value
 
     const formData = new FormData()
-    form.files.value.forEach(file => formData.append('files', file))
+
+    form.files.value.forEach(file => {
+      formData.append('files', file)
+    })
 
     if (effectiveExpiryType === 'permanent') {
       formData.append('expiry_type', 'permanent')
@@ -60,23 +65,40 @@ export default function (form: ShareFormState) {
       formData.append('expiry_type', 'downloads')
       formData.append('max_downloads', form.maxDownloads.value.toString())
     }
-    if(form.shareName.value) formData.append("name", form.shareName.value)
-    if(form.shareDescription.value) formData.append("description", form.shareDescription.value)
-    if(form.sharePassword.value) formData.append("password", form.sharePassword.value)
-	if(form.shareSlug.value) formData.append("slug", form.shareSlug.value)
+
+    if (form.shareName.value) {
+      formData.append('name', form.shareName.value)
+    }
+
+    if (form.shareDescription.value) {
+      formData.append('description', form.shareDescription.value)
+    }
+
+    if (form.sharePassword.value) {
+      formData.append('password', form.sharePassword.value)
+    }
+
+    if (form.shareSlug.value) {
+      formData.append('slug', form.shareSlug.value)
+    }
 
     try {
       const response = await $fetch<{ token: string }>('/api/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
       })
 
-      // Snapshot before reset so share modal shows correct info
       submittedInfo.value = {
         expiryType: effectiveExpiryType,
-        maxDownloads: effectiveExpiryType === 'downloads' ? form.maxDownloads.value : null,
-        expiryDate: effectiveExpiryType === 'date' ? form.computedExpiryDate.value : null,
-        isPasswordProtected: !!form.sharePassword.value
+        maxDownloads:
+          effectiveExpiryType === 'downloads'
+            ? form.maxDownloads.value
+            : null,
+        expiryDate:
+          effectiveExpiryType === 'date'
+            ? form.computedExpiryDate.value
+            : null,
+        isPasswordProtected: !!form.sharePassword.value,
       }
 
       shareUrl.value = `${window.location.origin}/s/${response.token}`
@@ -85,28 +107,36 @@ export default function (form: ShareFormState) {
       closeExpirationModal()
       isShareModalOpen.value = true
     } catch (error) {
-		const err = error as FetchError
-		if (err.status === 409 || err.response?.status === 409) {
-			toast.add({
-				title: "Upload failed",
-				description: "This URL is taken.",
-				color: "error"
-			})
-		} else if (err.status === 400 || err.response?.status === 400) {
-			toast.add({
-				title: "Upload failed",
-				description: "The slug should contain only letters, numbers and underscores. Length between 3-50 characters.",
-				color: "error"
-			})
-		} else {
-			toast.add({
-				title: 'Upload failed',
-				description: 'Please try again later.',
-				color: 'error'
-			})
-		}
-		console.error(error)
-	}
+      const err = error as FetchError<{ message?: string }>
+      const status = err.status ?? err.response?.status
+
+      if (status === 409) {
+        toast.add({
+          title: 'Upload failed',
+          description: 'This URL is taken.',
+          color: 'error',
+        })
+      } else if (status === 400) {
+        toast.add({
+          title: 'Upload failed',
+          description:
+            err.data?.message ??
+            err.statusMessage ??
+            'Invalid upload request',
+          color: 'error',
+        })
+      } else {
+        toast.add({
+          title: 'Upload failed',
+          description: 'Please try again later.',
+          color: 'error',
+        })
+      }
+
+      console.error(error)
+    } finally {
+      isLoading.value = false
+    }
   }
 
   return {
@@ -114,6 +144,6 @@ export default function (form: ShareFormState) {
     isLoading,
     shareUrl,
     isShareModalOpen,
-    submittedInfo
+    submittedInfo,
   }
 }

@@ -1,38 +1,33 @@
-import { eq } from "drizzle-orm"
-import { db } from "../db/index"
-import { settings } from "../db/schema"
+import { eq } from 'drizzle-orm'
+import { db } from '../db/index'
+import { settings } from '../db/schema'
+import { configPatchSchema } from '../utils/schemas/configPatchSchema'
 
 export default defineEventHandler(async (event) => {
-	await requireUserSession(event) // 401 if not logged in
+  await requireUserSession(event)
 
-	const body = await readBody(event)
-	// Only allow known columns through, never spread raw body into .set()
-	const {
-		max_file_size,
-		allow_passwordless_shares,
-		allow_permanent_shares,
-		max_expiry_days,
-		cap_download_based_expiry,
-		enable_qr_code,
-		allow_reverse_shares,
-		site_name
-	} = body
+  const body = await readBody(event)
+  const parsed = configPatchSchema.safeParse(body)
 
-	const [row] = await db.select().from(settings).limit(1)
-	if (!row) {
-	throw createError({ statusCode: 404, statusMessage: "Settings not found" })
-	}
+  if (!parsed.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid settings payload',
+    })
+  }
 
-	await db.update(settings).set({
-		max_file_size,
-		allow_passwordless_shares,
-		allow_permanent_shares,
-		max_expiry_days,
-		cap_download_based_expiry,
-		enable_qr_code,
-		allow_reverse_shares,
-		site_name
-	}).where(eq(settings.id, row.id))
+  const [row] = await db.select().from(settings).limit(1)
 
-	return { success: true }
+  if (!row) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Settings not found',
+    })
+  }
+
+  await db.update(settings)
+    .set(parsed.data)
+    .where(eq(settings.id, row.id))
+
+  return { success: true }
 })

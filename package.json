@@ -13,12 +13,13 @@
     "lint": "eslint .",
     "test": "vitest run",
     "postinstall": "nuxt prepare",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "nuxi typecheck"
   },
   "dependencies": {
     "@nuxt/ui": "^4.10.0",
     "archiver": "^8.0.0",
-    "better-sqlite3": "^12.11.1",
+    "better-sqlite3": "^13.0.3",
     "class-variance-authority": "^0.7.1",
     "drizzle-orm": "^0.45.2",
     "formidable": "^3.5.4",

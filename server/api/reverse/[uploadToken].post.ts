@@ -1,7 +1,8 @@
 import { db } from '../../db/index';
-import { shares, settings } from '../../db/schema';
+import { shares, settings, files } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '../../utils/logger';
+import { removeStoredFiles, type StoredFile } from '../../utils/store-encrypted-file';
 
 // Where submitters actually POST files to a reverse share. No name,
 // description, expiry, or password fields are read here, those were
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 410, message: "This request has closed" })
   }
 
-  const password = await verifySharePassword(event, share.password_hash)
+  const password = await verifySharePassword(event, share.password_hash, share.upload_token ?? uploadToken, share.expires_at)
 
   const [config] = await db.select().from(settings).limit(1)
   if (!config) {
@@ -46,11 +47,20 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  const storedFiles: StoredFile[] = []
   try {
     for (const file of uploadFiles["files"]) {
-      await storeEncryptedFile(file, share.id, password)
+      storedFiles.push(await storeEncryptedFile(file, share.id, password))
     }
   } catch (error) {
+    await removeStoredFiles(storedFiles)
+    try {
+      for (const storedFile of storedFiles) {
+        await db.delete(files).where(eq(files.id, storedFile.id))
+      }
+    } catch (cleanupError) {
+      logger.error({ err: cleanupError, shareId: share.id, uploadToken }, 'Failed to roll back reverse upload records')
+    }
     logger.error({ err: error, uploadToken, shareId: share.id, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to store reverse upload')
     throw error
   }
