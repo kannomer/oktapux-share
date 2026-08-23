@@ -6,6 +6,14 @@ RUN corepack enable
 # ---- Dependencies ----
 FROM base AS deps
 WORKDIR /app
+
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++
+
+ENV PYTHON=/usr/bin/python3
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
@@ -20,7 +28,6 @@ RUN pnpm build
 FROM base AS runner
 WORKDIR /app
 
-# Copy built output and required files
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
@@ -28,11 +35,8 @@ COPY --from=builder /app/server/db/schema.ts ./server/db/schema.ts
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Create required directories
 RUN mkdir -p /app/uploads /app/data
 
-# Expose internal port
 EXPOSE 3000
 
-# Run migrations then start the app
 CMD ["sh", "-c", "mkdir -p /app/data && touch /app/data/oktapux.db && npx drizzle-kit migrate && node .output/server/index.mjs"]
