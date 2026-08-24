@@ -26,6 +26,7 @@
 			description: 'text-xl text-white/65',
 			base: 'bg-bg',
 			file: 'border-0',
+			fileLeadingAvatar: 'bg-transparent',
 			fileName: 'text-lg',
 			fileSize: 'text-sm',
 			avatar: 'bg-transparent'
