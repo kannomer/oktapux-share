@@ -38,6 +38,9 @@
 			color="neutral"
 			size="xl"
 			class="px-10 py-3 text-xl"
+			:ui="{
+				base: 'border border-border hover:bg-bg hover:text-white focus:bg-bg focus:text-white'
+			}"
 			@click="open()"
       	/>
 		</template>
@@ -61,6 +64,9 @@
 		color="neutral"
 		size="xl"
 		class="px-10 py-3 text-xl"
+		:ui="{
+			base: 'border border-border hover:bg-bg hover:text-white focus:bg-bg focus:text-white'
+		}"
 		@click="openExpirationModal"/>
       </div>
 	</div>

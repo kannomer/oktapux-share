@@ -52,8 +52,8 @@ const expiryTypeOptions = [
   :ui="{ 
 	title: 'text-xl',
   	description: 'text-white/80 text-base',
-	header: 'border-b border-white/20',
-    footer: 'border-t border-white/20'
+	header: 'border-b border-border',
+    footer: 'border-t border-border'
   }">
     <template #body>
       <URadioGroup
@@ -78,17 +78,20 @@ const expiryTypeOptions = [
 			base: 'hover:bg-transparent focus:bg-transparent focus-visible:outline-none focus-visible:ring-0'
 		}"/>
         <USelect
-          v-model="expiryUnit"
-          :disabled="isPermanent"
-          :items="expiryUnitOptions"
-          class="flex-1 bg-bg"
-		  variant="ghost"
-		  color="neutral"
-		  :ui="{
+		v-model="expiryUnit"
+		:disabled="isPermanent"
+		:items="expiryUnitOptions"
+		class="flex-1 bg-bg"
+		variant="ghost"
+		color="neutral"
+		:ui="{
 			base: 'hover:bg-transparent focus:bg-transparent focus-visible:outline-none focus-visible:ring-0',
-			value: 'text-lg'
-		  }"
-        />
+			value: 'text-lg',
+			content: 'bg-bg border border-white/35',
+			item: 'text-white',
+			itemLabel: 'text-white'
+		}"
+		/>
       </div>
       <p v-if="expiryType === 'date'" class="text-sm text-white/80 mt-1">
         Expires on {{ computedExpiryDisplay }}
