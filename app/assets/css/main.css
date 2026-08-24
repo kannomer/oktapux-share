@@ -19,7 +19,9 @@
   --font-redaction-100: "Redaction 100", sans-serif;
 }
 
+html,
 body {
+  @apply bg-bg;
   font-family: var(--font-redaction);	
 }
 button,

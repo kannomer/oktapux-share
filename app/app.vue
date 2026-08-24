@@ -2,7 +2,7 @@
   <UApp>
     <NuxtRouteAnnouncer />
 
-    <UHeader :ui="{ container: 'px-4 max-w-none' }" class="font-redaction-35">
+    <UHeader :ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg">
       <template #left>
         <a href="/" class="text-3xl">
               {{ config?.site_name || "Oktapux" }}
@@ -10,10 +10,10 @@
       </template>
 	  <template #right>
 		<UTooltip text="Site Config">
-			<UButton to="/admin" icon="i-lucide-cog" color="neutral" variant="soft" />
+			<UButton to="/admin" icon="i-lucide-cog" color="neutral" />
 		</UTooltip>
 		<UDropdownMenu v-if="config?.allow_reverse_shares" :items="items">
-			<UButton icon="i-lucide-menu" color="neutral" variant="soft" />
+			<UButton icon="i-lucide-menu" color="neutral" />
 		</UDropdownMenu>
 	  </template>
     </UHeader>
@@ -23,7 +23,7 @@
     </UMain>
 
     <UFooter>
-      <p class="text-muted text-sm font-redaction-20">
+      <p class="text-white/65 text-sm font-redaction-20">
         Powered by
 		<UButton to="https://github.com/kannomer/oktapux-share" target="_blank" class="hover:text-white text-blue-400" variant="link">
 			Oktapux Share

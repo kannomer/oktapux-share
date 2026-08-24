@@ -87,23 +87,24 @@ const expiryTypeOptions = [
       <USeparator type="dashed" class="mt-5" />
 
       <div class="flex flex-col gap-2 mt-4">
-        <UInput v-model="shareName" placeholder="Share name (optional)" />
-        <UTextarea v-model="shareDescription" placeholder="Share description (optional)" autoresize :maxrows="4" />
+        <UInput v-model="shareName" size="xl" placeholder="Share name (optional)" />
+        <UTextarea v-model="shareDescription" size="xl" placeholder="Share description (optional)" autoresize :maxrows="4" />
         <UInput
           v-model="sharePassword"
           type="password"
+		  size="xl"
           :placeholder="props.config?.allow_passwordless_shares === false ? 'Password (required)' : 'Password (optional)'"
           icon="i-lucide-lock"
         />
-        <p v-if="props.config?.allow_passwordless_shares === false" class="text-xs text-muted">
+        <p v-if="props.config?.allow_passwordless_shares === false" class="text-sm text-muted">
           This server requires a password on every share
         </p>
-        <UInput v-model="shareSlug" placeholder="Custom URL (optional)" />
+        <UInput v-model="shareSlug" size="xl" placeholder="Custom URL (optional)" />
       </div>
     </template>
 
     <template #footer>
-      <UButton label="Upload" size="lg" icon="i-lucide-upload" @click="emit('submit')" />
+      <UButton label="Upload" size="xl" icon="i-lucide-upload" @click="emit('submit')" />
     </template>
   </UModal>
 </template>

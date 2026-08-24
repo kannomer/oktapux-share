@@ -3,33 +3,38 @@
     <!-- File upload card -->
     <div class="w-full">
 		<div class="mb-8 text-center">
-			<h1 class="font-redaction-35 text-4xl uppercase tracking-tight">
+			<h1 class="font-redaction-35 text-4xl uppercase tracking-tight text-white">
 				Create a share
 			</h1>
-			<p class="mt-2 text-xl text-muted">
+			<p class="mt-2 text-xl text-white/80">
 			Share your files across the globe.
 			</p>
 		</div>
       <UFileUpload
 	    v-model="fileUploadValue"
         multiple
-        icon="i-lucide-cloud-upload"
+		icon="i-lucide-cloud-upload"
         label="Drop your files here" 
         :description="`(Max. ${formatSize(config?.max_file_size ?? 0)})`"
         layout="list"
         :interactive="false"
-        class="w-full min-h-75"
+        class="w-full min-h-100"
         color="neutral"
+		highlight
 		:ui="{
 			label: 'text-2xl',
-			description: 'text-xl',
+			description: 'text-xl text-white/65',
+			base: 'bg-bg',
+			file: 'border-0',
+			fileName: 'text-lg',
+			fileSize: 'text-sm',
+			avatar: 'bg-transparent'
 		}"
       >
 	  <template #actions="{ open }">
 		<UButton
-			label="Select files"
+			label="Or select files"
 			color="neutral"
-			variant="outline"
 			size="xl"
 			class="px-10 py-3 text-xl"
 			@click="open()"
@@ -41,13 +46,21 @@
 			v-if="files?.length"
 			label="Remove all files"
 			color="neutral"
-			size="lg"
+			size="xl"
 			@click="removeFile()"
 		/>
 		</template>
   	  </UFileUpload>
 	  <div class="flex justify-center mt-6 gap-2">
-        <UButton type="button" label="Share" icon="i-lucide-share" color="neutral" size="xl" class="px-10 py-3 text-xl" @click="openExpirationModal"/>
+        <UButton
+		v-if="fileUploadValue?.length"
+		type="button"
+		label="Share"
+		icon="i-lucide-share"
+		color="neutral"
+		size="xl"
+		class="px-10 py-3 text-xl"
+		@click="openExpirationModal"/>
       </div>
 	</div>
       
