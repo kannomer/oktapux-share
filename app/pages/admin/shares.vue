@@ -4,8 +4,8 @@
       <template #header>
         <div class="flex items-center justify-between">
           <div>
-            <p class="font-semibold">Manage shares</p>
-            <p class="text-sm text-muted mt-1">Review and take down shares on this instance</p>
+            <p class="font-semibold">Manage Crates</p>
+            <p class="text-sm text-muted mt-1">Review and take down Crates on this instance</p>
           </div>
           <UButton to="/admin" icon="i-lucide-settings" variant="ghost" color="neutral" size="sm" label="Settings" />
         </div>
@@ -21,12 +21,12 @@
       </template>
 
       <template v-else-if="!shareList?.length">
-        <p class="text-sm text-muted text-center py-8">No shares yet</p>
+        <p class="text-sm text-muted text-center py-8">No Crates yet</p>
       </template>
 
       <template v-else>
         <div class="grid grid-cols-[1fr_100px_100px_80px] border-b pb-2 mb-1">
-          <span class="text-sm font-semibold ml-2">Share</span>
+          <span class="text-sm font-semibold ml-2">Crate</span>
           <span class="text-sm font-semibold">Files</span>
           <span class="text-sm font-semibold">Status</span>
           <span class="text-sm font-semibold text-right mr-2">Actions</span>
@@ -61,7 +61,7 @@
       </template>
     </UCard>
 
-    <UModal v-model:open="isConfirmOpen" title="Delete this share?" description="This permanently removes the share and its files. This can't be undone.">
+    <UModal v-model:open="isConfirmOpen" title="Delete this Crate?" description="This permanently removes the Crate and its files. This can't be undone.">
       <template #footer>
         <UButton label="Cancel" variant="ghost" color="neutral" @click="isConfirmOpen = false" />
         <UButton label="Delete" color="error" data-test="confirm-delete-button" :loading="deletingId !== null" @click="doDelete" />
@@ -114,7 +114,7 @@ const doDelete = async () => {
   deletingId.value = pendingDelete.value.id
   try {
     await $fetch(`/api/admin/shares/${pendingDelete.value.id}`, { method: 'DELETE' })
-    toast.add({ title: 'Share deleted', color: 'success' })
+    toast.add({ title: 'Crate deleted', color: 'success' })
     isConfirmOpen.value = false
     await refresh()
   } catch (error) {
@@ -123,7 +123,7 @@ const doDelete = async () => {
 			message?: string
 		}
   	}
-    toast.add({ title: 'Failed to delete share', description: err?.data?.message ?? 'Please try again.', color: 'error' })
+    toast.add({ title: 'Failed to delete Crate', description: err?.data?.message ?? 'Please try again.', color: 'error' })
   } finally {
     deletingId.value = null
   }

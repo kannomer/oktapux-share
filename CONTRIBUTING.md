@@ -1,4 +1,4 @@
-# Contributing to Oktapux Share
+# Contributing to Crateyard
 
 Thanks for contributing.
 

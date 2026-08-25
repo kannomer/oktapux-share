@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 
 // Simple in-memory fixed-window rate limiter. This is deliberately basic:
-// Oktapux Share is meant to run as a single Node process (SQLite doesn't
+// Crateyard is meant to run as a single Node process (SQLite doesn't
 // support multiple writers well either), so an in-memory map is enough.
 // If you ever run multiple instances behind a load balancer, back this
 // with something shared (Redis, etc.) instead

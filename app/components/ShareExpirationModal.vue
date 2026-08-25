@@ -46,7 +46,7 @@ const expiryTypeOptions = [
 <template>
   <UModal
   v-model:open="isOpen"
-  title="Create share"
+  title="Pack a Crate"
   description="Set a name, description and expiration"
   class="bg-bg"
   :ui="{ 
@@ -115,12 +115,12 @@ const expiryTypeOptions = [
 		}"
 	  />
       <p v-if="expiryType === 'downloads' && props.config?.cap_download_based_expiry && props.config?.max_expiry_days" class="text-sm text-muted mt-1">
-        This server also expires download-based shares after {{ props.config.max_expiry_days }} day{{ props.config.max_expiry_days === 1 ? '' : 's' }}, whichever comes first
+        This server also expires download-based crates after {{ props.config.max_expiry_days }} day{{ props.config.max_expiry_days === 1 ? '' : 's' }}, whichever comes first
       </p>
       <USwitch
 	  v-if="props.config?.allow_permanent_shares"
 	  v-model="isPermanent"
-	  label="Permanent share"
+	  label="No Expiry"
 	  class="mt-4"
 	  size="xl"
 	  color="neutral"
@@ -134,7 +134,7 @@ const expiryTypeOptions = [
         <UInput
 		v-model="shareName"
 		size="xl"
-		placeholder="Share name (optional)"
+		placeholder="Crate name (optional)"
 		color="neutral"
 		:ui="{
     		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35'
@@ -142,7 +142,7 @@ const expiryTypeOptions = [
         <UTextarea
 		v-model="shareDescription"
 		size="xl"
-		placeholder="Share description (optional)"
+		placeholder="Crate description (optional)"
 		color="neutral"
 		autoresize :maxrows="4"
 		:ui="{
@@ -161,7 +161,7 @@ const expiryTypeOptions = [
   		  }"
         />
         <p v-if="props.config?.allow_passwordless_shares === false" class="text-sm text-white/80">
-          This server requires a password on every share
+          This server requires a password on every crate
         </p>
         <UInput
 		v-model="shareSlug"

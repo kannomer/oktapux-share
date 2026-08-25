@@ -16,13 +16,13 @@
 
 ---
 
-## What is Oktapux Share?
+## What is Crateyard?
 
-Oktapux Share is a lightweight, self-hosted alternative to cloud file-sharing services.
+Crateyard is a lightweight, self-hosted alternative to cloud file-sharing services.
 
-Upload one or more files, generate a share link, optionally protect it with a password, and decide when the link should stop working.
+Upload one or more files, pack a Crate, optionally protect it with a password, and decide when the link should stop working.
 
-Oktapux Share uses a single SQLite database and local storage, so you don't need a separate database, object-storage service, or external SaaS account to run it.
+Crateyard uses a single SQLite database and local storage, so you don't need a separate database, object-storage service, or external SaaS account to run it.
 
 Inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).
 
@@ -30,8 +30,8 @@ Inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).
 
 * 🔐 **Encrypted at rest** - Uploaded files are encrypted with AES-256-GCM.
 * 🔗 **Simple sharing** - Generate a link and send it wherever you want.
-* ⏳ **Automatic expiration** - Expire shares by date or download count.
-* 🔑 **Password protection** - Add an additional password to individual shares.
+* ⏳ **Automatic expiration** - Expire Crates by date or download count.
+* 🔑 **Password protection** - Add an additional password to individual Crates.
 * 📥 **File requests** - Create upload-only links so other people can send files to you.
 * 🗄️ **SQLite** - No external database required.
 * 🐳 **Docker-ready** - Deploy with Docker Compose in minutes.
@@ -43,24 +43,24 @@ Inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).
 
 ### Sharing
 
-* Upload multiple files into a single share
-* Generate secure share tokens
-* Custom share URLs
-* Password-protected shares
-* Permanent shares
+* Upload multiple files into a single Crate
+* Generate secure Crate tokens
+* Custom Crate URLs
+* Password-protected Crates
+* Permanent Crates
 * Expiration by date
 * Expiration by download count
 * Download individual files
-* Download an entire share as an archive
-* QR codes for shares
+* Download an entire Crate as an archive
+* QR codes for Crates
 
-### File Requests
+### File Collections
 
 Need someone to send you files?
 
-Create a **reverse share** and give the generated upload link to another person.
+Create a **Collection** and give the generated upload link to another person.
 
-They can upload files without gaining access to the files already stored in the share.
+They can upload files without gaining access to the files already stored in the Collection.
 
 ```text
 You
@@ -86,14 +86,14 @@ This is useful for things like:
 
 ### Security
 
-Oktapux Share is designed with self-hosted privacy and security in mind.
+Crateyard is designed with self-hosted privacy and security in mind.
 
 * AES-256-GCM encryption for files at rest
 * Per-file key derivation
 * Random initialization vectors
-* Password-protected shares
+* Password-protected Crates
 * Session-protected administration
-* Share/file authorization checks
+* Crate/file authorization checks
 * Download limits
 * Rate limiting
 * Input validation
@@ -108,13 +108,13 @@ Oktapux Share is designed with self-hosted privacy and security in mind.
 
 ## Docker Compose
 
-The easiest way to run Oktapux Share is Docker.
+The easiest way to run Crateyard is Docker.
 
 Create a directory for the application:
 
 ```bash
-mkdir oktapux-share
-cd oktapux-share
+mkdir crateyard
+cd crateyard
 ```
 
 Create a `.env` file:
@@ -155,7 +155,7 @@ Then open:
 
 **http://localhost:3003**
 
-On the first visit, Oktapux Share will guide you through the one-time administrator setup.
+On the first visit, Crateyard will guide you through the one-time administrator setup.
 
 ### Updating
 
@@ -185,7 +185,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/kannomer/oktapux-share.git
-cd oktapux-share
+cd crateyard
 ```
 
 Install dependencies:
@@ -216,7 +216,7 @@ http://localhost:3000
 
 # Configuration
 
-Oktapux Share can be configured through environment variables.
+Crateyard can be configured through environment variables.
 
 Create a `.env` file:
 
@@ -262,7 +262,7 @@ The encryption key is part of the data-recovery chain for encrypted files.
 
 # Production
 
-Oktapux Share is intended to sit behind a reverse proxy in production.
+Crateyard is intended to sit behind a reverse proxy in production.
 
 For example:
 
@@ -273,7 +273,7 @@ Internet
 Caddy / Nginx / Traefik
    │
    ▼
-Oktapux Share
+Crateyard
    │
    ├── SQLite
    └── Encrypted files
@@ -367,7 +367,7 @@ pnpm run dev
 
 # Testing
 
-Oktapux Share uses Vitest for automated testing.
+Crateyard uses Vitest for automated testing.
 
 Run the test suite:
 
@@ -398,7 +398,7 @@ The project also includes a fresh-clone verification script used to validate tha
 
 # Architecture
 
-Oktapux Share intentionally keeps its infrastructure small.
+Crateyard intentionally keeps its infrastructure small.
 
 ```text
 ┌─────────────────────────────┐
@@ -422,7 +422,7 @@ Oktapux Share intentionally keeps its infrastructure small.
 
 ### Why SQLite?
 
-Oktapux Share is designed primarily for straightforward, single-instance self-hosting.
+Crateyard is designed primarily for straightforward, single-instance self-hosting.
 
 SQLite keeps deployment simple:
 
@@ -440,7 +440,7 @@ For a personal server, homelab, small team, or single VPS, this keeps the archit
 
 # Security Notes
 
-Oktapux Share is intended to be self-hosted software, but no software can guarantee complete security.
+Crateyard is intended to be self-hosted software, but no software can guarantee complete security.
 
 If you expose an instance to the public internet:
 
@@ -453,7 +453,7 @@ If you expose an instance to the public internet:
 7. Monitor disk usage.
 8. Consider additional network-level rate limiting for public deployments.
 
-Oktapux Share does not inspect or moderate uploaded content.
+Crateyard does not inspect or moderate uploaded content.
 
 ---
 
@@ -492,6 +492,6 @@ Please do not commit:
 
 # License
 
-Oktapux Share is released under the **MIT License**.
+Crateyard is released under the **MIT License**.
 
 See [LICENSE](LICENSE) for the full license text.

@@ -9,7 +9,7 @@ const validConfig = {
   cap_download_based_expiry: false,
   enable_qr_code: true,
   allow_reverse_shares: true,
-  site_name: 'Oktapux Share',
+  site_name: 'Crateyard',
 }
 
 describe('configPatchSchema', () => {

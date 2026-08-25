@@ -2,7 +2,7 @@
   <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
     <UCard class="w-full" variant="subtle">
       <template #header>
-        <p class="font-semibold">Set up Oktapux Share</p>
+        <p class="font-semibold">Set up Crateyard</p>
         <p class="text-sm text-muted mt-1">Create the admin account to finish setting up this instance</p>
       </template>
 

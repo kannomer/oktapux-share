@@ -1,13 +1,13 @@
 <template>
   <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
-    <UCard title="Request files" description="Create a link others can use to send you files" class="w-full" variant="subtle">
+    <UCard title="Collect files" description="Create a link others can use to send you files" class="w-full" variant="subtle">
       <div class="flex justify-center mt-2">
-        <UButton type="button" label="Create request" icon="i-lucide-folder-up" color="neutral" size="xl" @click="openReverseModal"/>
+        <UButton type="button" label="Create collection" icon="i-lucide-folder-up" color="neutral" size="xl" @click="openReverseModal"/>
       </div>
     </UCard>
 
     <!-- Request creation modal -->
-    <UModal v-model:open="isReverseModalOpen" title="Request files" description="Create a link others can use to send you files">
+    <UModal v-model:open="isReverseModalOpen" title="Collect files" description="Create a link others can use to send you files">
       <template #body>
         <div v-if="!reverseIsPermanent" class="flex gap-2">
           <UInputNumber v-model="reverseExpiryAmount" :min="1" class="w-24" />
@@ -23,10 +23,10 @@
         <p v-if="!reverseIsPermanent && config?.max_expiry_days" class="text-xs text-muted">
           This server caps expiry at {{ config.max_expiry_days }} day{{ config.max_expiry_days === 1 ? '' : 's' }}
         </p>
-        <USwitch v-if="config?.allow_permanent_shares" v-model="reverseIsPermanent" label="Permanent request" class="mt-4" />
+        <USwitch v-if="config?.allow_permanent_shares" v-model="reverseIsPermanent" label="Permanent collection" class="mt-4" />
         <USeparator type="dashed" class="mt-5"/>
         <div class="flex flex-col gap-2 mt-4">
-          <UInput v-model="reverseName" placeholder="Request name (optional)"/>
+          <UInput v-model="reverseName" placeholder="Collection name (optional)"/>
           <UTextarea v-model="reverseDescription" placeholder="Tell submitters what to upload (optional)" autoresize :maxrows="4"/>
           <UInput
             v-model="reversePassword"
@@ -40,27 +40,27 @@
         </div>
       </template>
       <template #footer>
-        <UButton label="Create request" size="lg" icon="i-lucide-folder-up" loading-auto :disabled="isReverseLoading" loading-icon="i-lucide-loader" @click="attemptReverseCreate" />
+        <UButton label="Create collection" size="lg" icon="i-lucide-folder-up" loading-auto :disabled="isReverseLoading" loading-icon="i-lucide-loader" @click="attemptReverseCreate" />
       </template>
     </UModal>
 
     <!-- Result modal: two links-->
-    <UModal v-model:open="isReverseShareModalOpen" title="Your file request is ready">
+    <UModal v-model:open="isReverseShareModalOpen" title="Your file collection request is ready">
       <template #body>
         <p class="font-semibold flex items-center gap-1.5">
           <UIcon name="i-lucide-folder-up" />
-          Collection link — share this with submitters
+          Collection link - share this with submitters
         </p>
         <UInput :model-value="collectionUrl ?? ''" readonly class="w-full mt-2"/>
 
         <p class="font-semibold flex items-center gap-1.5 mt-4">
           <UIcon name="i-lucide-lock" />
-          Owner link — keep this private, use it to view collected files
+          Owner link - keep this private, use it to view collected files
         </p>
         <UInput :model-value="ownerUrl ?? ''" readonly class="w-full mt-2"/>
 
         <p v-if="reverseSubmittedInfo?.isPermanent" class="text-xs text-muted mt-3">
-          This request never expires
+          This collection never expires
         </p>
         <p v-else-if="reverseSubmittedInfo?.expiryDate" class="text-xs text-muted mt-3">
           Expires on {{ new Date(reverseSubmittedInfo.expiryDate).toLocaleString() }}

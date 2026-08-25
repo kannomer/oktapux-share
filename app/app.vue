@@ -5,7 +5,7 @@
     <UHeader :ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg">
       <template #left>
         <a href="/" class="text-3xl">
-              {{ config?.site_name || "Oktapux" }}
+              {{ config?.site_name || "Crateyard" }}
         </a>
       </template>
 	  <template #right>
@@ -26,7 +26,7 @@
       <p class="text-white/65 text-sm font-redaction-20">
         Powered by
 		<UButton to="https://github.com/kannomer/oktapux-share" target="_blank" class="hover:text-white text-blue-400" variant="link">
-			Oktapux Share
+			Crateyard
 		</UButton>
       </p>
     </UFooter>
@@ -41,12 +41,12 @@ const { data: config } = await useSiteConfig()
 const items = ref<DropdownMenuItem[][]>([
 	[
 		{
-			label: "Share",
+			label: "Pack a Crate",
 			icon: "i-lucide-share",
 			to: "/"
 		},
 		{
-			label: "Reverse Share",
+			label: "File collection",
 			icon: "i-lucide-folder-up",
 			to: "/request"
 		}

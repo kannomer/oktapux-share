@@ -8,7 +8,7 @@
                     <UIcon name="i-lucide-lock" />
                     Password required
                 </p>
-                <p class="text-sm text-muted mt-1">This request is protected. Enter the password to continue.</p>
+                <p class="text-sm text-muted mt-1">This collection is protected. Enter the password to continue.</p>
             </template>
             <UInput
                 v-model="passwordInput"
@@ -111,7 +111,7 @@
     const errorMessage = computed(() => {
         if (!error.value || isLocked.value) return null
         if (error.value.status === 404) return "This link doesn't exist"
-        if (error.value.status === 410) return "This request has been closed"
+        if (error.value.status === 410) return "This collection has been closed"
         return "Something went wrong"
     })
 

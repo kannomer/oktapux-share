@@ -6,7 +6,7 @@
                     <UIcon name="i-lucide-lock" />
                     Password required
                 </p>
-                <p class="text-sm text-muted mt-1">This share is protected. Enter the password to view its files.</p>
+                <p class="text-sm text-muted mt-1">This crate is protected. Enter the password to view its files.</p>
             </template>
             <UInput
                 v-model="passwordInput"
@@ -45,12 +45,12 @@
                 <div v-else-if="data" class="flex items-center justify-between">
                     <div>
                         <p v-if="shareData?.name" class="font-semibold">{{ shareData.name }}</p>
-                        <p v-else class="font-semibold">Share details</p>
+                        <p v-else class="font-semibold">Crate details</p>
                         <p v-if="shareData?.description" class="text-sm text-muted mt-1">{{ shareData.description }}</p>
                         <p class="text-sm text-muted mt-1">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
                     </div>
                     <div class="flex items-center gap-1">
-                        <UTooltip text="Copy share link">
+                        <UTooltip text="Copy crate link">
                             <UButton
                                 icon="i-lucide-link"
                                 variant="ghost"
@@ -59,7 +59,7 @@
                                 @click="copyToClipboard(sharePageUrl)"
                             />
                         </UTooltip>
-                        <UTooltip text="Download share as zip">
+                        <UTooltip text="Download crate as zip">
                             <UButton
                                 icon="i-lucide-folder-down"
                                 variant="ghost"
@@ -122,7 +122,7 @@
                 <p v-else-if="shareData?.max_downloads" class="text-sm text-muted">
                     {{ shareData.download_count }} of {{ shareData.max_downloads }} downloads used
                 </p>
-                <p v-else class="text-sm text-muted">This share never expires</p>
+                <p v-else class="text-sm text-muted">This crate never expires</p>
             </template>
         </UCard>
     </UContainer>
@@ -163,8 +163,8 @@
 
     const errorMessage = computed(() => {
         if (!error.value || isLocked.value) return null
-        if (error.value.statusCode == 404) return "Share not found"
-        if (error.value.statusCode == 410) return "This share has expired"
+        if (error.value.statusCode == 404) return "Crate not found"
+        if (error.value.statusCode == 410) return "This crate has expired"
         return "Something went wrong"
     })
     const shareData = computed(() => data.value?.share)

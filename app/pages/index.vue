@@ -4,10 +4,10 @@
     <div class="w-full">
 		<div class="mb-8 text-center">
 			<h1 class="font-redaction-35 text-4xl uppercase tracking-tight text-white">
-				Create a share
+				Pack a Crate
 			</h1>
 			<p class="mt-2 text-xl text-white/80">
-			Share your files across the globe.
+			Pack files. Share far.
 			</p>
 		</div>
       <UFileUpload
@@ -59,7 +59,7 @@
         <UButton
 		v-if="fileUploadValue?.length"
 		type="button"
-		label="Share"
+		label="Send Crate"
 		icon="i-lucide-share"
 		color="neutral"
 		size="xl"

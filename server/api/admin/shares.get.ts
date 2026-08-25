@@ -2,8 +2,8 @@ import { db } from '../../db/index'
 import { shares, files } from '../../db/schema'
 import { desc, eq, sql } from 'drizzle-orm'
 
-// Admin-only listing of every share on the instance. Used by the admin
-// panel so the host can review and take down shares 
+// Admin-only listing of every Crate on the instance. Used by the admin
+// panel so the host can review and take down Crates 
 // instead of only being able to wait for natural expiry.
 export default defineEventHandler(async (event) => {
 	await requireUserSession(event) // 401 if not logged in

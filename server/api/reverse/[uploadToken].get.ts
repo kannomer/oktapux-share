@@ -10,11 +10,11 @@ export default defineEventHandler(async (event) => {
 
   const [share] = await db.select().from(shares).where(eq(shares.upload_token, uploadToken))
   if (!share || !share.is_reverse) {
-    throw createError({ statusCode: 404, message: "Share not found" })
+    throw createError({ statusCode: 404, message: "Crate not found" })
   }
 
   if (share.expires_at && new Date() > share.expires_at) {
-    throw createError({ statusCode: 410, message: "This request has closed" })
+    throw createError({ statusCode: 410, message: "This collection has closed" })
   }
 
   // returns the plaintext password if correct,

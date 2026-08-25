@@ -10,7 +10,7 @@ defineProps<{
   <UModal v-if="qrCodeUrl" v-model:open="isOpen" title="Your QR Code is created">
     <template #body>
       <div class="block justify-center">
-        <img :src="qrCodeUrl" class="mt-4 mx-auto" alt="Share QR code">
+        <img :src="qrCodeUrl" class="mt-4 mx-auto" alt="QR code">
       </div>
     </template>
     <template #footer>

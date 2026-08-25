@@ -75,7 +75,7 @@ describe('index page', () => {
     addToast.mockReset()
     handleSubmitMock.mockReset()
     configRef.value = {
-      site_name: 'Oktapux Share',
+      site_name: 'Crateyard',
       max_file_size: 1024,
       allow_passwordless_shares: true,
       enable_qr_code: true,

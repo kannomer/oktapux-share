@@ -39,7 +39,7 @@ const buttonStub = defineComponent({
 const { default: AdminPage } = await import('./index.vue')
 
 const sampleSettings = {
-  site_name: 'Oktapux Share',
+  site_name: 'Crateyard',
   max_file_size: 1024,
   allow_passwordless_shares: true,
   allow_permanent_shares: true,

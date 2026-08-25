@@ -4,9 +4,9 @@ import { eq } from 'drizzle-orm';
 import { logger } from '../../utils/logger';
 import { removeStoredFiles, type StoredFile } from '../../utils/store-encrypted-file';
 
-// Where submitters actually POST files to a reverse share. No name,
+// Where submitters actually POST files to a Collection. No name,
 // description, expiry, or password fields are read here, those were
-// already fixed when the share was created via POST /api/reverse.
+// already fixed when the Crate was created via POST /api/reverse.
 export default defineEventHandler(async (event) => {
   checkRateLimit(`reverse-submit:${getClientIp(event)}`, 20, 10 * 60 * 1000)
 
@@ -15,11 +15,11 @@ export default defineEventHandler(async (event) => {
 
   const [share] = await db.select().from(shares).where(eq(shares.upload_token, uploadToken))
   if (!share || !share.is_reverse) {
-    throw createError({ statusCode: 404, message: "Share not found" })
+    throw createError({ statusCode: 404, message: "Crate not found" })
   }
 
   if (share.expires_at && new Date() > share.expires_at) {
-    throw createError({ statusCode: 410, message: "This request has closed" })
+    throw createError({ statusCode: 410, message: "This Collection has closed" })
   }
 
   const password = await verifySharePassword(event, share.password_hash, share.upload_token ?? uploadToken, share.expires_at)
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
   try {
     ;[, uploadFiles] = await parseUploadForm(event, config.max_file_size)
   } catch (error) {
-    logger.error({ err: error, uploadToken, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to parse reverse upload')
+    logger.error({ err: error, uploadToken, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to parse Collection')
     throw error
   }
 
@@ -59,9 +59,9 @@ export default defineEventHandler(async (event) => {
         await db.delete(files).where(eq(files.id, storedFile.id))
       }
     } catch (cleanupError) {
-      logger.error({ err: cleanupError, shareId: share.id, uploadToken }, 'Failed to roll back reverse upload records')
+      logger.error({ err: cleanupError, shareId: share.id, uploadToken }, 'Failed to roll back Collection records')
     }
-    logger.error({ err: error, uploadToken, shareId: share.id, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to store reverse upload')
+    logger.error({ err: error, uploadToken, shareId: share.id, requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, 'Failed to store file')
     throw error
   }
 

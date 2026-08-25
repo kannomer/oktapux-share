@@ -1,11 +1,11 @@
 {
-  "name": "Oktapux Share",
+  "name": "Crateyard",
   "build": {
     "dockerfile": "../Dockerfile",
     "context": "..",
     "target": "builder"
   },
-  "workspaceFolder": "/workspaces/oktapux-share",
+  "workspaceFolder": "/workspaces/crateyard",
   "remoteUser": "root",
   "forwardPorts": [3000],
   "postCreateCommand": "pnpm install && pnpm run setup",

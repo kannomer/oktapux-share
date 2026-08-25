@@ -5,10 +5,10 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="font-semibold">Instance settings</p>
-            <p class="text-sm text-muted mt-1">Configure how this Oktapux Share instance behaves</p>
+            <p class="text-sm text-muted mt-1">Configure how this Crateyard instance behaves</p>
           </div>
           <div class="flex items-center gap-2">
-            <UButton to="/admin/shares" icon="i-lucide-folder-tree" variant="ghost" color="neutral" size="sm" label="Manage shares" />
+            <UButton to="/admin/shares" icon="i-lucide-folder-tree" variant="ghost" color="neutral" size="sm" label="Manage crates" />
             <UButton icon="i-lucide-log-out" variant="ghost" color="neutral" size="sm" label="Log out" @click="logout" />
           </div>
         </div>

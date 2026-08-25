@@ -11,16 +11,16 @@
 
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-sm font-medium">Allow passwordless shares</p>
-        <p class="text-xs text-muted">If off, every share must have a password</p>
+        <p class="text-sm font-medium">Allow passwordless Crates</p>
+        <p class="text-xs text-muted">If off, every Crate must have a password</p>
       </div>
       <USwitch v-model="localSettings.allow_passwordless_shares" />
     </div>
 
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-sm font-medium">Allow permanent shares</p>
-        <p class="text-xs text-muted">If off, every share must have an expiry</p>
+        <p class="text-sm font-medium">Allow permanent Crates</p>
+        <p class="text-xs text-muted">If off, every Crate must have an expiry</p>
       </div>
       <USwitch v-model="localSettings.allow_permanent_shares" />
     </div>
@@ -28,15 +28,15 @@
     <div class="flex items-center justify-between">
       <div>
         <p class="text-sm font-medium">Enable QR code</p>
-        <p class="text-xs text-muted">Show a QR code option after creating a share</p>
+        <p class="text-xs text-muted">Show a QR code option after creating a Crate</p>
       </div>
       <USwitch v-model="localSettings.enable_qr_code" />
     </div>
 
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-sm font-medium">Allow reverse shares</p>
-        <p class="text-xs text-muted">If off, the "Request files" feature is disabled</p>
+        <p class="text-sm font-medium">Allow Collections</p>
+        <p class="text-xs text-muted">If off, the "File collection" feature is disabled</p>
       </div>
       <USwitch v-model="localSettings.allow_reverse_shares" />
     </div>
@@ -61,8 +61,8 @@
 
     <div v-if="localSettings.max_expiry_days" class="flex items-center justify-between">
       <div>
-        <p class="text-sm font-medium">Also cap download-based shares</p>
-        <p class="text-xs text-muted">Download-based shares also expire after the day cap above, whichever comes first</p>
+        <p class="text-sm font-medium">Also cap download-based Crates</p>
+        <p class="text-xs text-muted">Download-based Crates also expire after the day cap above, whichever comes first</p>
       </div>
       <USwitch v-model="localSettings.cap_download_based_expiry" />
     </div>
