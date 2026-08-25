@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Oktapux",
+      title: "Crateyard",
       htmlAttrs: {
         lang: "en",
       },
