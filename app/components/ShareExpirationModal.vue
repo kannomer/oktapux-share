@@ -90,13 +90,12 @@ const expiryTypeOptions = [
 			content: 'bg-bg border border-white/35',
 			item: 'text-white',
 			itemLabel: 'text-white'
-		}"
-		/>
+		}" />
       </div>
       <p v-if="expiryType === 'date'" class="text-sm text-white/80 mt-1">
         Expires on {{ computedExpiryDisplay }}
       </p>
-      <p v-if="expiryType === 'date' && props.config?.max_expiry_days" class="text-sm text-muted">
+      <p v-if="expiryType === 'date' && props.config?.max_expiry_days" class="text-xs text-white/80 mt-1">
         This server caps expiry at {{ props.config.max_expiry_days }} day{{ props.config.max_expiry_days === 1 ? '' : 's' }}
       </p>
 
@@ -112,9 +111,8 @@ const expiryTypeOptions = [
 		color="neutral"
 		:ui="{
 			base: 'hover:bg-transparent focus:bg-transparent focus-visible:outline-none focus-visible:ring-0'
-		}"
-	  />
-      <p v-if="expiryType === 'downloads' && props.config?.cap_download_based_expiry && props.config?.max_expiry_days" class="text-sm text-muted mt-1">
+		}" />
+      <p v-if="expiryType === 'downloads' && props.config?.cap_download_based_expiry && props.config?.max_expiry_days" class="text-xs text-white/80 mt-1">
         This server also expires download-based crates after {{ props.config.max_expiry_days }} day{{ props.config.max_expiry_days === 1 ? '' : 's' }}, whichever comes first
       </p>
       <USwitch
@@ -158,8 +156,7 @@ const expiryTypeOptions = [
 		  :ui="{
     		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
 			leadingIcon: 'text-white/35'
-  		  }"
-        />
+  		  }" />
         <p v-if="props.config?.allow_passwordless_shares === false" class="text-sm text-white/80">
           This server requires a password on every crate
         </p>
