@@ -86,28 +86,28 @@
     />
 
     <!-- Display share link -->
-    <UModal v-model:open="isShareModalOpen" title="Your share is ready" :ui="{ title: 'text-xl'}">
+    <UModal v-model:open="isShareModalOpen" title="Your Crate is ready" :ui="{ title: 'text-xl'}">
       <template #body>
 		<div class="block justify-center">
-			<p class="text-lg">Here's your share link:</p>
+			<p class="text-lg">Here's your Crate link:</p>
 			<UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
-			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-sm text-muted mt-2">
+			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-sm text-white/80 mt-2">
 			Expires after {{ submittedInfo?.maxDownloads }} downloads
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'date'" class="text-sm text-muted mt-2">
+			<p v-if="submittedInfo?.expiryType === 'date'" class="text-sm text-white/80 mt-2">
 			Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-sm text-muted mt-2">
-			This share never expires
+			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-sm text-white/80 mt-2">
+			This Crate never expires
 			</p>
-			<p v-if="submittedInfo?.isPasswordProtected" class="text-sm text-muted mt-2">
+			<p v-if="submittedInfo?.isPasswordProtected" class="text-sm text-white/80 mt-2">
 			Password protected
 			</p>
 	  	</div>
       </template>
       <template #footer>
         <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
-        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="Share QR Code" size="lg" variant="solid" @click="() => { qrCodeModal = true }" />
+        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="QR Code" size="lg" variant="solid" @click="() => { qrCodeModal = true }" />
       </template>
     </UModal>
     <ShareQrModal
@@ -185,7 +185,7 @@ const { copyToClipboard } = useCopyToClipboard()
 // error, but this is UX only; the server re-checks independently.
 const attemptSubmit = () => {
   if (config.value?.allow_passwordless_shares === false && !sharePassword.value) {
-    useToast().add({ title: "Password required", description: "This server requires a password on every share", color: "warning" })
+    useToast().add({ title: "Password required", description: "This server requires a password on every Crate", color: "warning" })
     return
   }
   handleSubmit(() => isModalOpen.value = false)
