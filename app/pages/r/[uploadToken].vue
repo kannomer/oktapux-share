@@ -1,74 +1,121 @@
 <template>
-    <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
+    <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
 
         <!-- Password unlock -->
-        <UCard v-if="isLocked" class="w-full" variant="subtle">
-            <template #header>
-                <p class="font-semibold flex items-center gap-2">
-                    <UIcon name="i-lucide-lock" />
+		<div v-if="isLocked" class="text-lg">
+                <p class="flex items-center gap-2 text-2xl uppercase font-redaction-35">
                     Password required
                 </p>
-                <p class="text-sm text-muted mt-1">This collection is protected. Enter the password to continue.</p>
-            </template>
+                <p class="text-lg text-white/80 mb-10">This collection is protected. Enter the password to continue.</p>
             <UInput
                 v-model="passwordInput"
                 type="password"
                 placeholder="Password"
                 icon="i-lucide-lock"
-                class="w-full"
+				color="neutral"
+				class="w-full mb-5"
+				:ui="{
+					base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+					leadingIcon: 'text-white/35'
+  				}"
                 @keyup.enter="submitPassword"
             />
-            <p v-if="hasAttempted" class="text-xs text-error mt-2">Incorrect password. Please try again.</p>
-            <template #footer>
-                <UButton label="Unlock" icon="i-lucide-unlock" :loading="pending" @click="submitPassword" />
-            </template>
-        </UCard>
+            <p v-if="hasAttempted" class="text-sm text-error mt-2">Incorrect password. Please try again.</p>
+			<div class="flex justify-center">
+                <UButton
+				label="Unlock"
+				size="md"
+				icon="i-lucide-unlock"
+				:loading="pending"
+				color="neutral"
+				class="text-base"
+				@click="submitPassword" 
+				/>
+			</div>
+        </div>
 
         <!-- Main card -->
-        <UCard v-else class="w-full" variant="subtle">
-            <template #header>
-                <USkeleton v-if="pending" class="h-5 w-62.5" />
-                <p v-else-if="errorMessage">{{ errorMessage }}</p>
-                <div v-else-if="data">
-                    <p class="font-semibold">{{ data.name || 'File request' }}</p>
-                    <p v-if="data.description" class="text-sm text-muted mt-1">{{ data.description }}</p>
-                </div>
-            </template>
+		<div v-else class="text-lg">
+            <USkeleton v-if="pending" class="h-5 w-62.5" />
+            <p v-else-if="errorMessage">{{ errorMessage }}</p>
+            <div v-else-if="data" class="mb-10 text-center">
+                <p class="text-2xl uppercase font-redaction-35">{{ data.name || 'File request' }}</p>
+               <p v-if="data.description" class="text-hite/80 mt-1">{{ data.description }}</p>
+            </div>
 
-            <template v-if="pending">
+            <div v-if="pending">
                 <USkeleton class="h-32 w-full" />
-            </template>
+            </div>
 
             <div v-else-if="submitted" class="text-center py-6">
-                <UIcon name="i-lucide-circle-check" class="text-primary w-10 h-10 mx-auto" />
-                <p class="font-semibold mt-3">Thanks, your files were submitted</p>
-                <UButton label="Submit more files" variant="ghost" color="neutral" size="sm" class="mt-4" @click="() => { submitted = false }" />
+                <p class="text-2xl uppercase font-redaction-35">Your files were submitted.</p>
+                <UButton label="Submit more files" color="neutral" size="lg" class="mt-5 text-lg" @click="() => { submitted = false }" />
             </div>
 
             <div v-else-if="data">
                 <UFileUpload
 				    v-model="fileUploadValue"
                     multiple
-                    icon="i-lucide-cloud-upload"
-                    label="Select or drop your files here"
-                    layout="list"
-                    :interactive="true"
-                    class="w-full min-h-48"
-                    color="neutral"
-                />
+					icon="i-lucide-cloud-upload"
+					label="Drop your files here" 
+					layout="list"
+					:interactive="false"
+					class="w-full min-h-100"
+					color="neutral"
+					highlight
+					:ui="{
+						label: 'text-2xl',
+						description: 'text-xl text-white/65',
+						base: 'bg-bg',
+						file: 'border-0',
+						fileLeadingAvatar: 'bg-transparent',
+						fileName: 'text-lg',
+						fileSize: 'text-sm',
+						avatar: 'bg-transparent'
+					}"
+				>
+				<template #actions="{ open }">
+					<UButton
+						label="Or select files"
+						color="neutral"
+						size="xl"
+						class="px-10 py-3 text-xl"
+						:ui="{
+							base: 'border border-border hover:bg-bg hover:text-white focus:bg-bg focus:text-white'
+						}"
+						@click="open()"
+					/>
+					</template>
+
+					<template #files-bottom="{ removeFile, files }">
+					<UButton
+						v-if="files?.length"
+						label="Remove all files"
+						color="neutral"
+						size="xl"
+						@click="removeFile()"
+					/>
+					</template>
+				</UFileUpload>
             </div>
 
-            <template v-if="!pending && !errorMessage && !submitted" #footer>
+            <div v-if="!pending && !errorMessage && !submitted" class="mt-10 flex justify-center">
                 <UButton
-                    label="Submit"
-                    icon="i-lucide-upload"
-                    size="lg"
-                    color="neutral"
+					v-if="fileUploadValue?.length"
+                    label="Submit files"
+                    type="button"
+					color="neutral"
+					icon="i-lucide-upload"
+					size="xl"
+					class="px-10 py-3 text-xl"
+					:ui="{
+						base: 'border border-border hover:bg-bg hover:text-white focus:bg-bg focus:text-white'
+					}"
                     :loading="isSubmitting"
                     @click="attemptSubmit"
                 />
-            </template>
-        </UCard>
+            </div>
+        </div>
 
     </UContainer>
 </template>
