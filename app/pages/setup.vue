@@ -1,5 +1,5 @@
 <template>
-  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg">
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
         <p class="font-redaction-35 text-center uppercase text-4xl">Set up Crateyard</p>
         <p class="text-lg text-white/80 text-center mb-10">Create the admin account to finish setting up this instance.</p>
 

@@ -1,23 +1,40 @@
 <template>
-  <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
-    <UCard class="w-full" variant="subtle">
-      <template #header>
-        <p class="font-semibold">Admin login</p>
-        <p class="text-sm text-muted mt-1">Sign in to manage this instance's settings</p>
-      </template>
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
+        <p class="font-redaction-35 uppercase text-4xl text-center mb-2">Admin login</p>
+        <p class="text-lg text-white/80 text-center mb-5">Sign in to manage this instance's settings.</p>
 
       <div class="flex flex-col gap-2 mt-2">
-        <UInput v-model="username" placeholder="Username" icon="i-lucide-user" @keyup.enter="submit" />
-        <UInput v-model="password" type="password" placeholder="Password" icon="i-lucide-lock" @keyup.enter="submit" />
+        <UInput
+		v-model="username"
+		placeholder="Username"
+		size="xl"
+		icon="i-lucide-user"
+		color="neutral"
+		class="mb-2"
+		:ui="{
+    		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+			leadingIcon: 'text-white/35'
+  		}"
+		@keyup.enter="submit" />
+        <UInput 
+		v-model="password"
+		type="password"
+		placeholder="Password"
+		size="xl"
+		icon="i-lucide-lock"
+		color="neutral"
+		class="mb-5"
+		:ui="{
+    		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+			leadingIcon: 'text-white/35'
+  		}"
+		@keyup.enter="submit" />
       </div>
       <p v-if="errorMessage" class="text-xs text-error mt-2">{{ errorMessage }}</p>
 
-      <template #footer>
         <div class="flex justify-center w-full">
-          <UButton label="Log in" icon="i-lucide-log-in" size="xl" color="neutral" :loading="isLoading" @click="submit" />
+          <UButton label="Log in" size="xl" color="neutral" class="text-xl" :loading="isLoading" @click="submit" />
         </div>
-      </template>
-    </UCard>
   </UContainer>
 </template>
 

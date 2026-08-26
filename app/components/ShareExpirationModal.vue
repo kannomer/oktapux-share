@@ -1,48 +1,3 @@
-<script setup lang="ts">
-interface SiteConfig {
-  allow_permanent_shares?: boolean
-  allow_passwordless_shares?: boolean
-  max_expiry_days?: number | null
-  cap_download_based_expiry?: boolean
-}
-
-const props = defineProps<{
-  config?: SiteConfig | null
-}>()
-
-const isOpen = defineModel<boolean>('open', { required: true })
-const expiryType = defineModel<'date' | 'downloads'>('expiryType', { required: true })
-const isPermanent = defineModel<boolean>('isPermanent', { required: true })
-const expiryAmount = defineModel<number>('expiryAmount', { required: true })
-const expiryUnit = defineModel<string>('expiryUnit', { required: true })
-const maxDownloads = defineModel<number>('maxDownloads', { required: true })
-const shareName = defineModel<string>('shareName', { required: true })
-const shareDescription = defineModel<string>('shareDescription', { required: true })
-const sharePassword = defineModel<string>('shareSecretInput', { required: true })
-const shareSlug = defineModel<string>('shareSlug', { required: true })
-
-const emit = defineEmits<{
-  submit: []
-}>()
-
-const expiryUnitOptions = [
-  { label: 'Minute(s)', value: 'minute' },
-  { label: 'Hour(s)', value: 'hour' },
-  { label: 'Day(s)', value: 'day' },
-  { label: 'Week(s)', value: 'week' },
-  { label: 'Month(s)', value: 'month' },
-  { label: 'Year(s)', value: 'year' }
-]
-
-const { computedExpiryDate } = useComputeExpiryDate(expiryAmount, expiryUnit)
-const computedExpiryDisplay = computed(() => new Date(computedExpiryDate.value).toLocaleString())
-
-const expiryTypeOptions = [
-  { label: 'Date', value: 'date' },
-  { label: 'Download count', value: 'downloads' }
-]
-</script>
-
 <template>
   <UModal
   v-model:open="isOpen"
@@ -176,3 +131,48 @@ const expiryTypeOptions = [
     </template>
   </UModal>
 </template>
+
+<script setup lang="ts">
+interface SiteConfig {
+  allow_permanent_shares?: boolean
+  allow_passwordless_shares?: boolean
+  max_expiry_days?: number | null
+  cap_download_based_expiry?: boolean
+}
+
+const props = defineProps<{
+  config?: SiteConfig | null
+}>()
+
+const isOpen = defineModel<boolean>('open', { required: true })
+const expiryType = defineModel<'date' | 'downloads'>('expiryType', { required: true })
+const isPermanent = defineModel<boolean>('isPermanent', { required: true })
+const expiryAmount = defineModel<number>('expiryAmount', { required: true })
+const expiryUnit = defineModel<string>('expiryUnit', { required: true })
+const maxDownloads = defineModel<number>('maxDownloads', { required: true })
+const shareName = defineModel<string>('shareName', { required: true })
+const shareDescription = defineModel<string>('shareDescription', { required: true })
+const sharePassword = defineModel<string>('shareSecretInput', { required: true })
+const shareSlug = defineModel<string>('shareSlug', { required: true })
+
+const emit = defineEmits<{
+  submit: []
+}>()
+
+const expiryUnitOptions = [
+  { label: 'Minute(s)', value: 'minute' },
+  { label: 'Hour(s)', value: 'hour' },
+  { label: 'Day(s)', value: 'day' },
+  { label: 'Week(s)', value: 'week' },
+  { label: 'Month(s)', value: 'month' },
+  { label: 'Year(s)', value: 'year' }
+]
+
+const { computedExpiryDate } = useComputeExpiryDate(expiryAmount, expiryUnit)
+const computedExpiryDisplay = computed(() => new Date(computedExpiryDate.value).toLocaleString())
+
+const expiryTypeOptions = [
+  { label: 'Date', value: 'date' },
+  { label: 'Download count', value: 'downloads' }
+]
+</script>

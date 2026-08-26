@@ -3,7 +3,7 @@
     <!-- File upload card -->
     <div class="w-full">
 		<div class="mb-8 text-center">
-			<h1 class="font-redaction-35 text-4xl uppercase tracking-tight text-white">
+			<h1 class="font-redaction-35 text-4xl uppercase text-white">
 				Pack a Crate
 			</h1>
 			<p class="mt-2 text-xl text-white/80">
