@@ -2,7 +2,7 @@
   <UApp>
     <NuxtRouteAnnouncer />
 
-    <UHeader :ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg">
+    <UHeader :ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg" :toggle="false">
       <template #left>
         <a href="/" class="text-3xl">
               {{ config?.site_name || "Crateyard" }}
