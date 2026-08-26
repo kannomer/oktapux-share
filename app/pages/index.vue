@@ -60,7 +60,6 @@
 		v-if="fileUploadValue?.length"
 		type="button"
 		label="Send Crate"
-		icon="i-lucide-share"
 		color="neutral"
 		size="xl"
 		class="px-10 py-3 text-xl"
