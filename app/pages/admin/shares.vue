@@ -1,35 +1,27 @@
 <template>
-  <UContainer class="flex justify-center pt-8 w-full max-w-3xl">
-    <UCard class="w-full" variant="subtle">
-      <template #header>
-        <div class="flex items-center justify-between">
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
+        <div class="flex items-center justify-between mb-10">
           <div>
-            <p class="font-semibold">Manage Crates</p>
-            <p class="text-sm text-muted mt-1">Review and take down Crates on this instance</p>
+            <p class="font-redaction-35 uppercase text-2xl">Manage Crates</p>
+            <p class="text-sm text-white/80 mt-2">Review and take down Crates on this instance.</p>
           </div>
-          <UButton to="/admin" icon="i-lucide-settings" variant="ghost" color="neutral" size="sm" label="Settings" />
+          <UButton to="/admin" icon="i-lucide-settings" color="neutral" size="lg" label="Settings" />
         </div>
-      </template>
 
-      <template v-if="pending">
-        <div v-for="i in 4" :key="i" class="grid grid-cols-[1fr_100px_100px_80px] gap-2 py-2">
+        <div v-if="pending" v-for="i in 4" :key="i" class="grid grid-cols-[1fr_100px_100px_80px] gap-2 py-2">
           <USkeleton class="h-5" />
           <USkeleton class="h-5" />
           <USkeleton class="h-5" />
           <USkeleton class="h-5" />
         </div>
-      </template>
 
-      <template v-else-if="!shareList?.length">
-        <p class="text-sm text-muted text-center py-8">No Crates yet</p>
-      </template>
+        <p v-if="!shareList?.length" class="text-base text-white/80 text-center py-8">No Crates yet</p>
 
-      <template v-else>
-        <div class="grid grid-cols-[1fr_100px_100px_80px] border-b pb-2 mb-1">
-          <span class="text-sm font-semibold ml-2">Crate</span>
-          <span class="text-sm font-semibold">Files</span>
-          <span class="text-sm font-semibold">Status</span>
-          <span class="text-sm font-semibold text-right mr-2">Actions</span>
+        <div v-else class="grid grid-cols-[1fr_100px_100px_80px] border-b pb-2 mb-1">
+          <span class="text-xl">Crate</span>
+          <span class="text-xl">Files</span>
+          <span class="text-xl">Status</span>
+          <span class="text-xl text-right mr-2">Actions</span>
         </div>
         <div
           v-for="share in shareList"
@@ -37,33 +29,42 @@
           class="grid grid-cols-[1fr_100px_100px_80px] items-center py-2 border-b last:border-0"
         >
           <div class="min-w-0 pr-2">
-            <p class="text-sm font-medium truncate flex items-center gap-1.5">
-              <UIcon v-if="share.is_reverse" name="i-lucide-inbox" class="shrink-0" />
-              <UIcon v-if="share.has_password" name="i-lucide-lock" class="shrink-0 text-muted" />
+            <p class="text-base truncate flex items-center gap-1.5">
+              <UIcon v-if="share.is_reverse" name="i-lucide-inbox" class="shrink-0 text-white/80" />
+              <UIcon v-if="share.has_password" name="i-lucide-lock" class="shrink-0 text-white/80" />
               {{ share.name || share.token }}
             </p>
-            <p class="text-xs text-muted truncate">/s/{{ share.token }} · created {{ new Date(share.created_at).toLocaleDateString() }}</p>
+            <p class="text-sm text-white/60 truncate">/s/{{ share.token }} · created {{ new Date(share.created_at).toLocaleDateString() }}</p>
           </div>
-          <span class="text-sm text-muted">{{ share.file_count }} · {{ formatSize(share.total_size) }}</span>
-          <span class="text-sm text-muted">{{ statusLabel(share) }}</span>
+          <span class="text-sm text-white/80">{{ share.file_count }} · {{ formatSize(share.total_size) }}</span>
+          <span class="text-sm text-white/80">{{ statusLabel(share) }}</span>
           <div class="flex justify-end">
             <UButton
 			  data-test="share-delete-button"
               icon="i-lucide-trash-2"
               variant="ghost"
               color="error"
-              size="sm"
+              size="md"
+			  class="mr-5"
               :loading="deletingId === share.id"
               @click="confirmDelete(share)"
             />
           </div>
         </div>
-      </template>
-    </UCard>
 
-    <UModal v-model:open="isConfirmOpen" title="Delete this Crate?" description="This permanently removes the Crate and its files. This can't be undone.">
+    <UModal
+	v-model:open="isConfirmOpen"
+	title="Delete this Crate?"
+	description="This permanently removes the Crate and its files. This can't be undone."
+	class="bg-bg"
+	:ui="{ 
+		title: 'text-xl',
+		description: 'text-white/80 text-base',
+		header: 'border-b border-border',
+		footer: 'border-t border-border'
+	}" >
       <template #footer>
-        <UButton label="Cancel" variant="ghost" color="neutral" @click="isConfirmOpen = false" />
+        <UButton label="Cancel" color="neutral" @click="isConfirmOpen = false" />
         <UButton label="Delete" color="error" data-test="confirm-delete-button" :loading="deletingId !== null" @click="doDelete" />
       </template>
     </UModal>
