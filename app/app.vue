@@ -2,7 +2,8 @@
   <UApp>
     <NuxtRouteAnnouncer />
 
-    <UHeader :ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg" :toggle="false">
+    <UHeader 
+	:ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg" :toggle="false">
       <template #left>
         <a href="/" class="text-3xl">
               {{ config?.site_name || "Crateyard" }}
@@ -12,9 +13,19 @@
 		<UTooltip text="Site Config">
 			<UButton to="/admin" icon="i-lucide-cog" color="neutral" />
 		</UTooltip>
-		<UDropdownMenu v-if="config?.allow_reverse_shares" :items="items">
-			<UButton icon="i-lucide-menu" color="neutral" />
-		</UDropdownMenu>
+			<UDropdownMenu
+			v-if="config?.allow_reverse_shares"
+			:items="items"
+			:ui="{
+				content: 'bg-bg border border-white/35',
+				item: [
+				'text-white',
+				'data-highlighted:bg-white/10'
+				],
+				itemLeadingIcon: 'text-white/35'
+			}" >
+				<UButton icon="i-lucide-menu" color="neutral" />
+			</UDropdownMenu>
 	  </template>
     </UHeader>
 
@@ -37,19 +48,34 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui';
 const { data: config } = await useSiteConfig()
+const route = useRoute()
 
-const items = ref<DropdownMenuItem[][]>([
-	[
-		{
-			label: "Pack a Crate",
-			icon: "i-lucide-share",
-			to: "/"
-		},
-		{
-			label: "File collection",
-			icon: "i-lucide-folder-up",
-			to: "/request"
-		}
-	]
+const items = computed<DropdownMenuItem[][]>(() => [
+  [
+    {
+      label: 'Pack a Crate',
+      icon: 'i-lucide-share',
+      to: '/',
+      class: route.path === '/' ? 'bg-white text-bg' : '',
+      ui: {
+        itemLeadingIcon:
+          route.path === '/'
+            ? 'text-bg'
+            : 'text-white/35'
+      }
+    },
+    {
+      label: 'File collection',
+      icon: 'i-lucide-folder-up',
+      to: '/request',
+      class: route.path === '/request' ? 'bg-white text-bg' : '',
+      ui: {
+        itemLeadingIcon:
+          route.path === '/request'
+            ? 'text-bg'
+            : 'text-white/35'
+      }
+    }
+  ]
 ])
 </script>
