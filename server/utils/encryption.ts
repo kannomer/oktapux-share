@@ -30,7 +30,7 @@ export const generateSalt = (): Buffer => randomBytes(SALT_LENGTH)
 export const deriveFileKey = (salt: Buffer, password?: string): Buffer => {
   const secret = getServerSecret()
   const ikm = password ? Buffer.concat([secret, Buffer.from(password, 'utf8')]) : secret
-  return Buffer.from(hkdfSync('sha256', ikm, salt, 'oktapux-file-key', KEY_LENGTH))
+  return Buffer.from(hkdfSync('sha256', ikm, salt, 'crateyard-file-key', KEY_LENGTH))
 }
 
 export const createEncryptCipher = (key: Buffer) => {

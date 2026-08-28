@@ -16,7 +16,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN --mount=type=cache,id=oktapux-pnpm-store,target=/pnpm/store \
+RUN --mount=type=cache,id=crateyard-pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --prefer-offline
 
 # ---- Builder ----
@@ -44,4 +44,4 @@ RUN mkdir -p /app/uploads /app/data
 # Expose internal port
 EXPOSE 3000
 
-CMD ["sh", "-c", "touch /app/data/oktapux.db && ./node_modules/.bin/drizzle-kit migrate && node .output/server/index.mjs"]
+CMD ["sh", "-c", "touch /app/data/crateyard.db && ./node_modules/.bin/drizzle-kit migrate && node .output/server/index.mjs"]

@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
 import type { H3Event } from 'h3'
 
-const COOKIE_PREFIX = 'oktapux-share-auth-'
+const COOKIE_PREFIX = 'crateyard-auth-'
 const COOKIE_TTL_SECONDS = 12 * 60 * 60
 const KEY_LENGTH = 32
 const IV_LENGTH = 12
@@ -16,7 +16,7 @@ const getCookieKey = (): Buffer => {
   if (key.length !== KEY_LENGTH) {
     throw new Error('ENCRYPTION_KEY_SECRET must contain exactly 32 bytes encoded as hex')
   }
-  return createHash('sha256').update('oktapux-share-auth-cookie').update(key).digest()
+  return createHash('sha256').update('crateyard-auth-cookie').update(key).digest()
 }
 
 const getCookieName = (token: string): string =>

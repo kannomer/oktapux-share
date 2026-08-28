@@ -12,7 +12,7 @@ jobs:
         uses: davahome/ghcr-cleanup@v1.1
         with:
           token: ${{ secrets.GHCR_PAT }}
-          package: oktapux-share
+          package: crateyard
           owner: users/kannomer
           minimum_days: 7
           keep_versions: 5

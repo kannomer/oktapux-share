@@ -2,6 +2,13 @@
 
 All notable changes to Crateyard are documented here.
 
+## [1.4.0] - 2026-08-28
+
+### Changed
+- Comprehensive redesign of the Crateyard interface and user experience.
+- Updated layouts, navigation, and visual design across the application.
+- Improved accessibility and responsive behavior.
+
 ## [1.3.0] - 2026-08-23
 
 ### Added
@@ -38,7 +45,9 @@ All notable changes to Crateyard are documented here.
 - SQLite/Drizzle persistence.
 - Docker deployment support.
 
-[1.3.0]: https://github.com/kannomer/oktapux-share/compare/V1.3.0
-[1.2.0]: https://github.com/kannomer/oktapux-share/releases/tag/V.1.2.0
-[1.1.0]: https://github.com/kannomer/oktapux-share/releases/tag/V1.1.0
-[1.0.0]: https://github.com/kannomer/oktapux-share/releases/tag/v1.0.0
+
+[1.4.0]: https://github.com/kannomer/crateyard/releases/tag/V1.4.0
+[1.3.0]: https://github.com/kannomer/crateyard/releases/tag/V1.3.0
+[1.2.0]: https://github.com/kannomer/crateyard/releases/tag/V.1.2.0
+[1.1.0]: https://github.com/kannomer/crateyard/releases/tag/V1.1.0
+[1.0.0]: https://github.com/kannomer/crateyard/releases/tag/v1.0.0

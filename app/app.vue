@@ -36,7 +36,7 @@
     <UFooter>
       <p class="text-white/65 text-sm font-redaction-20">
         Powered by
-		<UButton to="https://github.com/kannomer/oktapux-share" target="_blank" class="hover:text-white text-blue-400" variant="link">
+		<UButton to="https://github.com/kannomer/crateyard" target="_blank" class="hover:text-white text-blue-400" variant="link">
 			Crateyard
 		</UButton>
       </p>

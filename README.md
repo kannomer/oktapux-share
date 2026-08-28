@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/kannomer/oktapux-share/refs/heads/main/public/logo_mini.svg" width="120">
+  <img src="https://raw.githubusercontent.com/kannomer/crateyard/refs/heads/main/public/logo_mini.svg" width="120">
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@ Crateyard uses a single SQLite database and local storage, so you don't need a s
 
 Inspired by [Pingvin Share](https://github.com/stonith404/pingvin-share).
 
-## Why Oktapux?
+## Why Crateyard?
 
 * 🔐 **Encrypted at rest** - Uploaded files are encrypted with AES-256-GCM.
 * 🔗 **Simple sharing** - Generate a link and send it wherever you want.
@@ -131,8 +131,8 @@ Create `docker-compose.yml`:
 ```yaml
 services:
   app:
-    image: ghcr.io/kannomer/oktapux-share:main
-    container_name: oktapux-share
+    image: ghcr.io/kannomer/crateyard:main
+    container_name: crateyard
     ports:
       - "3003:3000"
     volumes:
@@ -184,7 +184,7 @@ So it can run on standard x86 servers as well as many ARM-based systems.
 Clone the repository:
 
 ```bash
-git clone https://github.com/kannomer/oktapux-share.git
+git clone https://github.com/kannomer/crateyard.git
 cd crateyard
 ```
 

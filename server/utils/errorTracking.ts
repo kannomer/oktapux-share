@@ -48,7 +48,7 @@ export const reportError = async (
         }],
       },
       extra: context,
-      tags: { source: 'oktapux-share' },
+      tags: { source: 'crateyard' },
     }
 
     const serializedEvent = JSON.stringify(event)
