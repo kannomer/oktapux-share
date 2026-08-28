@@ -8,12 +8,14 @@
           <UButton to="/admin" icon="i-lucide-settings" color="neutral" size="lg" label="Settings" />
         </div>
 
-        <div v-if="pending" v-for="i in 4" :key="i" class="grid grid-cols-[1fr_100px_100px_80px] gap-2 py-2">
-          <USkeleton class="h-5" />
-          <USkeleton class="h-5" />
-          <USkeleton class="h-5" />
-          <USkeleton class="h-5" />
-        </div>
+		<div v-if="pending">
+			<div v-for="i in 4" :key="i" class="grid grid-cols-[1fr_100px_100px_80px] gap-2 py-2">
+			<USkeleton class="h-5" />
+			<USkeleton class="h-5" />
+			<USkeleton class="h-5" />
+			<USkeleton class="h-5" />
+			</div>
+		</div>
 
         <p v-if="!shareList?.length" class="text-base text-white/80 text-center py-8">No Crates yet</p>
 
