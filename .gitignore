@@ -23,7 +23,7 @@ logs
 .env.*
 !.env.example
 
-oktapux.db
+crateyard.db
 uploads/*
 !uploads/.gitkeep
 # Test coverage output

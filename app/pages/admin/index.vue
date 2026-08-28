@@ -1,22 +1,18 @@
 <template>
-  <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
-    <UCard class="w-full" variant="subtle">
-      <template #header>
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
         <div class="flex items-center justify-between">
           <div>
-            <p class="font-semibold">Instance settings</p>
-            <p class="text-sm text-muted mt-1">Configure how this Oktapux Share instance behaves</p>
+            <p class="font-redaction-35 uppercase text-2xl">Instance settings</p>
+            <p class="text-base text-white/80 mt-1">Configure how this Crateyard instance behaves.</p>
           </div>
           <div class="flex items-center gap-2">
-            <UButton to="/admin/shares" icon="i-lucide-folder-tree" variant="ghost" color="neutral" size="sm" label="Manage shares" />
-            <UButton icon="i-lucide-log-out" variant="ghost" color="neutral" size="sm" label="Log out" @click="logout" />
+            <UButton to="/admin/shares" icon="i-lucide-folder-tree" color="neutral" size="lg" label="Manage crates" />
+            <UButton icon="i-lucide-log-out" color="neutral" size="lg" label="Log out" @click="logout" />
           </div>
         </div>
-      </template>
 
       <USkeleton v-if="pending" class="h-64 w-full" />
       <SettingsForm v-else-if="config" :settings="config" :saving="isSaving" @save="saveConfig" />
-    </UCard>
   </UContainer>
 </template>
 

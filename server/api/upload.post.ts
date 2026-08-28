@@ -19,8 +19,8 @@ export default defineEventHandler(async (event) => {
   const [uploadFields, uploadFiles] = await parseUploadForm(event, config.max_file_size);
 
   if (uploadFiles?.["files"] === undefined || uploadFiles?.["files"].length == 0) {
-    logger.warn({ requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, "Upload request contains no files");
-    throw createError({ statusCode: 400, statusMessage: "Validation failed. No files exist in request" });
+    logger.warn({ requestId: getHeader(event, 'x-request-id') ?? undefined, ip: getClientIp(event) }, "Collection contains no files");
+    throw createError({ statusCode: 400, statusMessage: "Validation failed. No files exist in collection" });
   }
 
   let token = nanoid();
@@ -80,11 +80,11 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!config.allow_passwordless_shares && !password) {
-    throw createError({ statusCode: 400, statusMessage: "This server requires a password on all shares" });
+    throw createError({ statusCode: 400, statusMessage: "This server requires a password on all Crates" });
   }
 
   if (!config.allow_permanent_shares && expiryType === "permanent") {
-    throw createError({ statusCode: 400, statusMessage: "Permanent shares are disabled on this server" });
+    throw createError({ statusCode: 400, statusMessage: "Permanent Crates are disabled on this server" });
   }
 
   if (config.max_expiry_days && expiryType === "date") {
@@ -121,11 +121,11 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 409, statusMessage: "This URL is taken" });
     }
     recordError(err, { operation: 'create-share' });
-    logger.error({ err, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to create share');
-    throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
+    logger.error({ err, requestId: getHeader(event, 'x-request-id') ?? undefined }, 'Failed to create Crate');
+    throw createError({ statusCode: 500, statusMessage: "Failed to create Crate" });
   }
   if (!share) {
-    throw createError({ statusCode: 500, statusMessage: "Failed to create share" });
+    throw createError({ statusCode: 500, statusMessage: "Failed to create Crate" });
   }
 
   const storedFiles: StoredFile[] = []

@@ -2,22 +2,30 @@
   <UApp>
     <NuxtRouteAnnouncer />
 
-    <UHeader :ui="{ container: 'px-4 max-w-none' }">
+    <UHeader 
+	:ui="{ container: 'px-4 max-w-none', root: 'border-b border-border' }" class="font-redaction-35 bg-bg" :toggle="false">
       <template #left>
-        <a href="/">
-          <div class="flex items-center gap-2">
-              <img src="/logo_circle.svg" class="w-8 h-8">
-              <span class="font-bold text-lg">{{ config?.site_name || "Oktapux" }}</span>
-          </div>
+        <a href="/" class="text-3xl">
+              {{ config?.site_name || "Crateyard" }}
         </a>
       </template>
 	  <template #right>
 		<UTooltip text="Site Config">
-			<UButton to="/admin" icon="i-lucide-cog" color="neutral" variant="soft" />
+			<UButton to="/admin" icon="i-lucide-cog" color="neutral" />
 		</UTooltip>
-		<UDropdownMenu v-if="config?.allow_reverse_shares" :items="items">
-			<UButton icon="i-lucide-menu" color="neutral" variant="soft" />
-		</UDropdownMenu>
+			<UDropdownMenu
+			v-if="config?.allow_reverse_shares"
+			:items="items"
+			:ui="{
+				content: 'bg-bg border border-white/35',
+				item: [
+				'text-white',
+				'data-highlighted:bg-white/10'
+				],
+				itemLeadingIcon: 'text-white/35'
+			}" >
+				<UButton icon="i-lucide-menu" color="neutral" />
+			</UDropdownMenu>
 	  </template>
     </UHeader>
 
@@ -26,10 +34,10 @@
     </UMain>
 
     <UFooter>
-      <p class="text-muted text-sm">
+      <p class="text-white/65 text-sm font-redaction-20">
         Powered by
-		<UButton to="https://github.com/kannomer/oktapux-share" target="_blank" class="hover:text-white text-blue-400" variant="link">
-			Oktapux Share
+		<UButton to="https://github.com/kannomer/crateyard" target="_blank" class="hover:text-white text-blue-400" variant="link">
+			Crateyard
 		</UButton>
       </p>
     </UFooter>
@@ -40,19 +48,34 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui';
 const { data: config } = await useSiteConfig()
+const route = useRoute()
 
-const items = ref<DropdownMenuItem[][]>([
-	[
-		{
-			label: "Share",
-			icon: "i-lucide-share",
-			to: "/"
-		},
-		{
-			label: "Reverse Share",
-			icon: "i-lucide-folder-up",
-			to: "/request"
-		}
-	]
+const items = computed<DropdownMenuItem[][]>(() => [
+  [
+    {
+      label: 'Pack a Crate',
+      icon: 'i-lucide-share',
+      to: '/',
+      class: route.path === '/' ? 'bg-white text-bg' : '',
+      ui: {
+        itemLeadingIcon:
+          route.path === '/'
+            ? 'text-bg'
+            : 'text-white/35'
+      }
+    },
+    {
+      label: 'File collection',
+      icon: 'i-lucide-folder-up',
+      to: '/request',
+      class: route.path === '/request' ? 'bg-white text-bg' : '',
+      ui: {
+        itemLeadingIcon:
+          route.path === '/request'
+            ? 'text-bg'
+            : 'text-white/35'
+      }
+    }
+  ]
 ])
 </script>

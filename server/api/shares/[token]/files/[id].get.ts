@@ -7,11 +7,11 @@ import { reserveDownloadSlot } from '../../../../utils/download-limit'
 
 // (This replaces the old `/api/files/[id]` route, which trusted a raw
 // integer file id with no share-token check at all. Since file ids are
-// sequential and every share's file listing exposes them, that meant
+// sequential and every Crate's file listing exposes them, that meant
 // anyone could enumerate ids 1, 2, 3... and pull files out of *any*
-// passwordless share on the instance - without ever seeing that share's
+// passwordless Crate on the instance - without ever seeing that Crate's
 // actual link. That route has been removed; this one requires the token
-// to match the file's actual parent share.)
+// to match the file's actual parent Crate.)
 export default defineEventHandler(async (event) => {
   const token = getRouterParam(event, "token")
   const rawId = getRouterParam(event, "id")
@@ -21,19 +21,19 @@ export default defineEventHandler(async (event) => {
   if (isNaN(fileId)) throw createError({ statusCode: 400, message: "Invalid file ID" })
 
   const [share] = await db.select().from(shares).where(eq(shares.token, token))
-  if (!share) throw createError({ statusCode: 404, message: "Share not found" })
+  if (!share) throw createError({ statusCode: 404, message: "Crate not found" })
 
   if (share.expires_at && new Date() > share.expires_at) {
-    throw createError({ statusCode: 410, message: "Share has expired" })
+    throw createError({ statusCode: 410, message: "Crate has expired" })
   }
   if (share.max_downloads && share.download_count >= share.max_downloads) {
-    throw createError({ statusCode: 410, message: "Share has expired" })
+    throw createError({ statusCode: 410, message: "Crate has expired" })
   }
 
   const providedPassword = await verifySharePassword(event, share.password_hash, share.token, share.expires_at)
 
   // The check that was missing before: the file must actually belong to
-  // the share named by the token, not just exist somewhere in the DB.
+  // the Crate named by the token, not just exist somewhere in the DB.
   const [file] = await db.select().from(files).where(and(eq(files.id, fileId), eq(files.share_id, share.id)))
   if (!file) throw createError({ statusCode: 404, message: "File not found" })
 
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, "X-Content-Type-Options", "nosniff")
 
   const reserved = await reserveDownloadSlot(share.id)
-  if (!reserved) throw createError({ statusCode: 410, message: "Share has expired" })
+  if (!reserved) throw createError({ statusCode: 410, message: "Crate has expired" })
 
   const key = deriveFileKey(Buffer.from(file.salt, 'hex'), providedPassword)
   const decipher = createDecryptCipher(key, Buffer.from(file.iv, 'hex'), Buffer.from(file.auth_tag, 'hex'))

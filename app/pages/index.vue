@@ -1,26 +1,75 @@
-<!-- TODO: valid toast error messages. For example, if the server has a capped expiry date and the share
-	 the user is trying to create exceeds the cap, it shows the generic slug error. -->
 <template>
-  <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg">
     <!-- File upload card -->
-    <UCard :title="config?.site_name || 'Create a share'" description="Share your files across the globe" class="w-full" variant="subtle">
+    <div class="w-full">
+		<div class="mb-8 text-center">
+			<h1 class="font-redaction-35 text-4xl uppercase text-white">
+				Pack a Crate
+			</h1>
+			<p class="mt-2 text-xl text-white/80">
+			Pack files. Share far.
+			</p>
+		</div>
       <UFileUpload
 	    v-model="fileUploadValue"
         multiple
-        icon="i-lucide-cloud-upload"
-        label="Select or drop your files here" 
+		icon="i-lucide-cloud-upload"
+        label="Drop your files here" 
         :description="`(Max. ${formatSize(config?.max_file_size ?? 0)})`"
         layout="list"
-        :interactive="true" 
-        class="w-full min-h-48"
+        :interactive="false"
+        class="w-full min-h-100"
         color="neutral"
-      />
-      
-      <div class="flex justify-center mt-6 gap-2">
-        <UButton type="button" label="Share" icon="i-lucide-share" color="neutral" size="xl" @click="openExpirationModal"/>
+		highlight
+		:ui="{
+			label: 'text-2xl',
+			description: 'text-xl text-white/65',
+			base: 'bg-bg',
+			file: 'border-0',
+			fileLeadingAvatar: 'bg-transparent',
+			fileName: 'text-lg',
+			fileSize: 'text-sm',
+			avatar: 'bg-transparent'
+		}"
+      >
+	  <template #actions="{ open }">
+		<UButton
+			label="Or select files"
+			color="neutral"
+			size="xl"
+			class="px-10 py-3 text-xl"
+			:ui="{
+				base: 'border border-border hover:bg-bg hover:text-white focus:bg-bg focus:text-white'
+			}"
+			@click="open()"
+      	/>
+		</template>
+
+		<template #files-bottom="{ removeFile, files }">
+		<UButton
+			v-if="files?.length"
+			label="Remove all files"
+			color="neutral"
+			size="xl"
+			@click="removeFile()"
+		/>
+		</template>
+  	  </UFileUpload>
+	  <div class="flex justify-center mt-6 gap-2">
+        <UButton
+		v-if="fileUploadValue?.length"
+		type="button"
+		label="Send Crate"
+		color="neutral"
+		size="xl"
+		class="px-10 py-3 text-xl"
+		:ui="{
+			base: 'border border-border hover:bg-bg hover:text-white focus:bg-bg focus:text-white'
+		}"
+		@click="openExpirationModal"/>
       </div>
-    </UCard>
-    
+	</div>
+      
     <ShareExpirationModal
       v-model:open="isModalOpen"
       v-model:expiry-type="expiryType"
@@ -37,28 +86,45 @@
     />
 
     <!-- Display share link -->
-    <UModal v-model:open="isShareModalOpen" title="Your share is ready">
+    <UModal
+	v-model:open="isShareModalOpen"
+	title="Your Crate is ready"
+	class="bg-bg"
+	:ui="{
+		title: 'text-2xl',
+		header: 'border-b border-border',
+    	footer: 'border-t border-border'
+		} ">
       <template #body>
-		<div class="block justify-center">
-			<p class="font-semibold">Here's your share link:</p>
-			<UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
-			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-xs text-muted mt-2">
+		<div class="block justify-center text-lg">
+			<p class="text-xl">Here's your Crate link:</p>
+			<UInput
+			:model-value="shareUrl ?? ''"
+			readonly
+			size="xl"
+			class="w-full mt-2"
+			color="neutral"
+			:ui="{
+				base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35'
+			}"
+			/>
+			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-base text-white/80 mt-2">
 			Expires after {{ submittedInfo?.maxDownloads }} downloads
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'date'" class="text-xs text-muted mt-2">
+			<p v-if="submittedInfo?.expiryType === 'date'" class="text-base text-white/80 mt-2">
 			Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-xs text-muted mt-2">
-			This share never expires
+			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-base text-white/80 mt-2">
+			This Crate never expires
 			</p>
-			<p v-if="submittedInfo?.isPasswordProtected" class="text-xs text-muted mt-2">
+			<p v-if="submittedInfo?.isPasswordProtected" class="text-base text-white/80 mt-2">
 			Password protected
 			</p>
 	  	</div>
       </template>
       <template #footer>
-        <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
-        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="Share QR Code" size="lg" variant="solid" @click="() => { qrCodeModal = true }" />
+        <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="xl" color="neutral" @click="copyToClipboard(shareUrl ?? '')"/>
+        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="QR Code" size="xl" color="neutral" @click="() => { qrCodeModal = true }" />
       </template>
     </UModal>
     <ShareQrModal
@@ -136,7 +202,7 @@ const { copyToClipboard } = useCopyToClipboard()
 // error, but this is UX only; the server re-checks independently.
 const attemptSubmit = () => {
   if (config.value?.allow_passwordless_shares === false && !sharePassword.value) {
-    useToast().add({ title: "Password required", description: "This server requires a password on every share", color: "warning" })
+    useToast().add({ title: "Password required", description: "This server requires a password on every Crate", color: "warning" })
     return
   }
   handleSubmit(() => isModalOpen.value = false)

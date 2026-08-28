@@ -3,7 +3,7 @@ import { shares, settings } from '../db/schema';
 import { nanoid } from "nanoid";
 import { expiryDateSchema, expiryTypeSchema, passwordSchema } from '../utils/validation';
 
-// Creates a reverse share (a "file request" link). No files are attached at
+// Creates a file collection (a "file request" link). No files are attached at
 // creation time, files arrive later from submitters via
 // POST /api/reverse/[uploadToken]. Two tokens get generated: `token` is the
 // private owner link (used at /s/[token] to view collected files later),
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!config.allow_reverse_shares) {
-    throw createError({ statusCode: 403, message: "Reverse shares are disabled on this server" })
+    throw createError({ statusCode: 403, message: "Collections are disabled on this server" })
   }
 
   const body = await readBody(event)
@@ -51,11 +51,11 @@ export default defineEventHandler(async (event) => {
   // max_file_size isn't checked here,
   // that's enforced later in the reverse-upload endpoint.
   if (!config.allow_passwordless_shares && !password) {
-    throw createError({ statusCode: 400, message: "This server requires a password on all shares" })
+    throw createError({ statusCode: 400, message: "This server requires a password on all Crates" })
   }
 
   if (!config.allow_permanent_shares && expiryType === "permanent") {
-    throw createError({ statusCode: 400, message: "Permanent shares are disabled on this server" })
+    throw createError({ statusCode: 400, message: "Permanent Crates are disabled on this server" })
   }
 
   if (config.max_expiry_days && expiryType === "date") {
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     password_hash: passwordHash
   }).returning()
   if (!share) {
-    throw createError({ statusCode: 500, message: "Failed to create reverse share" });
+    throw createError({ statusCode: 500, message: "Failed to create Collection" });
   }
 
   return { token: share.token, upload_token: share.upload_token };

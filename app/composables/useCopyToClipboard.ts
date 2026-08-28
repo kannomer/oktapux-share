@@ -1,7 +1,7 @@
 export default function(){
     const toast = useToast()
 
-    const copyToClipboard = async (text?: string | null, label: string = 'share link') => {
+    const copyToClipboard = async (text?: string | null, label: string = 'Crate link') => {
         if (!text) return
         try {
             await navigator.clipboard.writeText(text)

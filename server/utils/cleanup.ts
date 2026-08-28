@@ -4,9 +4,9 @@ import { lt, lte, and, isNotNull, inArray, or } from 'drizzle-orm'
 import { unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 
-// Deletes one or more shares, their file rows, and the encrypted blobs on
-// disk. Shared by the cleanup scheduler (expired shares) and the admin
-// "delete share" endpoint.
+// Deletes one or more Crates, their file rows, and the encrypted blobs on
+// disk. Shared by the cleanup scheduler (expired Crates) and the admin
+// "delete Crate" endpoint.
 export const deleteShares = async (shareIds: number[]): Promise<{ shareCount: number; fileCount: number }> => {
     if (!shareIds.length) return { shareCount: 0, fileCount: 0 }
 
@@ -33,11 +33,11 @@ export const runCleanup = async () => {
             and(isNotNull(shares.max_downloads), lte(shares.max_downloads, shares.download_count))
         )
     )
-    if(!expiredShares.length){ console.log("No expired shares found"); return }
+    if(!expiredShares.length){ console.log("No expired Crates found"); return }
 
     const { shareCount, fileCount } = await deleteShares(expiredShares.map(share => share.id))
 
-    console.log(`Cleanup complete. Removed ${shareCount} share(s) and ${fileCount} file(s)`)
+    console.log(`Cleanup complete. Removed ${shareCount} Crate(s) and ${fileCount} file(s)`)
 }
 
 export const startCleanupScheduler = (intervalMs: number = 1000 * 60 * 15) => {

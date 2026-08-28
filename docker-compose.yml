@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    container_name: oktapux-share
+    container_name: crateyard
     ports:
       - "3003:3000"
     volumes:

@@ -66,7 +66,7 @@ export default function (form: ReverseFormState) {
       closeModal()
       isReverseShareModalOpen.value = true
     } catch (error: unknown) {
-      toast.add({ title: 'Failed to create request', description: 'Please try again later.', color: 'error' })
+      toast.add({ title: 'Failed to create Collection', description: 'Please try again later.', color: 'error' })
       console.error(error)
     } finally {
       isLoading.value = false

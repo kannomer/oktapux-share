@@ -1,105 +1,112 @@
 <template>
-    <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
-        <UCard v-if="isLocked" class="w-full" variant="subtle">
-            <template #header>
-                <p class="font-semibold flex items-center gap-2">
-                    <UIcon name="i-lucide-lock" />
-                    Password required
-                </p>
-                <p class="text-sm text-muted mt-1">This share is protected. Enter the password to view its files.</p>
-            </template>
-            <UInput
-                v-model="passwordInput"
-                type="password"
-                placeholder="Password"
-                icon="i-lucide-lock"
-                class="w-full"
-                @keyup.enter="submitPassword"
-            />
-            <p v-if="hasAttempted" class="text-xs text-error mt-2">Incorrect password. Please try again.</p>
-            <template #footer>
-                <UButton label="Unlock" icon="i-lucide-unlock" :loading="pending" @click="submitPassword" />
-            </template>
-        </UCard>
+    <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
+        <div v-if="isLocked">
+            <p class="flex items-center gap-2 text-2xl font-redaction-35 uppercase">
+                Password required
+            </p>
+            <p class="text-lg text-white/80 mb-10">This crate is protected. Enter the password to view its files.</p>
+			<UInput
+				v-model="passwordInput"
+				type="password"
+				placeholder="Password"
+				icon="i-lucide-lock"
+				color="neutral"
+				class="w-full mb-5"
+				:ui="{
+					base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+					leadingIcon: 'text-white/35'
+  				}"
+				@keyup.enter="submitPassword" />
+			<p v-if="hasAttempted" class="text-sm text-error mt-2">Incorrect password. Please try again.</p>
+			<div class="flex justify-center">
+				<UButton
+				label="Unlock"
+				size="md"
+				icon="i-lucide-unlock"
+				:loading="pending"
+				color="neutral"
+				class="text-base"
+				@click="submitPassword" />
+			</div>
+        </div>
 
-        <UCard v-else class="w-full" variant="subtle">
-            <div v-if="shareData?.is_reverse" class="flex items-center justify-between gap-2 mb-4 p-3 rounded-lg bg-elevated">
-                <div class="min-w-0">
-                    <p class="text-sm font-semibold flex items-center gap-1.5">
-                        <UIcon name="i-lucide-inbox" />
-                        Share this link to collect files
-                    </p>
-                    <p class="text-xs text-muted truncate mt-0.5">{{ uploadPageUrl }}</p>
-                </div>
-                <UButton
-                    icon="i-lucide-link"
-                    variant="ghost"
-                    color="neutral"
-                    size="sm"
-                    @click="copyToClipboard(uploadPageUrl, 'collection link')"
-                />
+		<div v-else>
+            <div v-if="shareData?.is_reverse">
+				<div class="flex items-center justify-between gap-2 mb-4 rounded-lg">
+					<div class="min-w-0">
+						<p class="text-lg flex items-center gap-1.5">
+							<UIcon name="i-lucide-inbox" />
+							Share this link to collect files
+						</p>
+						<p class="text-sm text-white/60 truncate">{{ uploadPageUrl }}</p>
+					</div>
+					<UButton
+						icon="i-lucide-link"
+						variant="ghost"
+						color="neutral"
+						size="md"
+						@click="copyToClipboard(uploadPageUrl, 'collection link')"
+					/>
+				</div>
+				<USeparator class="mt-5 mb-5" />
             </div>
-            <template #header>
-                <USkeleton v-if="pending" class="h-5 w-62.5" />
-                <p v-else-if="errorMessage">{{ errorMessage }}</p>
-                <div v-else-if="data" class="flex items-center justify-between">
-                    <div>
-                        <p v-if="shareData?.name" class="font-semibold">{{ shareData.name }}</p>
-                        <p v-else class="font-semibold">Share details</p>
-                        <p v-if="shareData?.description" class="text-sm text-muted mt-1">{{ shareData.description }}</p>
-                        <p class="text-sm text-muted mt-1">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <UTooltip text="Copy share link">
-                            <UButton
-                                icon="i-lucide-link"
-                                variant="ghost"
-                                color="neutral"
-                                size="sm"
-                                @click="copyToClipboard(sharePageUrl)"
-                            />
-                        </UTooltip>
-                        <UTooltip text="Download share as zip">
-                            <UButton
-                                icon="i-lucide-folder-down"
-                                variant="ghost"
-                                color="neutral"
-                                size="sm"
-                                :href="shareDownloadUrl"
-                                target="_blank"
-                            />
-                        </UTooltip>
-                    </div>
+            <USkeleton v-if="pending" class="h-5 w-62.5" />
+            <p v-else-if="errorMessage">{{ errorMessage }}</p>
+            <div v-else-if="data" class="flex items-center justify-between">
+                <div class="text-lg text-white">
+                    <p v-if="shareData?.name">{{ shareData.name }}</p>
+                    <p v-else class="text-2xl font-redaction-35 uppercase">Crate details</p>
+                    <p v-if="shareData?.description" class=" text-white/80 mt-2">{{ shareData.description }}</p>
+                    <p class=" text-white/80 mb-5">{{ fileData?.length === 1 ? '1 file' : `${fileData?.length} files` }} · {{ totalSize }}</p>
                 </div>
-            </template>
-            <template v-if="pending">
+                <div class="flex items-center gap-1">
+                    <UTooltip text="Copy crate link">
+                        <UButton
+                            icon="i-lucide-link"
+                            color="neutral"
+                            size="lg"
+                            @click="copyToClipboard(sharePageUrl)"
+                        />
+                    </UTooltip>
+                    <UTooltip text="Download crate as zip">
+                        <UButton
+                            icon="i-lucide-folder-down"
+                            color="neutral"
+                            size="lg"
+                            :href="shareDownloadUrl"
+                            target="_blank"
+                        />
+                    </UTooltip>
+                </div>
+            </div>
+			<div v-if="pending">
                 <div v-for="i in 3" :key="i" class="grid grid-cols-[1fr_120px_120px] gap-2 py-2">
                     <USkeleton class="h-5" />
                     <USkeleton class="h-5" />
                     <USkeleton class="h-5" />
                 </div>
-            </template>
+            </div>
             <div v-else-if="data">
                 <!-- Table header -->
-                <div class="grid grid-cols-[1fr_120px_120px] border-b pb-2 mb-1">
-                    <span class="text-sm font-semibold ml-2">Name</span>
-                    <span class="text-sm font-semibold">Size</span>
-                    <span class="text-sm font-semibold text-right mr-2">Actions</span>
+                <div class="grid grid-cols-[1fr_120px_120px] border-b pb-2 mb-1 text-xl">
+                    <span>Name</span>
+                    <span>Size</span>
+                    <span class="text-right mr-2">Actions</span>
                 </div>
                 <!-- File rows -->
                 <div
                     v-for="file in fileData"
                     :key="file.id"
-                    class="grid grid-cols-[1fr_120px_120px] items-center py-2 border-b last:border-0">
-                    <span class="text-sm truncate pr-4">{{ file.original_name }}</span>
-                    <span class="text-sm text-muted">{{ formatSize(file.size) }}</span>
+                    class="grid grid-cols-[1fr_120px_120px] items-center py-2 border-b last:border-0 text-base">
+                    <span class="truncate pr-4">{{ file.original_name }}</span>
+                    <span class="text-white/80">{{ formatSize(file.size) }}</span>
                     <div class="flex justify-end gap-2">
                         <UTooltip v-if="!shareData?.is_password_protected" text="Copy file link">
                             <UButton
                                 icon="i-lucide-link"
                                 variant="ghost"
                                 color="neutral"
-                                size="sm"
+                                size="lg"
                                 @click="copyToClipboard(fileDownloadUrl(token, file.id), 'file link')"
                             />
                         </UTooltip>
@@ -108,7 +115,7 @@
                                 icon="i-lucide-download"
                                 variant="ghost"
                                 color="neutral"
-                                size="sm"
+                                size="lg"
                                 :href="fileDownloadUrl(token, file.id)"
                                 target="_blank"
                             />
@@ -116,15 +123,13 @@
                     </div>
                 </div>
             </div>
-            <template #footer>
                 <USkeleton v-if="pending" class="h-5 w-full" />
-                <p v-else-if="expiresAt" class="text-sm text-muted">{{ expiresAt }}</p>
-                <p v-else-if="shareData?.max_downloads" class="text-sm text-muted">
+                <p v-else-if="expiresAt" class="text-base text-white/60">{{ expiresAt }}</p>
+                <p v-else-if="shareData?.max_downloads" class="text-base text-white/60">
                     {{ shareData.download_count }} of {{ shareData.max_downloads }} downloads used
                 </p>
-                <p v-else class="text-sm text-muted">This share never expires</p>
-            </template>
-        </UCard>
+                <p v-else class="text-base text-white/60">This crate never expires</p>
+        </div>
     </UContainer>
 </template>
 
@@ -163,8 +168,8 @@
 
     const errorMessage = computed(() => {
         if (!error.value || isLocked.value) return null
-        if (error.value.statusCode == 404) return "Share not found"
-        if (error.value.statusCode == 410) return "This share has expired"
+        if (error.value.statusCode == 404) return "Crate not found"
+        if (error.value.statusCode == 410) return "This crate has expired"
         return "Something went wrong"
     })
     const shareData = computed(() => data.value?.share)

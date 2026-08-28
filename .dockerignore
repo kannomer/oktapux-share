@@ -10,7 +10,7 @@ node_modules
 # Local data — mounted as volumes in production
 
 uploads
-oktapux.db
+crateyard.db
 
 # Git
 

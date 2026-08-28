@@ -11,9 +11,9 @@ export default defineEventHandler(async (event) => {
     if(!token) throw createError({ statusCode: 400, message: "Token missing"});
 
     const [share] = await db.select().from(shares).where(eq(shares.token, token));
-    if(!share) throw createError({ statusCode: 404, message: "Share not found"});
-    if(share.expires_at && new Date() > share.expires_at) throw createError({ statusCode: 410, message: "Share has expired" });
-    if(share.max_downloads && share.download_count >= share.max_downloads)throw createError({ statusCode: 410, message: "Share has expired" });
+    if(!share) throw createError({ statusCode: 404, message: "Crate not found"});
+    if(share.expires_at && new Date() > share.expires_at) throw createError({ statusCode: 410, message: "Crate has expired" });
+    if(share.max_downloads && share.download_count >= share.max_downloads)throw createError({ statusCode: 410, message: "Crate has expired" });
 
     const providedPassword = await verifySharePassword(event, share.password_hash, share.token, share.expires_at)
 
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     setResponseHeader(event, "X-Content-Type-Options", "nosniff");
 
     const reserved = await reserveDownloadSlot(share.id)
-    if (!reserved) throw createError({ statusCode: 410, message: "Share has expired" });
+    if (!reserved) throw createError({ statusCode: 410, message: "Crate has expired" });
 
     const archive = archiver("zip", { zlib: { level: 6 } })
     archive.pipe(event.node.res)

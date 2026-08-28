@@ -1,50 +1,75 @@
 <template>
-  <UContainer class="flex justify-center pt-8 w-full max-w-2xl">
-    <UCard class="w-full" variant="subtle">
-      <template #header>
-        <p class="font-semibold">Set up Oktapux Share</p>
-        <p class="text-sm text-muted mt-1">Create the admin account to finish setting up this instance</p>
-      </template>
+  <UContainer class="w-full pt-8 px-4 sm:px-6 lg:px-8 font-redaction text-lg text-white">
+        <p class="font-redaction-35 text-center uppercase text-4xl">Set up Crateyard</p>
+        <p class="text-lg text-white/80 text-center mb-10">Create the admin account to finish setting up this instance.</p>
 
-      <div class="flex flex-col gap-2 mt-2">
-        <UInput v-model="username" placeholder="Username" icon="i-lucide-user" />
-        <UInput v-model="password" type="password" placeholder="Password" icon="i-lucide-lock" />
-        <UInput v-model="confirmPassword" type="password" placeholder="Confirm password" icon="i-lucide-lock" />
+      <div class="flex flex-col gap-2 mb-10">
+        <UInput
+		v-model="username"
+		placeholder="Username"
+		icon="i-lucide-user"
+		color="neutral"
+		size="lg"
+		class="mb-2"
+		:ui="{
+    		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+			leadingIcon: 'text-white/35'
+  		}" />
+        <UInput
+		v-model="password"
+		type="password"
+		placeholder="Password"
+		icon="i-lucide-lock"
+		color="neutral"
+		size="lg"
+		class="mb-2"
+		:ui="{
+    		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+			leadingIcon: 'text-white/35'
+  		}" />
+        <UInput
+		v-model="confirmPassword"
+		type="password"
+		placeholder="Confirm password"
+		icon="i-lucide-lock" 
+		color="neutral"
+		size="lg"
+		:ui="{
+    		base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35',
+			leadingIcon: 'text-white/35'
+  		}" />
       </div>
 
       <div v-if="password && !strength.isStrong" class="mt-3">
-        <p class="text-xs text-warning mb-1">Your password is missing:</p>
-        <ul class="text-xs text-muted list-disc list-inside">
+        <p class="text-sm text-warning mb-1">Your password is missing:</p>
+        <ul class="text-sm text-white/80 list-disc list-inside">
           <li v-for="issue in strength.issues" :key="issue">{{ issue }}</li>
         </ul>
         <UButton
           v-if="!bypassStrength"
           label="Use this password anyway"
           variant="link"
-          size="xs"
+          size="sm"
           color="neutral"
-          class="px-0 mt-1"
+          class="px-0 mt-1 text-white/80 text-sm"
           @click="() => { bypassStrength = true }"
         />
       </div>
 
-      <p v-if="passwordConfirmationMissing" class="text-xs text-warning mt-2">Please confirm your password</p>
-      <p v-else-if="passwordsMismatch" class="text-xs text-error mt-2">Passwords don't match</p>
+      <p v-if="passwordConfirmationMissing" class="text-sm text-warning mt-2">Please confirm your password</p>
+      <p v-else-if="passwordsMismatch" class="text-sm text-error mt-2">Passwords don't match</p>
 
-      <template #footer>
         <div class="flex justify-center w-full">
           <UButton
             label="Create admin account"
-            icon="i-lucide-shield-check"
             size="xl"
             color="neutral"
+			class="text-xl"
             :loading="isLoading"
             :disabled="!canSubmit"
             @click="submit"
           />
         </div>
-      </template>
-    </UCard>
   </UContainer>
 </template>
 
