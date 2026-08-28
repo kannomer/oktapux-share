@@ -18,7 +18,7 @@
 
 ## What is Crateyard?
 
-Crateyard is a lightweight, self-hosted alternative to cloud file-sharing services.
+Crateyard (Formerly Oktapux-Share) is a lightweight, self-hosted alternative to cloud file-sharing services.
 
 Upload one or more files, pack a Crate, optionally protect it with a password, and decide when the link should stop working.
 
