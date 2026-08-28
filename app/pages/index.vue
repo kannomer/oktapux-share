@@ -86,28 +86,45 @@
     />
 
     <!-- Display share link -->
-    <UModal v-model:open="isShareModalOpen" title="Your Crate is ready" :ui="{ title: 'text-xl'}">
+    <UModal
+	v-model:open="isShareModalOpen"
+	title="Your Crate is ready"
+	class="bg-bg"
+	:ui="{
+		title: 'text-2xl',
+		header: 'border-b border-border',
+    	footer: 'border-t border-border'
+		} ">
       <template #body>
-		<div class="block justify-center">
-			<p class="text-lg">Here's your Crate link:</p>
-			<UInput :model-value="shareUrl ?? ''" readonly class="w-full mt-2"/>
-			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-sm text-white/80 mt-2">
+		<div class="block justify-center text-lg">
+			<p class="text-xl">Here's your Crate link:</p>
+			<UInput
+			:model-value="shareUrl ?? ''"
+			readonly
+			size="xl"
+			class="w-full mt-2"
+			color="neutral"
+			:ui="{
+				base: 'bg-bg text-white placeholder:text-white/70 ring ring-inset ring-white/35'
+			}"
+			/>
+			<p v-if="submittedInfo?.expiryType === 'downloads'" class="text-base text-white/80 mt-2">
 			Expires after {{ submittedInfo?.maxDownloads }} downloads
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'date'" class="text-sm text-white/80 mt-2">
+			<p v-if="submittedInfo?.expiryType === 'date'" class="text-base text-white/80 mt-2">
 			Expires on {{ new Date(submittedInfo?.expiryDate ?? "").toLocaleString() }}
 			</p>
-			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-sm text-white/80 mt-2">
+			<p v-if="submittedInfo?.expiryType === 'permanent'" class="text-base text-white/80 mt-2">
 			This Crate never expires
 			</p>
-			<p v-if="submittedInfo?.isPasswordProtected" class="text-sm text-white/80 mt-2">
+			<p v-if="submittedInfo?.isPasswordProtected" class="text-base text-white/80 mt-2">
 			Password protected
 			</p>
 	  	</div>
       </template>
       <template #footer>
-        <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="lg" variant="solid" @click="copyToClipboard(shareUrl ?? '')"/>
-        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="QR Code" size="lg" variant="solid" @click="() => { qrCodeModal = true }" />
+        <UButton icon="i-lucide-clipboard-pen" label="Copy to clipboard" size="xl" color="neutral" @click="copyToClipboard(shareUrl ?? '')"/>
+        <UButton v-if="config?.enable_qr_code && qrCodeUrl" icon="i-lucide-qr-code" label="QR Code" size="xl" color="neutral" @click="() => { qrCodeModal = true }" />
       </template>
     </UModal>
     <ShareQrModal
